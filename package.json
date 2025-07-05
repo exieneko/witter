@@ -1,0 +1,17 @@
+{
+  "name": "twitter-api",
+  "description": "",
+  "author": "exieneko",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "pnpm exec tsc"
+  },
+  "license": "MIT",
+  "keywords": [],
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
