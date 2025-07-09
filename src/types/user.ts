@@ -23,7 +23,7 @@ export interface User {
     followers_count: number,
     following_count: number,
     followed: boolean,
-    follow_requested: boolean,
+    follow_requested?: boolean,
     followed_by: boolean,
     job?: string,
     location?: string,

@@ -1,7 +1,26 @@
-import { formatUserLegacy } from './user';
+import { formatEntry, formatTweet } from './tweet';
+import { formatUser, formatUserLegacy } from './user';
 
+import { Entry } from '../types';
 import { Typeahead } from '../types/search';
-import { _Typeahead } from '../types/raw/search';
+import { TimelineTweet } from '../types/tweet';
+import { UserList } from '../types/user';
+import { _Entry } from '../types/raw';
+import { _SearchUserModulesItem, _Typeahead } from '../types/raw/search';
+import { _TimelineTweetItem } from '../types/raw/items';
+
+export const formatSearchEntries = (input: _Entry<_TimelineTweetItem | _SearchUserModulesItem>[]): Entry<TimelineTweet | UserList>[] => {
+    // @ts-ignore
+    return input.map(entry => ({
+        id: entry.entryId,
+        content: entry.content.__typename === 'TimelineTimelineModule' && entry.content.items.at(0)?.item.itemContent.__typename === 'TimelineUser'
+            ? {
+                __type: 'UserList',
+                items: entry.content.items.map(item => item.item.itemContent.__typename === 'TimelineTweet' ? undefined : formatUser(item.item.itemContent.user_results.result)).filter(x => !!x)
+            }
+            : formatEntry(entry as _Entry<_TimelineTweetItem>)
+    }));
+};
 
 export const formatTypeahead = (input: _Typeahead): Typeahead => {
     return {

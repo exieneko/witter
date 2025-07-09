@@ -250,7 +250,7 @@ export interface _VisibilityLimitedTweet {
             url: string
         }
     },
-    tweetInterstitial: {
+    tweetInterstitial?: {
         __typename: 'ContextualTweetIntersitial',
         displayType: 'NonCompliant',
         text: {

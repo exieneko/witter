@@ -181,7 +181,7 @@ export interface _TweetItem {
             result: _Tweet | _VisibilityLimitedTweet | _TweetTombstone
         },
         hasModeratedReplies?: boolean,
-        highlights: {
+        highlights?: {
             textHighlights: {
                 startIndex: number,
                 endIndex: number

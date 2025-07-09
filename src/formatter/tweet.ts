@@ -14,7 +14,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         actions: input.limitedActionResults?.limited_actions,
         blurImages: !!input.mediaVisibilityResults?.blurred_image_interstitial.text.text,
         warningText: input.softInterventionPivot?.text.text,
-        limitedText: input.tweetInterstitial.text
+        limitedText: input.tweetInterstitial?.text
     } : undefined
 
     if (tweet.__typename === 'TweetTombstone') {
@@ -48,12 +48,12 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         // TODO card data
         community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
         created_at: new Date(tweet.legacy.created_at).toISOString(),
-        editing: {
-            allowed_until: new Date(tweet.edit_control.editable_until_msec).toISOString(),
+        editing: tweet.edit_control && tweet.edit_control.editable_until_msec ? {
+            allowed_until: tweet.edit_control.editable_until_msec.toString(),
             eligible: tweet.edit_control.is_edit_eligible,
             remaining_count: Number(tweet.edit_control.edits_remaining),
             tweet_ids: tweet.edit_control.edit_tweet_ids
-        },
+        } : undefined,
         expandable: tweet.note_tweet?.is_expandable || false,
         has_grok_chat_embed: !!tweet.grok_share_attachment,
         has_hidden_replies: hasHiddenReplies || false,
@@ -78,7 +78,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             url: media.media_url_https
         }) satisfies NonNullable<Tweet['media']>[number]),
         muted: false,
-        platform: tweet.source.match(/>Twitter\sfor\s(.*)</)?.at(0),
+        platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quote_tweets_count: tweet.legacy.quote_count,
         quoted_tweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
             tweet.quoted_status_result.result.__typename === 'TweetWithVisibilityResults' ? tweet.quoted_status_result.result.tweet : tweet.quoted_status_result!.result
@@ -106,7 +106,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
     };
 };
 
-const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTweet> | undefined => {
+export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTweet> | undefined => {
     if (input.content.__typename === 'TimelineTimelineCursor') {
         return {
             id: input.entryId,
@@ -121,7 +121,7 @@ const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTweet> | 
     if (input.content.__typename === 'TimelineTimelineItem') {
         return {
             id: input.entryId,
-            content: formatTweet(input.content.itemContent.tweet_results.result, input.content.itemContent.hasModeratedReplies, input.content.itemContent.highlights.textHighlights.map(x => [x.startIndex, x.endIndex]))
+            content: formatTweet(input.content.itemContent.tweet_results.result, input.content.itemContent.hasModeratedReplies, input.content.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]))
         };
     }
 
@@ -131,7 +131,7 @@ const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTweet> | 
             content: {
                 __type: 'Conversation',
                 // @ts-ignore
-                items: input.content.items.map(item => formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights.textHighlights.map(x => [x.startIndex, x.endIndex])))
+                items: input.content.items.map(item => formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])))
             }
         };
     }
@@ -144,7 +144,7 @@ export const formatEntries = (input: _Entry<_TimelineTweetItem>[]): Entry<Timeli
 export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Cursor>[]): Entry<TimelineTweet>[] => {
     const grid = input.find(entry => entry.content.__typename === 'TimelineTimelineModule')?.content as _TweetConversationItem | undefined;
 
-    return {
+    return [
         ...input.filter(entry => entry.content.__typename === 'TimelineTimelineCursor').map(entry => ({
             id: entry.entryId,
             // @ts-ignore
@@ -152,7 +152,7 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
         })),
         ...(grid ? grid.items.map(item => ({
             id: item.entryId,
-            content: formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights.textHighlights.map(x => [x.startIndex, x.endIndex]))
-        })) : {})
-    };
+            content: formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]))
+        })) : [])
+    ];
 };

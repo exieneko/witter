@@ -1,5 +1,5 @@
 import { type Endpoint, gql, v11 } from './utils';
-import { entries, formatEntries, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatNotificationEntries, formatNotificationTweetEntries, formatSettings, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter';
+import { entries, formatEntries, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter';
 
 import type { Result } from './types';
 import type { _AccountSettings } from './types/raw/account';
@@ -15,7 +15,7 @@ export const OAUTH_KEY = 'Bearer AAAAAAAAAAAAAAAAAAAAAG5LOQEAAAAAbEKsIYYIhrfOQqm
 const GET = 'get';
 const POST = 'post';
 
-const CONTENT_TYPE_FORM = { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8' };
+const CONTENT_TYPE_FORM = { 'content-type': 'application/x-www-form-urlencoded' };
 
 const optional = <T>(value: T): T | undefined => value;
 
@@ -82,17 +82,20 @@ export const endpoints = {
         url: gql('aoDbu3RHznuiSkQ9aNM67Q/CreateBookmark'),
         method: POST,
         params: { tweet_id: String() },
+        headers: { authorization: OAUTH_KEY },
         parser: (data: _TweetBookmark): Result => ({ result: data.data.tweet_bookmark_put === 'Done' })
     },
     DeleteBookmark: {
         url: gql('Wlmlj2-xzyS1GN3a6cj-mQ/DeleteBookmark'),
         method: POST,
         params: { tweet_id: String() },
+        headers: { authorization: OAUTH_KEY },
         parser: (data: _TweetUnbookmark): Result => ({ result: data.data.tweet_bookmark_delete === 'Done' })
     },
     BookmarksAllDelete: {
         url: gql('skiACZKC1GDYli-M8RzEPQ/BookmarksAllDelete'),
         method: POST,
+        headers: { authorization: OAUTH_KEY },
         parser: (data: _TweetUnbookmarkAll): Result => ({ result: data.data.bookmark_all_delete === 'Done' })
     },
 
@@ -246,41 +249,13 @@ export const endpoints = {
             variables: {"count":40},
             features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_enhance_cards_enabled":false}
         },
-        parser: (data: _NotificationsWrapper) => formatNotificationEntries(entries(data.viewer_v2.user_results.result.notification_timeline.timeline.instructions))
+        parser: (data: Data<_NotificationsWrapper>) => formatNotificationEntries(entries(data.data.viewer_v2.user_results.result.notification_timeline.timeline.instructions))
     },
     badge_count: {
         url: 'https://twitter.com/i/api/2/badge_count/badge_count.json?supports_ntab_urt=1',
         method: GET,
         parser: (data: _UnreadCount) => formatUnread(data)
     },
-    // notifications_all: {
-    //     url: 'https://twitter.com/i/api/2/notifications/all.json',
-    //     method: GET,
-    //     params: { cursor: optional(String()) },
-    //     static: {
-    //         form: 'cursor={}&include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=true&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_views=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&count=20&requestContext=launch&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2CbirdwatchPivot%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl'
-    //     },
-    //     parser: (data: any) => data
-    // },
-    // notifications_mentions: {
-    //     url: 'https://twitter.com/i/api/2/notifications/mentions.json',
-    //     method: GET,
-    //     params: { cursor: optional(String()) },
-    //     static: {
-    //         form: 'cursor={}&include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=true&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_views=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&count=20&requestContext=launch&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2CbirdwatchPivot%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl'
-    //     },
-    //     parser: (data: any) => data
-    // },
-    // notifications_all_last_seen_cursor: {
-    //     url: 'https://twitter.com/i/api/2/notifications/all/last_seen_cursor.json',
-    //     method: POST,
-    //     params: { cursor: optional(String()) },
-    //     static: {
-    //         form: 'cursor={}'
-    //     },
-    //     headers: CONTENT_TYPE_FORM,
-    //     parser: (data: unknown) => data
-    // },
     notifications_device_follow: {
         url: 'https://twitter.com/i/api/2/notifications/device_follow.json',
         method: GET,
@@ -300,12 +275,11 @@ export const endpoints = {
         method: GET,
         params: { rawQuery: String(), querySource: String() as 'typed_query' | 'recent_search_click' | 'tdqt', product: String() as 'Top' | 'Latest' | 'People' | 'Media' | 'Lists', cursor: optional(String()) },
         static: {
-            variables: {"count":40},
+            variables: {"count":50},
             features: {"rweb_tipjar_consumption_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"articles_preview_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"rweb_video_timestamps_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_enhance_cards_enabled":false}
         },
-        // @ts-ignore
-        // TODO
-        parser: (data: Data<_SearchTimelineWrapper>) => formatEntries(entries(data.data.search_by_raw_query.search_timeline.timeline.instructions))
+        headers: { authorization: OAUTH_KEY },
+        parser: (data: Data<_SearchTimelineWrapper>) => formatSearchEntries(entries(data.data.search_by_raw_query.search_timeline.timeline.instructions))
     },
     search_typeahead: {
         url: v11('search/typeahead.json'),
@@ -387,7 +361,7 @@ export const endpoints = {
         method: POST,
         params: { tweet_text: String(), /* TODO media */ },
         static: {
-            variables: {"media":{"media_entities":[],"possibly_sensitive": false},"semantic_annotation_ids":[],"dark_request":false},
+            variables: {"media":{"media_entities":[],"possibly_sensitive":false},"semantic_annotation_ids":[],"dark_request":false},
             features: {"c9s_tweet_anatomy_moderator_badge_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"responsive_web_home_pinned_timelines_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_enhance_cards_enabled":false}
         },
         parser: (data: _TweetCreate): Result => ({ result: !!data.data.create_tweet.tweet_results.result.rest_id })
@@ -397,7 +371,7 @@ export const endpoints = {
         method: POST,
         params: { tweet_text: String(), /* TODO media */ },
         static: {
-            variables: {"media":{"media_entities":[],"possibly_sensitive": false},"semantic_annotation_ids":[],"dark_request":false},
+            variables: {"media":{"media_entities":[],"possibly_sensitive":false},"semantic_annotation_ids":[],"dark_request":false},
             features: {"c9s_tweet_anatomy_moderator_badge_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"responsive_web_home_pinned_timelines_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_enhance_cards_enabled":false}
         },
         parser: (data: _TweetCreate): Result => ({ result: !!data.data.create_tweet.tweet_results.result.rest_id })
@@ -583,7 +557,7 @@ export const endpoints = {
         params: { userId: String(), cursor: optional(String()) },
         static: {
             variables: {"count":20,"includePromotedContent":false,"withClientEventToken":false,"withBirdwatchNotes":false,"withVoice":true,"withV2Timeline":true},
-            features: {"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_home_pinned_timelines_enabled":true,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"c9s_tweet_anatomy_moderator_badge_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}
+            features: {"rweb_tipjar_consumption_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"articles_preview_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"rweb_video_timestamps_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_enhance_cards_enabled":false}
         },
         parser: (data: Data<_UserMediaWrapper>) => formatMediaEntries(entries(data.data.user.result.timeline_v2.timeline.instructions))
     },
@@ -676,7 +650,7 @@ export const endpoints = {
     friendships_incoming: {
         url: v11('friendships/incoming.json'),
         method: GET,
-        params: { screen_name: String(), cursor: Number() },
+        params: { user_id: String(), cursor: Number() },
         static: {
             form: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cursor={}&stringify_ids=true&count=100'
         },

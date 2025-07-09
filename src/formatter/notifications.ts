@@ -76,7 +76,7 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             }) satisfies NonNullable<Tweet['media']>[number]),
             muted: false,
             // @ts-ignore
-            platform: tweet.source?.match(/>Twitter\sfor\s(.*)</)?.at(0),
+            platform: tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
             quote_tweets_count: tweet.quote_count,
             quoted_tweet: quotedTweet && quotedTweetAuthor ? getFromId(quotedTweet.id_str) as Tweet : undefined,
             quoted_tweet_fallback: tweet.quoted_status_id_str ? {

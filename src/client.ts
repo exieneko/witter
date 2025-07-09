@@ -1,5 +1,266 @@
-class TwitterClient {
-    constructor(lang: string, login: { authToken: string, csrf: string }) {}
+import { endpoints, PUBLIC_TOKEN } from './consts';
+import { type Params, request } from './utils';
+
+interface CursorOnly {
+    cursor?: string
 }
 
-export { TwitterClient };
+export class TwitterClient {
+    private headers;
+
+    constructor(lang: string, login: { authToken: string, authMulti?: string, csrf: string }) {
+        this.headers = {
+            authorization: PUBLIC_TOKEN,
+            'content-type': 'application/json',
+            'x-csrf-token': login.csrf,
+            'x-twitter-active-user': 'yes',
+            'x-twitter-auth-type': 'OAuth2Session',
+            'x-twitter-client-language': lang || 'en',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+            cookie: login.authMulti ? `auth_token=${login.authToken}; ct0=${login.csrf}` : `auth_token=${login.authToken}; auth_multi=${login.authMulti}; ct0=${login.csrf}`
+        };
+    }
+
+    async verifyCredentials() {
+        return await request(endpoints.account_verify_credentials, this.headers);
+    }
+    async getAccounts() {
+        return await request(endpoints.account_multi_list, this.headers);
+    }
+    async switchAccount(id: string) {
+        return await request(endpoints.account_multi_switch, this.headers, { user_id: id });
+    }
+    async updateProfile(params: Params<typeof endpoints.account_update_profile>) {
+        return await request(endpoints.account_update_profile, this.headers, params);
+    }
+    async getSettings() {
+        return await request(endpoints.account_settings, this.headers);
+    }
+
+
+
+    async getBookmarks(args?: CursorOnly) {
+        return await request(endpoints.Bookmarks, this.headers, args);
+    }
+    async clearBookmarks() {
+        return await request(endpoints.BookmarksAllDelete, this.headers);
+    }
+
+
+
+    async createList(name: string, description: string = '', isPrivate: boolean = false) {
+        return await request(endpoints.CreateList, this.headers, { name, description, isPrivate });
+    }
+    async updateList(id: string, name: string, description: string, isPrivate: boolean) {
+        return await request(endpoints.UpdateList, this.headers, { listId: id, name, description, isPrivate });
+    }
+    async deleteList(id: string) {
+        return await request(endpoints.DeleteList, this.headers, { listId: id });
+    }
+    async getListsTimeline() {
+        return await request(endpoints.ListsManagementPageTimeline, this.headers);
+    }
+    async getList(id: string) {
+        return await request(endpoints.ListByRestId, this.headers, { listId: id });
+    }
+    async getListTweets(id: string, args?: CursorOnly) {
+        return await request(endpoints.ListLatestTweetsTimeline, this.headers, { listId: id, cursor: args?.cursor });
+    }
+    async getListMembers(id: string, args?: CursorOnly) {
+        return await request(endpoints.ListMembers, this.headers, { listId: id, cursor: args?.cursor });
+    }
+    async getListSubscribers(id: string, args?: CursorOnly) {
+        return await request(endpoints.ListSubscribers, this.headers, { listId: id, cursor: args?.cursor });
+    }
+    async subscribeToList(id: string) {
+        return await request(endpoints.ListSubscribe, this.headers, { listId: id });
+    }
+    async unsubscribeFromList(id: string) {
+        return await request(endpoints.ListUnsubscribe, this.headers, { listId: id });
+    }
+    async addMemberToList(userId: string, listId: string) {
+        return await request(endpoints.ListAddMember, this.headers, { listId, userId });
+    }
+    async removeMemberFromList(userId: string, listId: string) {
+        return await request(endpoints.ListRemoveMember, this.headers, { listId, userId });
+    }
+
+
+
+    async getNotifications(args?: { type: 'All' | 'Verified' | 'Mentions' } & CursorOnly) {
+        return await request(endpoints.NotificationsTimeline, this.headers, { timeline_type: args?.type || 'All', cursor: args?.cursor });
+    }
+    async getNotificationsCount() {
+        return await request(endpoints.badge_count, this.headers);
+    }
+    async getNotificationTweets(args?: CursorOnly) {
+        return await request(endpoints.notifications_device_follow, this.headers, args);
+    }
+
+
+
+    async search(query: string, args?: { source?: 'typed_query' | 'recent_search_click' | 'tdqt', type?: 'Top' | 'Latest' | 'People' | 'Media' | 'Lists' } & CursorOnly) {
+        return await request(endpoints.SearchTimeline, this.headers, { rawQuery: query, querySource: args?.source || 'typed_query', product: args?.type || 'Top', cursor: args?.cursor });
+    }
+    async searchTypeahead(query: string) {
+        return await request(endpoints.search_typeahead, this.headers, { q: query });
+    }
+
+
+
+    async getChronologicalTimeline(args?: CursorOnly) {
+        return await request(endpoints.HomeLatestTimeline, this.headers, args);
+    }
+    async getAlgorithmicalTimeline(args?: CursorOnly) {
+        return await request(endpoints.HomeTimeline, this.headers, args);
+    }
+
+
+
+    async followTopic(id: string) {
+        return await request(endpoints.TopicFollow, this.headers, { topicId: id });
+    }
+    async unfollowTopic(id: string) {
+        return await request(endpoints.TopicUnfollow, this.headers, { topicId: id });
+    }
+    async notInterestedInTopic(id: string) {
+        return await request(endpoints.TopicNotInterested, this.headers, { topicId: id });
+    }
+    async undoNotInterestedInTopic(id: string) {
+        return await request(endpoints.TopicUndoNotInterested, this.headers, { topicId: id });
+    }
+
+
+
+    async createTweet(text: string) {
+        return await request(endpoints.CreateTweet, this.headers, { tweet_text: text });
+    }
+    async deleteTweet(id: string) {
+        return await request(endpoints.DeleteTweet, this.headers, { tweet_id: id });
+    }
+    async getTweet(id: string, args?: CursorOnly) {
+        return await request(endpoints.TweetDetail, this.headers, { focalTweetId: id, cursor: args?.cursor });
+    }
+    async getHiddenReplies(id: string, args?: CursorOnly) {
+        return await request(endpoints.ModeratedTimeline, this.headers, { rootTweetId: id, cursor: args?.cursor });
+    }
+    async getTweetLikers(id: string, args?: CursorOnly) {
+        return await request(endpoints.Favoriters, this.headers, { tweetId: id, cursor: args?.cursor });
+    }
+    async getTweetRetweeters(id: string, args?: CursorOnly) {
+        return await request(endpoints.Retweeters, this.headers, { tweetId: id, cursor: args?.cursor });
+    }
+    async getTweetQuoteTweets(id: string, args?: CursorOnly) {
+        return await request(endpoints.SearchTimeline, this.headers, { rawQuery: `quoted_tweet_id:${id}`, querySource: 'tdqt', product: 'Top', cursor: args?.cursor });
+    }
+
+    async likeTweet(id: string) {
+        return await request(endpoints.FavoriteTweet, this.headers, { tweet_id: id });
+    }
+    async unlikeTweet(id: string) {
+        return await request(endpoints.UnfavoriteTweet, this.headers, { tweet_id: id });
+    }
+    async retweetTweet(id: string) {
+        return await request(endpoints.CreateRetweet, this.headers, { tweet_id: id });
+    }
+    async unretweetTweet(id: string) {
+        return await request(endpoints.DeleteRetweet, this.headers, { source_tweet_id: id });
+    }
+    async bookmarkTweet(id: string) {
+        return await request(endpoints.CreateBookmark, this.headers, { tweet_id: id });
+    }
+    async unbookmarkTweet(id: string) {
+        return await request(endpoints.DeleteBookmark, this.headers, { tweet_id: id });
+    }
+    async hideReply(id: string) {
+        return await request(endpoints.ModerateTweet, this.headers, { tweetId: id });
+    }
+    async unhideReply(id: string) {
+        return await request(endpoints.UnmoderateTweet, this.headers, { tweetId: id });
+    }
+    async pinTweet(id: string) {
+        return await request(endpoints.PinTweet, this.headers, { tweet_id: id });
+    }
+    async unpinTweet(id: string) {
+        return await request(endpoints.UnpinTweet, this.headers, { tweet_id: id });
+    }
+    async muteConversation(id: string) {
+        return await request(endpoints.mutes_conversations_create, this.headers, { tweet_id: id });
+    }
+    async unmuteConversation(id: string) {
+        return await request(endpoints.mutes_conversations_destroy, this.headers, { tweet_id: id });
+    }
+
+
+
+    async getUser(id: string, byUsername?: boolean) {
+        return await (byUsername
+            ? request(endpoints.UserByScreenName, this.headers, { screen_name: id })
+            : request(endpoints.UserByRestId, this.headers, { userId: id }));
+    }
+    async getUsers(ids: string[]) {
+        return await request(endpoints.UsersByRestIds, this.headers, { userIds: ids });
+    }
+    async getUserTweets(id: string, args?: { withReplies?: boolean } & CursorOnly) {
+        if (args?.withReplies) {
+            return await request(endpoints.UserTweetsAndReplies, this.headers, { userId: id, cursor: args.cursor });
+        }
+
+        return await request(endpoints.UserTweets, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserMedia(id: string, args?: CursorOnly) {
+        return await request(endpoints.UserMedia, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserLikes(id: string, args?: CursorOnly) {
+        return await request(endpoints.Likes, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserFollowing(id: string, args?: CursorOnly) {
+        return await request(endpoints.Following, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserFollowers(id: string, args?: CursorOnly) {
+        return await request(endpoints.Followers, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserFollowersYouKnow(id: string, args?: CursorOnly) {
+        return await request(endpoints.FollowersYouKnow, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserLists(id: string, args?: CursorOnly) {
+        return await request(endpoints.CombinedLists, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getFollowRequests(id: string, args?: { cursor?: number }) {
+        return await request(endpoints.friendships_incoming, this.headers, { user_id: id, cursor: args?.cursor || -1 });
+    }
+    async getFriendsFollowing(id: string) {
+        return await request(endpoints.friends_following_list, this.headers, { user_id: id });
+    }
+
+    async followUser(id: string) {
+        return await request(endpoints.friendships_create, this.headers, { user_id: id });
+    }
+    async unfollowUser(id: string) {
+        return await request(endpoints.friendships_destroy, this.headers, { user_id: id });
+    }
+    async cancelFollowRequest(id: string) {
+        return await request(endpoints.friendships_cancel, this.headers, { user_id: id });
+    }
+    async removeFollower(id: string) {
+        return await request(endpoints.RemoveFollower, this.headers, { target_user_id: id });
+    }
+    async acceptFollowRequest(id: string) {
+        return await request(endpoints.friendships_accept, this.headers, { user_id: id });
+    }
+    async declineFollowRequest(id: string) {
+        return await request(endpoints.friendships_deny, this.headers, { user_id: id });
+    }
+    async blockUser(id: string) {
+        return await request(endpoints.blocks_create, this.headers, { user_id: id });
+    }
+    async unblockUser(id: string) {
+        return await request(endpoints.blocks_destroy, this.headers, { user_id: id });
+    }
+    async muteUser(id: string) {
+        return await request(endpoints.mutes_users_create, this.headers, { user_id: id });
+    }
+    async unmuteUser(id: string) {
+        return await request(endpoints.mutes_users_destroy, this.headers, { user_id: id });
+    }
+}

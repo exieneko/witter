@@ -6,7 +6,7 @@ export interface _User {
     rest_id: string,
     affiliates_highlighted_label: {
         label?: {
-            url: {
+            url?: {
                 /** link to company account */
                 url: `https://twitter.com/${string}`
             },
@@ -132,9 +132,9 @@ export interface _UserV3 extends _User {
     privacy: {
         protected: boolean
     },
-    relationship_perspective: {
-        followed_by: boolean,
-        following: boolean
+    relationship_perspective?: {
+        followed_by?: boolean,
+        following?: boolean
     },
     verification: {
         verified: boolean
