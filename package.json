@@ -1,7 +1,8 @@
 {
-  "name": "twitter-api",
-  "description": "",
+  "name": "twitter-api-unofficial",
+  "description": "a basic twitter api client for javascript & typescript",
   "author": "exieneko",
+  "homepage": "https://github.com/exieneko/twitter-api",
   "version": "0.0.1",
   "type": "module",
   "main": "build/index.js",
