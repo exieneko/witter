@@ -3,7 +3,7 @@
   "description": "a basic twitter api client for javascript & typescript",
   "author": "exieneko",
   "homepage": "https://github.com/exieneko/twitter-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "main": "build/index.js",
   "scripts": {
