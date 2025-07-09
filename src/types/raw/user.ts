@@ -111,6 +111,36 @@ export interface _User {
     }
 }
 
+export interface _UserV3 extends _User {
+    avatar: {
+        image_url: string
+    },
+    core: {
+        created_at: string,
+        name: string,
+        screen_name: string
+    },
+    dm_permissions: {
+        can_dm: boolean
+    },
+    location: {
+        location: string
+    }
+    media_permissions: {
+        can_media_tag: boolean
+    },
+    privacy: {
+        protected: boolean
+    },
+    relationship_perspective: {
+        followed_by: boolean,
+        following: boolean
+    },
+    verification: {
+        verified: boolean
+    }
+}
+
 export interface _UserReducedInfo {
     __typename: 'User',
     id: string,

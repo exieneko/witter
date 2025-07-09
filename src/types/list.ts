@@ -3,13 +3,8 @@ import type { User } from './user';
 export interface List {
     __type: 'List',
     id: string,
-    accounts_count: number,
     author: User,
-    banner: {
-        custom: boolean,
-        id: string,
-        url: string
-    },
+    banner_url?: string,
     created_at: string,
     description?: string,
     pinned: boolean,
@@ -20,8 +15,9 @@ export interface List {
     highlighted_member_username?: string,
     highlighted_subscriber_username?: string,
     member: boolean,
+    members_count: number,
     muted: boolean,
-    name: string,
+    name: string
 }
 
 export interface ListModule {

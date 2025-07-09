@@ -3,7 +3,7 @@ import type { _EventSummary, _SportsTile, _Trend, _TrendStory } from './explore'
 import type { _List } from './list';
 import type { _Topic } from './topic';
 import type { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from './tweet';
-import type { _User } from './user';
+import type { _User, _UserV3 } from './user';
 
 // REMINDER!!!!!
 // BASICALLY EVERYTHING HERE IS WHAT GOES IN EACH ENTRY, UNDER `content`
@@ -67,6 +67,14 @@ export interface _ExploreSidebarItem {
 
 
 
+export interface _ListItem {
+    __typename: 'TimelineTimelineItem',
+    itemContent: {
+        __typename: 'TimelineTwitterList',
+        list: _List
+    }
+}
+
 export interface _ListModuleItem {
     __typename: 'TimelineTimelineModule',
     items: {
@@ -79,9 +87,20 @@ export interface _ListModuleItem {
     }[]
 }
 
-export type _ListsItem = _ListModuleItem | _Cursor
+export type _ListsItem = _ListModuleItem | _Cursor;
 
+export interface _NotificationUserEntity {
+    type: 'TimelineRichTextUser',
+    user_results: {
+        result: _UserV3
+    }
+}
 
+export interface _NotificationListEntity {
+    type: 'TimelineRichTextList',
+    id: string,
+    url: string
+}
 
 export interface _NotificationItem {
     __typename: 'TimelineTimelineItem',
@@ -95,12 +114,7 @@ export interface _NotificationItem {
             entities: {
                 fromIndex: number,
                 toIndex: number,
-                ref: {
-                    type: 'TimelineRichTextUser',
-                    user_results: {
-                        result: _User
-                    }
-                }
+                ref: _NotificationUserEntity | _NotificationListEntity
             }[]
         },
         notification_url: {
@@ -112,7 +126,7 @@ export interface _NotificationItem {
             from_users: {
                 __typename: 'TimelineNotificationUserRef',
                 user_results: {
-                    result: _User
+                    result: _UserV3
                 }
             }[]
         },
@@ -120,7 +134,7 @@ export interface _NotificationItem {
     },
     clientEventInfo: {
         component: string,
-        element: 'device_follow_tweet_notification_entry' | 'users_liked_your_tweet' | 'users_liked_your_retweet' | 'users_followed_you' | 'user_mentioned_you' | 'generic_report_received' | `generic_birdwatch${'_not_' | '_'}helpful_valid_rater`
+        element: 'device_follow_tweet_notification_entry' | 'users_liked_your_tweet' | 'users_liked_your_retweet' | 'users_followed_you' | 'user_mentioned_you' | 'generic_report_received' | `generic_birdwatch${'_not_' | '_'}helpful_valid_rater` | 'users_subscribed_to_your_list' | 'generic_login_notification'
     }
 }
 

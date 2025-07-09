@@ -101,6 +101,18 @@ export type _TweetUnbookmark = Data<{
     tweet_bookmark_delete: 'Done'
 }>;
 
+export type _TweetUnbookmarkAll = Data<{
+    bookmark_all_delete: 'Done'
+}>;
+
+export type _TweetHide = Data<{
+    tweet_moderate_put: 'Done'
+}>;
+
+export type _TweetUnhide = Data<{
+    tweet_unmoderate_put: 'Done'
+}>;
+
 export type _TweetPin = Data<{
     pin_tweet: {
         added_tweet_to_highlights: boolean,

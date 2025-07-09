@@ -1,7 +1,7 @@
 import type { _Cursor, _GenericGetUserCursors, _ShittyAssCursor, Instructions, SegmentedTimelines } from '.';
 import type { _BirdwatchContributor, _BirdwatchTweet } from './birdwatch';
 import type { _Community, _CommunityTopic } from './community';
-import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items';
+import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items';
 import type { _List } from './list';
 import type { _NotificationGlobalObjects } from './notifications';
 import type { _SearchUserModulesItem } from './search';
@@ -87,6 +87,10 @@ export type _ExploreMiscWrapper = _GenericTimelineWrapper<_ExplorePageSportsItem
 // inbox stuff here
 // i'll add it when i feel like it
 
+export interface _ListWrapper {
+    list: _List
+}
+
 export interface _ListManagementWrapper {
     viewer: {
         list_management_timeline: {
@@ -127,6 +131,16 @@ export interface _ListPinnedTimelinesWrapper {
 export interface _ListUsersWrapper {
     list: {
         members_timeline: {
+            timeline: {
+                instructions: Instructions<_UserItem | _Cursor>
+            }
+        }
+    }
+}
+
+export interface _ListSubscribersWrapper {
+    list: {
+        subscribers_timeline: {
             timeline: {
                 instructions: Instructions<_UserItem | _Cursor>
             }
@@ -310,6 +324,19 @@ export interface _UsersByIdsWrapper {
     users: {
         result: _User
     }[]
+}
+
+export interface _UserListsWrapper {
+    user: {
+        result: {
+            __typename: 'User',
+            timeline: {
+                timeline: {
+                    instructions: Instructions<_ListItem | _Cursor>
+                }
+            }
+        }
+    }
 }
 
 export interface _SidebarUserRecommendationsWrapper {
