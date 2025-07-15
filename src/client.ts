@@ -17,7 +17,7 @@ export class TwitterClient {
             'x-twitter-auth-type': 'OAuth2Session',
             'x-twitter-client-language': lang || 'en',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-            cookie: login.authMulti ? `auth_token=${login.authToken}; ct0=${login.csrf}` : `auth_token=${login.authToken}; auth_multi=${login.authMulti}; ct0=${login.csrf}`
+            cookie: login.authMulti ? `auth_token=${login.authToken}; ct0=${login.csrf}` : `auth_token=${login.authToken}; auth_multi="${login.authMulti}"; ct0=${login.csrf}`
         };
     }
 
@@ -111,7 +111,7 @@ export class TwitterClient {
     async getChronologicalTimeline(args?: CursorOnly) {
         return await request(endpoints.HomeLatestTimeline, this.headers, args);
     }
-    async getAlgorithmicalTimeline(args?: CursorOnly) {
+    async getAlgorithmicalTimeline(args?: { seenTweetIds: string[] } & CursorOnly) {
         return await request(endpoints.HomeTimeline, this.headers, args);
     }
 
@@ -193,20 +193,19 @@ export class TwitterClient {
 
 
 
-    async getUser(id: string, byUsername?: boolean) {
-        return await (byUsername
+    async getUser(id: string, args?: { byUsername?: boolean }) {
+        return await (args?.byUsername
             ? request(endpoints.UserByScreenName, this.headers, { screen_name: id })
             : request(endpoints.UserByRestId, this.headers, { userId: id }));
     }
     async getUsers(ids: string[]) {
         return await request(endpoints.UsersByRestIds, this.headers, { userIds: ids });
     }
-    async getUserTweets(id: string, args?: { withReplies?: boolean } & CursorOnly) {
-        if (args?.withReplies) {
-            return await request(endpoints.UserTweetsAndReplies, this.headers, { userId: id, cursor: args.cursor });
-        }
-
+    async getUserTweets(id: string, args?: CursorOnly) {
         return await request(endpoints.UserTweets, this.headers, { userId: id, cursor: args?.cursor });
+    }
+    async getUserTweetsAndReplies(id: string, args?: CursorOnly) {
+        return await request(endpoints.UserTweetsAndReplies, this.headers, { userId: id, cursor: args?.cursor });
     }
     async getUserMedia(id: string, args?: CursorOnly) {
         return await request(endpoints.UserMedia, this.headers, { userId: id, cursor: args?.cursor });
