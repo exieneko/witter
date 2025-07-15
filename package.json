@@ -1,7 +1,7 @@
 {
   "name": "twitter-api-unofficial",
   "description": "a basic twitter api client for javascript & typescript",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "exieneko",
   "type": "module",
   "repository": {
@@ -9,7 +9,9 @@
     "url": "https://github.com/exieneko/twitter-api.git"
   },
   "bugs": "https://github.com/exieneko/twitter-api/issues",
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
