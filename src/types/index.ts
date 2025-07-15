@@ -1,3 +1,14 @@
+export * from './account';
+export * from './birdwatch';
+export * from './community';
+export * from './explore';
+export * from './list';
+export * from './notifications';
+export * from './search';
+export * from './topic';
+export * from './tweet';
+export * from './user';
+
 export interface Result {
     result: boolean
 }
