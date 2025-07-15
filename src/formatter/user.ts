@@ -1,58 +1,63 @@
 import { formatCursor } from '.';
 
-import { Cursor, Entry } from '../types';
-import { Settings } from '../types/account';
-import { User } from '../types/user';
-import { _Cursor, _Entry } from '../types/raw';
-import { _AccountSettings } from '../types/raw/account';
-import { _UserItem } from '../types/raw/items';
-import { _User, _UserV3 } from '../types/raw/user';
+import type { Cursor, Entry, Settings, UnavailableUser, User } from '../types';
+import type { _Cursor, _Entry } from '../types/raw';
+import type { _AccountSettings } from '../types/raw/account';
+import type { _UserItem } from '../types/raw/items';
+import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user';
 
-export const formatUser = (input: _User): User => {
+export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUser => {
+    if (input.__typename === 'User') {
+        return {
+            __type: 'User',
+            id: input.rest_id,
+            affiliates_count: input.business_account?.affiliates_count,
+            affiliate_label: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
+                title: input.affiliates_highlighted_label.label.description,
+                owner: input.affiliates_highlighted_label.label.url.url.split('.com/')[1],
+                image_url: input.affiliates_highlighted_label.label.badge.url
+            } : undefined,
+            avatar_url: input.legacy.profile_image_url_https.replace('normal', '400x400'),
+            banner_url: input.legacy.profile_banner_url,
+            birthdate: input.legacy_extended_profile?.birthdate ? {
+                day: input.legacy_extended_profile.birthdate.day,
+                month: input.legacy_extended_profile.birthdate.month - 1,
+                year: input.legacy_extended_profile.birthdate.year
+            } : undefined,
+            blocked: input.legacy.blocking || false,
+            blocked_by: input.legacy.blocked_by || false,
+            can_dm: input.legacy.can_dm,
+            can_media_tag: input.legacy.can_media_tag,
+            created_at: new Date(input.legacy.created_at).toISOString(),
+            description: input.legacy.description || undefined,
+            followers_count: input.legacy.followers_count,
+            following_count: input.legacy.friends_count,
+            followed: input.legacy.following || false,
+            follow_requested: input.legacy.protected ? input.legacy.follow_request_sent || false : undefined,
+            followed_by: input.legacy.followed_by || false,
+            job: input.professional?.category.at(0)?.name,
+            location: input.legacy.location || undefined,
+            muted: input.legacy.muting || false,
+            name: input.legacy.name,
+            pinned_tweet_id: input.legacy.pinned_tweet_ids_str.at(0),
+            private: input.legacy.protected,
+            translatable: input.is_profile_translatable,
+            tweets_count: input.legacy.statuses_count,
+            media_count: input.legacy.media_count,
+            likes_count: input.legacy.favourites_count,
+            listed_count: input.legacy.listed_count,
+            username: input.legacy.screen_name,
+            url: input.legacy.url || undefined,
+            verified: input.legacy.verified,
+            verified_type: input.legacy.verified ? input.legacy.verified_type === 'Business' ? 'gold' : input.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+            want_retweets: input.legacy.want_retweets || true,
+            want_notifications: input.legacy.notifications || false
+        };
+    }
+
     return {
-        __type: 'User',
-        id: input.rest_id,
-        affiliates_count: input.business_account?.affiliates_count,
-        affiliate_label: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
-            title: input.affiliates_highlighted_label.label.description,
-            owner: input.affiliates_highlighted_label.label.url.url.split('.com/')[1],
-            image_url: input.affiliates_highlighted_label.label.badge.url
-        } : undefined,
-        avatar_url: input.legacy.profile_image_url_https.replace('normal', '400x400'),
-        banner_url: input.legacy.profile_banner_url,
-        birthdate: input.legacy_extended_profile?.birthdate ? {
-            day: input.legacy_extended_profile.birthdate.day,
-            month: input.legacy_extended_profile.birthdate.month - 1,
-            year: input.legacy_extended_profile.birthdate.year
-        } : undefined,
-        blocked: input.legacy.blocking || false,
-        blocked_by: input.legacy.blocked_by || false,
-        can_dm: input.legacy.can_dm,
-        can_media_tag: input.legacy.can_media_tag,
-        created_at: new Date(input.legacy.created_at).toISOString(),
-        description: input.legacy.description || undefined,
-        followers_count: input.legacy.followers_count,
-        following_count: input.legacy.friends_count,
-        followed: input.legacy.following || false,
-        follow_requested: input.legacy.protected ? input.legacy.follow_request_sent || false : undefined,
-        followed_by: input.legacy.followed_by || false,
-        job: input.professional?.category.at(0)?.name,
-        location: input.legacy.location || undefined,
-        muted: input.legacy.muting || false,
-        name: input.legacy.name,
-        pinned_tweet_id: input.legacy.pinned_tweet_ids_str.at(0),
-        private: input.legacy.protected,
-        translatable: input.is_profile_translatable,
-        tweets_count: input.legacy.statuses_count,
-        media_count: input.legacy.media_count,
-        likes_count: input.legacy.favourites_count,
-        listed_count: input.legacy.listed_count,
-        username: input.legacy.screen_name,
-        url: input.legacy.url || undefined,
-        verified: input.legacy.verified,
-        verified_type: input.legacy.verified ? input.legacy.verified_type === 'Business' ? 'gold' : input.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
-        want_retweets: input.legacy.want_retweets || true,
-        want_notifications: input.legacy.notifications || false
+        __type: 'UnavailableUser',
+        reason: input.__typename === 'UserUnavailable' ? 'suspended' : 'not_found'
     };
 };
 
@@ -97,7 +102,7 @@ export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<U
         id: entry.entryId,
         content: entry.content.__typename === 'TimelineTimelineCursor'
             ? formatCursor(entry.content)
-            : formatUser(entry.content.user_result.result)
+            : formatUser(entry.content.user_result.result) as User
     }));
 };
 
@@ -138,6 +143,7 @@ export const formatSettings = (input: _AccountSettings): Settings => {
         },
         mention_filter: input.mention_filter !== 'unfiltered',
         lang: input.language,
+        username: input.screen_name,
         warnings: {
             personalized_ads_enabled: input.allow_ads_personalization || false,
             data_selling_enabled: input.allow_sharing_data_for_third_party_personalization || false,

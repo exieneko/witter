@@ -11,6 +11,7 @@ export interface Settings {
     },
     mention_filter: boolean,
     lang: string,
+    username: string,
     warnings: {
         personalized_ads_enabled: boolean,
         data_selling_enabled: boolean,

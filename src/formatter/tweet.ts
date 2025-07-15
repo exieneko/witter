@@ -2,11 +2,10 @@ import { formatCursor } from '.';
 import { formatCommunity } from './community';
 import { formatUser } from './user';
 
-import { Entry } from '../types';
-import { Retweet, TimelineTweet, Tweet, TweetTombstone } from '../types/tweet';
-import { _Cursor, _Entry } from '../types/raw';
-import { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
-import { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
+import type { Entry, Retweet, TimelineTweet, Tweet, TweetTombstone, User } from '../types';
+import type { _Cursor, _Entry } from '../types/raw';
+import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
+import type { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
 
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
@@ -28,7 +27,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         return {
             __type: 'Retweet',
             id: tweet.rest_id,
-            retweeter: formatUser(tweet.core.user_results.result),
+            retweeter: formatUser(tweet.core.user_results.result) as User,
             retweeted_tweet: formatTweet(tweet.legacy.retweeted_status_result.result) as Tweet
         }
     }
@@ -36,7 +35,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
     return {
         __type: 'Tweet',
         id: tweet.rest_id,
-        author: formatUser(tweet.core.user_results.result),
+        author: formatUser(tweet.core.user_results.result) as User,
         birdwatch_note: tweet.has_birdwatch_notes && tweet.birdwatch_pivot ? {
             id: tweet.birdwatch_pivot.note.rest_id,
             text: tweet.birdwatch_pivot.subtitle.text,

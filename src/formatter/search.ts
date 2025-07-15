@@ -1,13 +1,10 @@
-import { formatEntry, formatTweet } from './tweet';
+import { formatEntry } from './tweet';
 import { formatUser, formatUserLegacy } from './user';
 
-import { Entry } from '../types';
-import { Typeahead } from '../types/search';
-import { TimelineTweet } from '../types/tweet';
-import { UserList } from '../types/user';
-import { _Entry } from '../types/raw';
-import { _SearchUserModulesItem, _Typeahead } from '../types/raw/search';
-import { _TimelineTweetItem } from '../types/raw/items';
+import type { Entry, TimelineTweet, Typeahead, UserList } from '../types';
+import type { _Entry } from '../types/raw';
+import type { _SearchUserModulesItem, _Typeahead } from '../types/raw/search';
+import type { _TimelineTweetItem } from '../types/raw/items';
 
 export const formatSearchEntries = (input: _Entry<_TimelineTweetItem | _SearchUserModulesItem>[]): Entry<TimelineTweet | UserList>[] => {
     // @ts-ignore

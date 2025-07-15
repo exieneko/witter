@@ -1,7 +1,7 @@
 import { formatUser } from './user';
 
-import { Community } from '../types/community';
-import { _Community } from '../types/raw/community';
+import type { Community, User } from '../types';
+import type { _Community } from '../types/raw/community';
 
 export const formatCommunity = (input: _Community): Community => {
     return {
@@ -10,7 +10,7 @@ export const formatCommunity = (input: _Community): Community => {
         created_at: new Date(input.created_at).toISOString(),
         creator_username: input.creator_results?.result.legacy.screen_name,
         description: input.description || undefined,
-        highlighted_avatar_users: input.members_facepile_results.map(user => formatUser(user.result)),
+        highlighted_avatar_users: input.members_facepile_results.map(user => formatUser(user.result) as User),
         joinable: input.join_policy === 'Open',
         member: input.role !== 'NonMember',
         members_count: input.member_count,

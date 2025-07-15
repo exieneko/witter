@@ -44,10 +44,9 @@ export interface User {
     want_notifications?: boolean
 }
 
-export interface SuspendedUser {
-    __type: 'SuspendedUser',
-    message: string,
-    reason: string
+export interface UnavailableUser {
+    __type: 'UnavailableUser',
+    reason: 'suspended' | 'not_found'
 }
 
 

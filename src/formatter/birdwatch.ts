@@ -1,5 +1,5 @@
-import { BirdwatchContributor, BirdwatchNote, BirdwatchTweet } from '../types/birdwatch';
-import { _BirdwatchContributor, _BirdwatchNote, _BirdwatchTweet } from '../types/raw/birdwatch';
+import type { BirdwatchContributor, BirdwatchNote, BirdwatchTweet } from '../types';
+import type { _BirdwatchContributor, _BirdwatchNote, _BirdwatchTweet } from '../types/raw/birdwatch';
 
 export const formatBirdwatchContributor = (input: _BirdwatchContributor): BirdwatchContributor => {
     return {

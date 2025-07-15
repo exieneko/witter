@@ -1,12 +1,10 @@
 import { formatCursor } from '.';
 import { formatUser, formatUserLegacy, normalizeUserV3 } from './user';
 
-import { Cursor, Entry } from '../types';
-import { Notification, UnreadNotifications } from '../types/notifications';
-import { Tweet } from '../types/tweet';
-import { _Cursor, _Entry, _ShittyAssCursor } from '../types/raw';
-import { _NotificationItem, _NotificationTweetItem, _NotificationUserEntity } from '../types/raw/items';
-import { _NotificationGlobalObjects, _UnreadCount } from '../types/raw/notifications';
+import type { Cursor, Entry, Notification, Tweet, UnreadNotifications, User } from '../types';
+import type { _Cursor, _Entry, _ShittyAssCursor } from '../types/raw';
+import type { _NotificationItem, _NotificationTweetItem, _NotificationUserEntity } from '../types/raw/items';
+import type { _NotificationGlobalObjects, _UnreadCount } from '../types/raw/notifications';
 
 const formatNotificationItem = (input: _NotificationItem): Notification => {
     return {
@@ -28,7 +26,7 @@ const formatNotificationItem = (input: _NotificationItem): Notification => {
         users: input.itemContent.rich_message.entities
             .filter(entity => entity.ref.type === 'TimelineRichTextUser')
             .map(entity => entity.ref as _NotificationUserEntity)
-            .map(ref => formatUser(normalizeUserV3(ref.user_results.result)))
+            .map(ref => formatUser(normalizeUserV3(ref.user_results.result)) as User)
     };
 };
 

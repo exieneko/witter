@@ -1,17 +1,16 @@
 import { formatCursor } from '.';
 import { formatUser } from './user';
 
-import { Cursor, Entry } from '../types';
-import { List, ListModule } from '../types/list';
-import { _Cursor, _Entry } from '../types/raw';
-import { _ListItem, _ListModuleItem, _ListsItem } from '../types/raw/items';
-import { _List } from '../types/raw/list';
+import type { Cursor, Entry, List, ListModule, User } from '../types';
+import type { _Cursor, _Entry } from '../types/raw';
+import type { _ListItem, _ListModuleItem, _ListsItem } from '../types/raw/items';
+import type { _List } from '../types/raw/list';
 
 export const formatList = (input: _List): List => {
     return {
         __type: 'List',
         id: input.id_str,
-        author: formatUser(input.user_results.result),
+        author: formatUser(input.user_results.result) as User,
         banner_url: input.default_banner_media?.media_info.original_img_url || input.default_banner_media?.media_info.original_img_url,
         created_at: new Date(input.created_at).toISOString(),
         description: input.description || undefined,

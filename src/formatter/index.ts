@@ -1,5 +1,5 @@
-import { Cursor } from '../types';
-import { _Cursor } from '../types/raw';
+import type { Cursor } from '../types';
+import type { _Cursor } from '../types/raw';
 
 export * from './birdwatch';
 export * from './community';

@@ -78,10 +78,10 @@ export class TwitterClient {
     async unsubscribeFromList(id: string) {
         return await request(endpoints.ListUnsubscribe, this.headers, { listId: id });
     }
-    async addMemberToList(userId: string, listId: string) {
+    async addMemberToList(listId: string, userId: string) {
         return await request(endpoints.ListAddMember, this.headers, { listId, userId });
     }
-    async removeMemberFromList(userId: string, listId: string) {
+    async removeMemberFromList(listId: string, userId: string) {
         return await request(endpoints.ListRemoveMember, this.headers, { listId, userId });
     }
 
@@ -111,7 +111,7 @@ export class TwitterClient {
     async getChronologicalTimeline(args?: CursorOnly) {
         return await request(endpoints.HomeLatestTimeline, this.headers, args);
     }
-    async getAlgorithmicalTimeline(args?: { seenTweetIds: string[] } & CursorOnly) {
+    async getAlgorithmicalTimeline(args?: { seenTweetIds?: string[] } & CursorOnly) {
         return await request(endpoints.HomeTimeline, this.headers, args);
     }
 
@@ -138,8 +138,8 @@ export class TwitterClient {
     async deleteTweet(id: string) {
         return await request(endpoints.DeleteTweet, this.headers, { tweet_id: id });
     }
-    async getTweet(id: string, args?: CursorOnly) {
-        return await request(endpoints.TweetDetail, this.headers, { focalTweetId: id, cursor: args?.cursor });
+    async getTweet(id: string, args?: { rankingMode?: 'Relevance' | 'Recency' | 'Likes' } & CursorOnly) {
+        return await request(endpoints.TweetDetail, this.headers, { focalTweetId: id, rankingMode: args?.rankingMode || 'Relevance', cursor: args?.cursor });
     }
     async getHiddenReplies(id: string, args?: CursorOnly) {
         return await request(endpoints.ModeratedTimeline, this.headers, { rootTweetId: id, cursor: args?.cursor });
