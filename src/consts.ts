@@ -3,7 +3,7 @@ import { entries, formatCard, formatEntries, formatExplorePage, formatGenericTim
 
 import type { Result, User } from './types';
 import type { _AccountSettings } from './types/raw/account';
-import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow } from './types/raw/results';
+import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results';
 import type { _Typeahead } from './types/raw/search';
 import type { _UnreadCount } from './types/raw/notifications';
 import type { _User } from './types/raw/user';
@@ -548,7 +548,7 @@ export const endpoints = {
     cards_create: {
         url: 'https://caps.twitter.com/v2/cards/create.json',
         method: POST,
-        parser: (data: any) => data
+        parser: (data: any) => data // TODO
     },
     passthrough: {
         url: gql('https://caps.twitter.com/v2/capi/passthrough/1'),
@@ -716,6 +716,26 @@ export const endpoints = {
         },
         headers: CONTENT_TYPE_FORM,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
+    },
+    friendships_update_device: {
+        url: v11('friendships/update.json'),
+        method: POST,
+        params: { id: String(), device: Boolean() },
+        static: {
+            form: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cursor=-1&id={}&device={}'
+        },
+        headers: CONTENT_TYPE_FORM,
+        parser: (data: _UserRelationshipUpdate): Result => ({ result: !!data.relationship.target.id_str })
+    },
+    friendships_update_retweets: {
+        url: v11('friendships/update.json'),
+        method: POST,
+        params: { id: String(), retweets: Boolean() },
+        static: {
+            form: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cursor=-1&id={}&retweets={}'
+        },
+        headers: CONTENT_TYPE_FORM,
+        parser: (data: _UserRelationshipUpdate): Result => ({ result: !!data.relationship.target.id_str })
     },
     friendships_cancel: {
         url: v11('friendships/cancel.json'),
