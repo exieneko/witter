@@ -127,7 +127,15 @@ export type _TweetUnpin = Data<{
 }>;
 
 export type _TweetConversationControlChange = Data<{
-    tweet_conversation_control_put: 'Done',
+    tweet_conversation_control_put: 'Done'
+}>;
+
+export type _TweetConversationControlDelete = Data<{
+    tweet_conversation_control_delete: 'Done'
+}>;
+
+export type _TweetUnmention = Data<{
+    unmention_user: 'Done'
 }>;
 
 export type _TweetMute = _Tweet['legacy'];

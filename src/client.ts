@@ -30,8 +30,8 @@ export class TwitterClient {
     async switchAccount(id: string) {
         return await request(endpoints.account_multi_switch, this.headers, { user_id: id });
     }
-    async updateProfile(params: Params<typeof endpoints.account_update_profile>) {
-        return await request(endpoints.account_update_profile, this.headers, params);
+    async updateProfile(args: Params<typeof endpoints.account_update_profile>) {
+        return await request(endpoints.account_update_profile, this.headers, args);
     }
     async getSettings() {
         return await request(endpoints.account_settings, this.headers);
@@ -48,11 +48,11 @@ export class TwitterClient {
 
 
 
-    async createList(name: string, description: string = '', isPrivate: boolean = false) {
-        return await request(endpoints.CreateList, this.headers, { name, description, isPrivate });
+    async createList(args: { name: string, description?: string, isPrivate?: boolean }) {
+        return await request(endpoints.CreateList, this.headers, { name: args.name, description: args.description || '', isPrivate: args.isPrivate || false });
     }
-    async updateList(id: string, name: string, description: string, isPrivate: boolean) {
-        return await request(endpoints.UpdateList, this.headers, { listId: id, name, description, isPrivate });
+    async updateList(id: string, args: { name: string, description: string, isPrivate: boolean }) {
+        return await request(endpoints.UpdateList, this.headers, { listId: id, ...args });
     }
     async deleteList(id: string) {
         return await request(endpoints.DeleteList, this.headers, { listId: id });
@@ -183,6 +183,13 @@ export class TwitterClient {
     }
     async unpinTweet(id: string) {
         return await request(endpoints.UnpinTweet, this.headers, { tweet_id: id });
+    }
+    async changeTweetReplyPermissions(id: string, args: { permission: 'Community' | 'Verified' | 'ByInvitation' | null }) {
+        if (!args.permission) {
+            return await request(endpoints.ConversationControlDelete, this.headers, { tweet_id: id });
+        }
+
+        return await request(endpoints.ConversationControlChange, this.headers, { tweet_id: id, mode: args.permission });
     }
     async muteConversation(id: string) {
         return await request(endpoints.mutes_conversations_create, this.headers, { tweet_id: id });

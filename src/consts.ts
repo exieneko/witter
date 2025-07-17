@@ -1,13 +1,14 @@
 import { type Endpoint, gql, v11 } from './utils';
-import { entries, formatEntries, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter';
+import { entries, formatCard, formatEntries, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter';
 
 import type { Result } from './types';
 import type { _AccountSettings } from './types/raw/account';
-import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow } from './types/raw/results';
+import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow } from './types/raw/results';
 import type { _Typeahead } from './types/raw/search';
 import type { _UnreadCount } from './types/raw/notifications';
 import type { _User } from './types/raw/user';
 import type { _BookmarksWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers';
+import { _Card, _Tweet } from './types/raw/tweet';
 
 export const PUBLIC_TOKEN = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
 export const OAUTH_KEY = 'Bearer AAAAAAAAAAAAAAAAAAAAAG5LOQEAAAAAbEKsIYYIhrfOQqm4H8u7xcahRkU%3Dz98HKmzbeXdKqBfUDmElcqYl0cmmKY9KdS2UoNIz3Phapgsowi';
@@ -479,7 +480,39 @@ export const endpoints = {
         params: { tweet_id: String() },
         parser: (data: _TweetUnpin): Result => ({ result: data.data.unpin_tweet.message === 'post unpinned successfully' })
     },
-    // TODO card stuff
+    ConversationControlChange: {
+        url: gql('hb1elGcj6769uT8qVYqtjw/ConversationControlChange'),
+        method: POST,
+        params: { tweet_id: String(), mode: String() as 'Community' | 'Verified' | 'ByInvitation' },
+        parser: (data: _TweetConversationControlChange): Result => ({ result: data.data.tweet_conversation_control_put === 'Done' })
+    },
+    ConversationControlDelete: {
+        url: gql('OoMO_aSZ1ZXjegeamF9QmA/ConversationControlDelete'),
+        method: POST,
+        params: { tweet_id: String() },
+        parser: (data: _TweetConversationControlDelete): Result => ({ result: data.data.tweet_conversation_control_delete === 'Done' })
+    },
+    UnmentionUserFromConversation: {
+        url: gql('xVW9j3OqoBRY9d6_2OONEg/UnmentionUserFromConversation'),
+        method: POST,
+        params: { tweet_id: String() },
+        parser: (data: _TweetUnmention): Result => ({ result: data.data.unmention_user === 'Done' })
+    },
+    cards_create: {
+        url: 'https://caps.twitter.com/v2/cards/create.json',
+        method: POST,
+        parser: (data: any) => data
+    },
+    passthrough: {
+        url: gql('https://caps.twitter.com/v2/capi/passthrough/1'),
+        method: POST,
+        params: { card_uri: String(), original_tweet_id: String(), response_card_name: String(), selected_choice: Number() },
+        static: {
+            form: `twitter%3Astring%3Acard_uri={}&twitter%3Along%3Aoriginal_tweet_id={}&twitter%3Astring%3Aresponse_card_name={}&twitter%3Astring%3Acards_platform=Web-12&twitter%3Astring%3Aselected_choice={}`
+        },
+        headers: CONTENT_TYPE_FORM,
+        parser: (data: { card: _Card['legacy'] }) => formatCard(data.card)
+    },
     mutes_conversations_create: {
         url: v11('mutes/conversations/create.json'),
         method: POST,

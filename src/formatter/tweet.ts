@@ -2,10 +2,10 @@ import { formatCursor } from '.';
 import { formatCommunity } from './community';
 import { formatUser } from './user';
 
-import type { Entry, Retweet, TimelineTweet, Tweet, TweetTombstone, User } from '../types';
+import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetTombstone, User } from '../types';
 import type { _Cursor, _Entry } from '../types/raw';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
-import type { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
+import type { _Card, _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
 
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
@@ -44,7 +44,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         bookmarks_count: tweet.legacy.bookmark_count,
         bookmarked: tweet.legacy.bookmarked,
-        // TODO card data
+        card: tweet.card ? formatCard(tweet.card?.legacy) : undefined,
         community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
         created_at: new Date(tweet.legacy.created_at).toISOString(),
         editing: tweet.edit_control && tweet.edit_control.editable_until_msec ? {
@@ -154,4 +154,54 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
             content: formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]))
         })) : [])
     ];
+};
+
+
+
+export const formatCard = (input: _Card['legacy']): TweetCard => {
+    const getValue = <T extends 'STRING' | 'BOOLEAN'>(key: string, type: T): (T extends 'STRING' ? string : boolean) | undefined => {
+        const v = input.binding_values.find(bv => bv.key === key)?.value;
+        // @ts-ignore
+        return type === 'STRING' ? v?.type === 'STRING' ? v.string_value : undefined : v?.type === 'BOOLEAN' ? v.boolean_value : undefined;
+    };
+
+    return {
+        id: input.url,
+        audiospace: input.name.includes('space') ? {
+            id: getValue('id', 'STRING')!,
+            card_url: getValue('card_url', 'STRING')!,
+            narrow_cast_space_type: getValue('narrow_cast_space_type', 'STRING')!
+        } : undefined,
+        poll: input.name.includes('poll') ? {
+            card_url: getValue('card_url', 'STRING')!,
+            duration: Number(getValue('duration_minutes', 'STRING')) * 60 * 1000,
+            ends_at: getValue('end_datetime_utc', 'STRING')!,
+            ended: !!getValue('counts_are_final', 'BOOLEAN'),
+            options: [
+                {
+                    label: getValue('choice1_label', 'STRING')!,
+                    count: Number(getValue('choice1_count', 'STRING')),
+                },
+                {
+                    label: getValue('choice2_label', 'STRING')!,
+                    count: Number(getValue('choice2_count', 'STRING')),
+                },
+                {
+                    label: getValue('choice3_label', 'STRING')!,
+                    count: Number(getValue('choice3_count', 'STRING')),
+                },
+                {
+                    label: getValue('choice4_label', 'STRING')!,
+                    count: Number(getValue('choice4_count', 'STRING')),
+                }
+            ]
+        } : undefined,
+        embed: input.name.includes('summary') ? {
+            title: getValue('title', 'STRING')!,
+            description: getValue('description', 'STRING'),
+            domain: getValue('domain', 'STRING')!,
+            image_url: getValue('thumbnail_image_original', 'STRING') ?? getValue('photo_image_full_size_original', 'STRING'),
+            users: (input.user_refs_results || []).map(x => formatUser(x.user_results.result) as User)
+        } : undefined
+    };
 };

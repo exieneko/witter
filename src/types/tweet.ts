@@ -8,6 +8,31 @@ interface PollOption {
     count: number
 }
 
+export interface TweetCard {
+    id: string,
+    audiospace?: {
+        id: string,
+        card_url: string,
+        narrow_cast_space_type: string
+    },
+    poll?: {
+        card_url: string,
+        /** duration in ms */
+        duration: number,
+        ends_at: string,
+        ended: boolean,
+        options: [PollOption, PollOption, PollOption?, PollOption?]
+        selected_index?: number
+    },
+    embed?: {
+        title: string,
+        description?: string,
+        domain: string,
+        image_url?: string,
+        users: User[]
+    }
+}
+
 export interface Tweet {
     __type: 'Tweet',
     id: string,
@@ -20,23 +45,7 @@ export interface Tweet {
     },
     bookmarks_count: number,
     bookmarked: boolean,
-    card?: {
-        id: string,
-        audiospace?: {
-            id: string,
-            card_url: string,
-            narrow_cast_space_type: string
-        },
-        poll?: {
-            api: string,
-            card_url: string,
-            duration: string,
-            ends_at: string,
-            options: [PollOption, PollOption, PollOption?, PollOption?]
-        },
-        users: [],
-        url: string
-    },
+    card?: TweetCard,
     community?: Community,
     created_at: string,
     editing?: {
