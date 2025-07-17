@@ -1,5 +1,4 @@
-import type { Cursor } from '.';
-import type { UserList } from './user';
+import type { Cursor, Tweet, TweetList, UserList } from '.';
 
 export interface TrendEvent {
     __type: 'ExploreTrendEvent',
@@ -12,15 +11,21 @@ export interface TrendEvent {
 
 export interface Trend {
     __type: 'ExploreTrend',
-    grouped_trends: {
-        name: string,
-        url: string
-    }[],
     name: string,
     location?: string,
     topic?: string,
     tweets_count?: number,
-    url: string
+    url: string,
+    grouped_trends?: {
+        name: string,
+        url: string
+    }[]
+}
+
+export interface Segment {
+    __type: 'Segment',
+    id: string,
+    name: string
 }
 
 
@@ -52,11 +57,17 @@ export interface ExploreStories {
         ai: boolean,
         highlighted_avatar_urls: string[],
         name: string,
-        text: boolean,
+        text: string,
         url: string
     }[],
 }
 
+export type TimelineExploreItem = Segment | TrendEvent | Trend | ExploreStories | Tweet | TweetList | UserList | Cursor;
 
-
-export type TimelineExploreItem = TrendEvent | Trend | ExploreStories | UserList | Cursor;
+export interface Hashflag {
+    hashtag: string,
+    start_time: string,
+    end_time: string,
+    hashfetti: boolean,
+    url: string
+}

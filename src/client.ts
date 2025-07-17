@@ -48,6 +48,24 @@ export class TwitterClient {
 
 
 
+    async getExplorePage(args?: CursorOnly) {
+        return await request(endpoints.ExplorePage, this.headers, args);
+    }
+    async getGenericTimeline(id: string) {
+        return await request(endpoints.GenericTimelineById, this.headers, { timelineId: id });
+    }
+    async getTrends() {
+        return await request(endpoints.ExploreSidebar, this.headers);
+    }
+    async getRecommendedUsers(userId: string) {
+        return await request(endpoints.SidebarUserRecommendations, this.headers, { profileUserId: userId });
+    }
+    async getHashflags() {
+        return await request(endpoints.hashflags, this.headers);
+    }
+
+
+
     async createList(args: { name: string, description?: string, isPrivate?: boolean }) {
         return await request(endpoints.CreateList, this.headers, { name: args.name, description: args.description || '', isPrivate: args.isPrivate || false });
     }

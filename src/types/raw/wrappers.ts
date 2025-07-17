@@ -6,7 +6,7 @@ import type { _List } from './list';
 import type { _NotificationGlobalObjects } from './notifications';
 import type { _SearchUserModulesItem } from './search';
 import type { _Tweet } from './tweet';
-import type { _User } from './user';
+import type { _User, _UserV3 } from './user';
 
 export interface Data<T extends object> {
     data: T,
@@ -276,7 +276,9 @@ export interface _CommunityWrapper {
 
 export interface _ExploreTrendingWrapper {
     explore_sidebar: {
-        instructions: Instructions<_ExploreSidebarItem | _Cursor>
+        timeline: {
+            instructions: Instructions<_ExploreSidebarItem | _Cursor>
+        }
     }
 }
 
@@ -343,7 +345,7 @@ export interface _SidebarUserRecommendationsWrapper {
     sidebar_user_recommendations: {
         token: string,
         user_results: {
-            result: _User
+            result: _UserV3
         }
     }[]
 }

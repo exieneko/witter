@@ -42,15 +42,17 @@ export const formatListModuleEntries = (input: _Entry<_ListsItem>[]): Entry<List
     const lists = input.filter(entry => entry.content.__typename === 'TimelineTimelineModule') as _Entry<_ListModuleItem>[];
 
     return [
+        // @ts-ignore
         ...lists.map(entry => ({
             id: entry.entryId,
             content: {
                 __type: 'ListModule',
                 items: entry.content.items.map(item => formatList(item.item.itemContent.list))
-            } as const
+            }
         })),
         {
             id: cursorEntry.entryId,
+            // @ts-ignore
             content: formatCursor(cursorEntry.content)
         }
     ];

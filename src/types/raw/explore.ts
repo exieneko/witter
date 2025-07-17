@@ -23,7 +23,7 @@ export interface _Trend {
         /** topic or location text */
         domain_context: string,
         /** tweet counter */
-        meta_description: string,
+        meta_description?: string,
         url: {
             url: string
         }
@@ -91,4 +91,12 @@ export interface _SportsTile {
             }
         }
     }
+}
+
+export interface _Hashflag {
+    hashtag: string,
+    starting_timestamp_ms: number,
+    ending_timestamp_ms: number,
+    asset_url: string,
+    is_hashfetti_enabled: boolean
 }

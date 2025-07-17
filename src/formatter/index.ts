@@ -3,6 +3,7 @@ import type { _Cursor } from '../types/raw';
 
 export * from './birdwatch';
 export * from './community';
+export * from './explore';
 export * from './search';
 export * from './list';
 export * from './notifications';

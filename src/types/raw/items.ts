@@ -9,8 +9,8 @@ import type { _User, _UserV3 } from './user';
 // BASICALLY EVERYTHING HERE IS WHAT GOES IN EACH ENTRY, UNDER `content`
 // SO ALL OF THESE NEED EITHER `itemContent` OR `items`
 
-export interface _ExploreTrendItem {
-    __typename: 'TimelineTimelineModule',
+export interface _ExploreTrendItem<Type extends 'Module' | 'Item' = 'Module'> {
+    __typename: `TimelineTimeline${Type}`,
     itemContent: _EventSummary | _Trend
 }
 
@@ -33,7 +33,7 @@ export interface _ExploreTopicItem extends _TweetConversationItem {
     }
 }
 
-export type _ExplorePageItem = _ExploreTrendItem | _ExploreStoriesItem | _ExploreTopicItem | {
+export interface _ExploreWhoToFollowItem {
     __typename: 'TimelineTimelineModule',
     items: {
         entryId: string,
@@ -41,7 +41,9 @@ export type _ExplorePageItem = _ExploreTrendItem | _ExploreStoriesItem | _Explor
             itemContent: _UserItem
         }
     }[]
-};
+}
+
+export type _ExplorePageItem = _TweetItem | _ExploreTrendItem | _ExploreStoriesItem | _ExploreTopicItem | _ExploreWhoToFollowItem;
 
 export interface _ExploreSportsItem {
     __typename: 'TimelineTimelineModule',

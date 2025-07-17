@@ -130,3 +130,8 @@ export interface TweetTombstone {
 
 
 export type TimelineTweet = Tweet | Retweet | TweetConversation | TweetTombstone | Cursor;
+
+export interface TweetList {
+    __type: 'TweetList',
+    items: Tweet[]
+}
