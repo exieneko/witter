@@ -28,7 +28,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             __type: 'Retweet',
             id: tweet.rest_id,
             retweeter: formatUser(tweet.core.user_results.result) as User,
-            retweeted_tweet: formatTweet(tweet.legacy.retweeted_status_result.result) as Tweet
+            retweetedTweet: formatTweet(tweet.legacy.retweeted_status_result.result) as Tweet
         }
     }
 
@@ -36,28 +36,28 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         __type: 'Tweet',
         id: tweet.rest_id,
         author: formatUser(tweet.core.user_results.result) as User,
-        birdwatch_note: tweet.has_birdwatch_notes && tweet.birdwatch_pivot ? {
+        birdwatchNote: tweet.has_birdwatch_notes && tweet.birdwatch_pivot ? {
             id: tweet.birdwatch_pivot.note.rest_id,
             text: tweet.birdwatch_pivot.subtitle.text,
             public: tweet.birdwatch_pivot.visualStyle === 'Default',
             url: tweet.birdwatch_pivot.destinationUrl
         } : undefined,
-        bookmarks_count: tweet.legacy.bookmark_count,
+        bookmarksCount: tweet.legacy.bookmark_count,
         bookmarked: tweet.legacy.bookmarked,
         card: tweet.card ? formatCard(tweet.card?.legacy) : undefined,
         community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
-        created_at: new Date(tweet.legacy.created_at).toISOString(),
+        createdAt: new Date(tweet.legacy.created_at).toISOString(),
         editing: tweet.edit_control && tweet.edit_control.editable_until_msec ? {
-            allowed_until: tweet.edit_control.editable_until_msec.toString(),
+            allowedUntil: tweet.edit_control.editable_until_msec.toString(),
             eligible: tweet.edit_control.is_edit_eligible,
-            remaining_count: Number(tweet.edit_control.edits_remaining),
-            tweet_ids: tweet.edit_control.edit_tweet_ids
+            remainingCount: Number(tweet.edit_control.edits_remaining),
+            tweetIds: tweet.edit_control.edit_tweet_ids
         } : undefined,
         expandable: tweet.note_tweet?.is_expandable || false,
-        has_grok_chat_embed: !!tweet.grok_share_attachment,
-        has_hidden_replies: hasHiddenReplies || false,
+        hasGrokChatEmbed: !!tweet.grok_share_attachment,
+        hasHiddenReplies: hasHiddenReplies || false,
         lang: tweet.legacy.lang,
-        likes_count: tweet.legacy.favorite_count,
+        likesCount: tweet.legacy.favorite_count,
         liked: tweet.legacy.favorited,
         limited: limitations ? {
             actions: limitations.actions?.map(({ action }) => action),
@@ -68,8 +68,12 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             id: media.id_str,
             url: media.media_url_https,
             video: {
-                aspect_ratio: media.video_info!.aspect_ratio,
-                variants: media.video_info!.variants
+                aspectRatio: media.video_info!.aspect_ratio,
+                variants: media.video_info!.variants.map(variant => ({
+                    bitrate: variant.bitrate,
+                    contentType: variant.content_type,
+                    url: variant.url
+                }))
             }
         } : {
             __type: 'MediaPhoto',
@@ -78,30 +82,30 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         }) satisfies NonNullable<Tweet['media']>[number]),
         muted: false,
         platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
-        quote_tweets_count: tweet.legacy.quote_count,
-        quoted_tweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
+        quoteTweetsCount: tweet.legacy.quote_count,
+        quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
             tweet.quoted_status_result.result.__typename === 'TweetWithVisibilityResults' ? tweet.quoted_status_result.result.tweet : tweet.quoted_status_result!.result
         ) as Tweet : undefined,
-        quoted_tweet_fallback: tweet.legacy.quoted_status_id_str ? {
-            has_quoted_tweet: tweet.legacy.is_quote_status,
-            tweet_id: tweet.legacy.quoted_status_id_str
+        quotedTweetFallback: tweet.legacy.quoted_status_id_str ? {
+            hasQuotedTweet: tweet.legacy.is_quote_status,
+            tweetId: tweet.legacy.quoted_status_id_str
         } : undefined,
-        replies_count: tweet.legacy.reply_count,
-        replying_to: tweet.legacy.in_reply_to_status_id_str ? {
-            tweet_id: tweet.legacy.in_reply_to_status_id_str,
+        repliesCount: tweet.legacy.reply_count,
+        replyingTo: tweet.legacy.in_reply_to_status_id_str ? {
+            tweetId: tweet.legacy.in_reply_to_status_id_str,
             username: tweet.legacy.in_reply_to_screen_name
         } : undefined,
-        retweets_count: tweet.legacy.retweet_count,
+        retweetsCount: tweet.legacy.retweet_count,
         retweeted: tweet.legacy.retweeted,
         text: tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '',
-        text_highlights: highlights || [],
+        textHighlights: highlights || [],
         translatable: tweet.is_translatable,
         urls: tweet.legacy.entities.urls.map(url => ({
             url: url.url,
-            display_url: url.display_url,
-            expanded_url: url.expanded_url
+            displayUrl: url.display_url,
+            expandedUrl: url.expanded_url
         })),
-        views_count: tweet.views.count ? Number(tweet.views.count) : undefined
+        viewsCount: tweet.views.count ? Number(tweet.views.count) : undefined
     };
 };
 
@@ -169,13 +173,13 @@ export const formatCard = (input: _Card['legacy']): TweetCard => {
         id: input.url,
         audiospace: input.name.includes('space') ? {
             id: getValue('id', 'STRING')!,
-            card_url: getValue('card_url', 'STRING')!,
-            narrow_cast_space_type: getValue('narrow_cast_space_type', 'STRING')!
+            cardUrl: getValue('card_url', 'STRING')!,
+            narrowCastSpaceType: getValue('narrow_cast_space_type', 'STRING')!
         } : undefined,
         poll: input.name.includes('poll') ? {
-            card_url: getValue('card_url', 'STRING')!,
+            cardUrl: getValue('card_url', 'STRING')!,
             duration: Number(getValue('duration_minutes', 'STRING')) * 60 * 1000,
-            ends_at: getValue('end_datetime_utc', 'STRING')!,
+            endsAt: getValue('end_datetime_utc', 'STRING')!,
             ended: !!getValue('counts_are_final', 'BOOLEAN'),
             options: [
                 {
@@ -200,7 +204,7 @@ export const formatCard = (input: _Card['legacy']): TweetCard => {
             title: getValue('title', 'STRING')!,
             description: getValue('description', 'STRING'),
             domain: getValue('domain', 'STRING')!,
-            image_url: getValue('thumbnail_image_original', 'STRING') ?? getValue('photo_image_full_size_original', 'STRING'),
+            imageUrl: getValue('thumbnail_image_original', 'STRING') ?? getValue('photo_image_full_size_original', 'STRING'),
             users: (input.user_refs_results || []).map(x => formatUser(x.user_results.result) as User)
         } : undefined
     };

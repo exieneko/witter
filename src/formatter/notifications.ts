@@ -10,7 +10,7 @@ const formatNotificationItem = (input: _NotificationItem): Notification => {
     return {
         __type: 'Notification',
         id: input.itemContent.id,
-        created_at: new Date(input.itemContent.timestamp_ms).toISOString(),
+        createdAt: new Date(input.itemContent.timestamp_ms).toISOString(),
         text: input.itemContent.rich_message.text,
         type: input.clientEventInfo.element === 'device_follow_tweet_notification_entry'
             ? 'tweets_from_following'
@@ -50,22 +50,26 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             __type: 'Tweet',
             id: tweet.id_str,
             author: formatUserLegacy(author),
-            bookmarks_count: tweet.bookmark_count,
+            bookmarksCount: tweet.bookmark_count,
             bookmarked: tweet.bookmarked,
-            created_at: new Date(tweet.created_at).toISOString(),
+            createdAt: new Date(tweet.created_at).toISOString(),
             expandable: false,
-            has_grok_chat_embed: false,
-            has_hidden_replies: false,
+            hasGrokChatEmbed: false,
+            hasHiddenReplies: false,
             lang: tweet.lang,
-            likes_count: tweet.favorite_count,
+            likesCount: tweet.favorite_count,
             liked: tweet.favorited,
             media: tweet.entities.media?.map(media => (media.type === 'video' ? {
                 __type: 'MediaVideo',
                 id: media.id_str,
                 url: media.media_url_https,
                 video: {
-                    aspect_ratio: media.video_info!.aspect_ratio,
-                    variants: media.video_info!.variants
+                    aspectRatio: media.video_info!.aspect_ratio,
+                    variants: media.video_info!.variants.map(variant => ({
+                        bitrate: variant.bitrate,
+                        contentType: variant.content_type,
+                        url: variant.url
+                    }))
                 }
             } : {
                 __type: 'MediaPhoto',
@@ -75,26 +79,26 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             muted: false,
             // @ts-ignore
             platform: tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
-            quote_tweets_count: tweet.quote_count,
-            quoted_tweet: quotedTweet && quotedTweetAuthor ? getFromId(quotedTweet.id_str) as Tweet : undefined,
-            quoted_tweet_fallback: tweet.quoted_status_id_str ? {
-                has_quoted_tweet: tweet.is_quote_status,
-                tweet_id: tweet.quoted_status_id_str
+            quoteTweetsCount: tweet.quote_count,
+            quotedTweet: quotedTweet && quotedTweetAuthor ? getFromId(quotedTweet.id_str) as Tweet : undefined,
+            quotedTweetFallback: tweet.quoted_status_id_str ? {
+                hasQuotedTweet: tweet.is_quote_status,
+                tweetId: tweet.quoted_status_id_str
             } : undefined,
-            replies_count: tweet.reply_count,
-            replying_to: tweet.in_reply_to_status_id_str ? {
-                tweet_id: tweet.in_reply_to_status_id_str,
+            repliesCount: tweet.reply_count,
+            replyingTo: tweet.in_reply_to_status_id_str ? {
+                tweetId: tweet.in_reply_to_status_id_str,
                 username: tweet.in_reply_to_screen_name
             } : undefined,
-            retweets_count: tweet.retweet_count,
+            retweetsCount: tweet.retweet_count,
             retweeted: tweet.retweeted,
             text: tweet.full_text || '',
-            text_highlights: [],
+            textHighlights: [],
             translatable: false,
             urls: tweet.entities.urls.map(url => ({
                 url: url.url,
-                display_url: url.display_url,
-                expanded_url: url.expanded_url
+                displayUrl: url.display_url,
+                expandedUrl: url.expanded_url
             }))
         };
     };

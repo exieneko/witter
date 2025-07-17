@@ -12,23 +12,23 @@ export interface TweetCard {
     id: string,
     audiospace?: {
         id: string,
-        card_url: string,
-        narrow_cast_space_type: string
+        cardUrl: string,
+        narrowCastSpaceType: string
     },
     poll?: {
-        card_url: string,
+        cardUrl: string,
         /** duration in ms */
         duration: number,
-        ends_at: string,
+        endsAt: string,
         ended: boolean,
         options: [PollOption, PollOption, PollOption?, PollOption?]
-        selected_index?: number
+        selectedIndex?: number
     },
     embed?: {
         title: string,
         description?: string,
         domain: string,
-        image_url?: string,
+        imageUrl?: string,
         users: User[]
     }
 }
@@ -37,28 +37,28 @@ export interface Tweet {
     __type: 'Tweet',
     id: string,
     author: User,
-    birdwatch_note?: {
+    birdwatchNote?: {
         id: string,
         text: string,
         public: boolean,
         url: string
     },
-    bookmarks_count: number,
+    bookmarksCount: number,
     bookmarked: boolean,
     card?: TweetCard,
     community?: Community,
-    created_at: string,
+    createdAt: string,
     editing?: {
-        allowed_until: string,
+        allowedUntil: string,
         eligible: boolean,
-        remaining_count: number,
-        tweet_ids: string[]
+        remainingCount: number,
+        tweetIds: string[]
     },
     expandable: boolean,
-    has_grok_chat_embed: boolean,
-    has_hidden_replies: boolean,
+    hasGrokChatEmbed: boolean,
+    hasHiddenReplies: boolean,
     lang: string,
-    likes_count: number,
+    likesCount: number,
     liked: boolean,
     limited?: {
         actions?: _LimitedActionType[],
@@ -75,46 +75,46 @@ export interface Tweet {
         blurred?: boolean,
         url: string,
         video: {
-            aspect_ratio: [number, number],
+            aspectRatio: [number, number],
             variants: {
                 bitrate: number,
-                content_type: string,
+                contentType: string,
                 url: string
             }[]
         }
     })[],
     muted: boolean,
     platform?: string,
-    quote_tweets_count: number,
-    quoted_tweet?: Tweet,
-    quoted_tweet_fallback?: {
-        has_quoted_tweet: boolean,
-        tweet_id: string
+    quoteTweetsCount: number,
+    quotedTweet?: Tweet,
+    quotedTweetFallback?: {
+        hasQuotedTweet: boolean,
+        tweetId: string
     },
-    replies_count: number,
-    replying_to?: {
-        tweet_id: string,
+    repliesCount: number,
+    replyingTo?: {
+        tweetId: string,
         username: string
     },
-    retweets_count: number,
+    retweetsCount: number,
     retweeted: boolean,
     text: string,
     /** `[start_index, end_index]` */
-    text_highlights: [number, number][],
+    textHighlights: [number, number][],
     translatable: boolean,
     urls: {
         url: string,
-        display_url: string,
-        expanded_url: string
+        displayUrl: string,
+        expandedUrl: string
     }[],
-    views_count?: number
+    viewsCount?: number
 }
 
 export interface Retweet {
     __type: 'Retweet',
     id: string,
     retweeter: User,
-    retweeted_tweet: Tweet
+    retweetedTweet: Tweet
 }
 
 export interface TweetConversation {

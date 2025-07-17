@@ -1,47 +1,47 @@
 export interface User {
     __type: 'User',
     id: string,
-    affiliates_count?: number,
-    affiliate_label?: {
+    affiliatesCount?: number,
+    affiliateLabel?: {
         title: string,
         owner: string,
-        image_url: string
+        imageUrl: string
     },
-    avatar_url: string,
-    banner_url: string,
+    avatarUrl: string,
+    bannerUrl: string,
     birthdate?: {
         day: number,
         month: number,
         year?: number
     },
     blocked: boolean,
-    blocked_by: boolean,
-    can_dm: boolean,
-    can_media_tag: boolean,
-    created_at: string,
+    blockedBy: boolean,
+    canDm: boolean,
+    canMediaTag: boolean,
+    createdAt: string,
     description?: string,
-    followers_count: number,
-    following_count: number,
+    followersCount: number,
+    followingCount: number,
     followed: boolean,
-    follow_requested?: boolean,
-    followed_by: boolean,
+    followRequested?: boolean,
+    followedBy: boolean,
     job?: string,
     location?: string,
     muted: boolean,
     name: string,
-    pinned_tweet_id?: string,
+    pinnedTweetId?: string,
     private: boolean,
     translatable: boolean,
-    tweets_count: number,
-    media_count: number,
-    likes_count: number,
-    listed_count: number,
+    tweetsCount: number,
+    mediaCount: number,
+    likesCount: number,
+    listedCount: number,
     username: string,
     url?: string,
     verified: boolean,
-    verified_type?: 'blue' | 'gold' | 'gray';
-    want_retweets?: boolean,
-    want_notifications?: boolean
+    verifiedType?: 'blue' | 'gold' | 'gray';
+    wantRetweets?: boolean,
+    wantNotifications?: boolean
 }
 
 export interface UnavailableUser {

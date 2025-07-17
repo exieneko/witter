@@ -4,5 +4,5 @@ export interface Topic {
     description: string,
     followed: boolean,
     name: string,
-    not_interested: boolean
+    notInterested: boolean
 }

@@ -11,47 +11,47 @@ export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUse
         return {
             __type: 'User',
             id: input.rest_id,
-            affiliates_count: input.business_account?.affiliates_count,
-            affiliate_label: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
+            affiliatesCount: input.business_account?.affiliates_count,
+            affiliateLabel: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
                 title: input.affiliates_highlighted_label.label.description,
                 owner: input.affiliates_highlighted_label.label.url.url.split('.com/')[1],
-                image_url: input.affiliates_highlighted_label.label.badge.url
+                imageUrl: input.affiliates_highlighted_label.label.badge.url
             } : undefined,
-            avatar_url: input.legacy.profile_image_url_https.replace('normal', '400x400'),
-            banner_url: input.legacy.profile_banner_url,
+            avatarUrl: input.legacy.profile_image_url_https.replace('normal', '400x400'),
+            bannerUrl: input.legacy.profile_banner_url,
             birthdate: input.legacy_extended_profile?.birthdate ? {
                 day: input.legacy_extended_profile.birthdate.day,
                 month: input.legacy_extended_profile.birthdate.month - 1,
                 year: input.legacy_extended_profile.birthdate.year
             } : undefined,
             blocked: input.legacy.blocking || false,
-            blocked_by: input.legacy.blocked_by || false,
-            can_dm: input.legacy.can_dm,
-            can_media_tag: input.legacy.can_media_tag,
-            created_at: new Date(input.legacy.created_at).toISOString(),
+            blockedBy: input.legacy.blocked_by || false,
+            canDm: input.legacy.can_dm,
+            canMediaTag: input.legacy.can_media_tag,
+            createdAt: new Date(input.legacy.created_at).toISOString(),
             description: input.legacy.description || undefined,
-            followers_count: input.legacy.followers_count,
-            following_count: input.legacy.friends_count,
+            followersCount: input.legacy.followers_count,
+            followingCount: input.legacy.friends_count,
             followed: input.legacy.following || false,
-            follow_requested: input.legacy.protected ? input.legacy.follow_request_sent || false : undefined,
-            followed_by: input.legacy.followed_by || false,
+            followRequested: input.legacy.protected ? input.legacy.follow_request_sent || false : undefined,
+            followedBy: input.legacy.followed_by || false,
             job: input.professional?.category.at(0)?.name,
             location: input.legacy.location || undefined,
             muted: input.legacy.muting || false,
             name: input.legacy.name,
-            pinned_tweet_id: input.legacy.pinned_tweet_ids_str.at(0),
+            pinnedTweetId: input.legacy.pinned_tweet_ids_str.at(0),
             private: input.legacy.protected,
             translatable: input.is_profile_translatable,
-            tweets_count: input.legacy.statuses_count,
-            media_count: input.legacy.media_count,
-            likes_count: input.legacy.favourites_count,
-            listed_count: input.legacy.listed_count,
+            tweetsCount: input.legacy.statuses_count,
+            mediaCount: input.legacy.media_count,
+            likesCount: input.legacy.favourites_count,
+            listedCount: input.legacy.listed_count,
             username: input.legacy.screen_name,
             url: input.legacy.url || undefined,
             verified: input.legacy.verified,
-            verified_type: input.legacy.verified ? input.legacy.verified_type === 'Business' ? 'gold' : input.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
-            want_retweets: input.legacy.want_retweets || true,
-            want_notifications: input.legacy.notifications || false
+            verifiedType: input.legacy.verified ? input.legacy.verified_type === 'Business' ? 'gold' : input.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+            wantRetweets: input.legacy.want_retweets || true,
+            wantNotifications: input.legacy.notifications || false
         };
     }
 
@@ -65,35 +65,35 @@ export const formatUserLegacy = (input: _User['legacy']): User => {
     return {
         __type: 'User',
         id: input.id_str,
-        avatar_url: input.profile_image_url_https.replace('normal', '400x400'),
-        banner_url: input.profile_banner_url,
+        avatarUrl: input.profile_image_url_https.replace('normal', '400x400'),
+        bannerUrl: input.profile_banner_url,
         blocked: input.blocking || false,
-        blocked_by: input.blocked_by || false,
-        can_dm: input.can_dm,
-        can_media_tag: input.can_media_tag,
-        created_at: new Date(input.created_at || 0).toISOString(),
+        blockedBy: input.blocked_by || false,
+        canDm: input.can_dm,
+        canMediaTag: input.can_media_tag,
+        createdAt: new Date(input.created_at || 0).toISOString(),
         description: input.description || undefined,
-        followers_count: input.followers_count,
-        following_count: input.friends_count,
+        followersCount: input.followers_count,
+        followingCount: input.friends_count,
         followed: input.following || false,
-        follow_requested: input.protected ? input.follow_request_sent || false : undefined,
-        followed_by: input.followed_by || false,
+        followRequested: input.protected ? input.follow_request_sent || false : undefined,
+        followedBy: input.followed_by || false,
         location: input.location || undefined,
         muted: input.muting || false,
         name: input.name,
-        pinned_tweet_id: input.pinned_tweet_ids_str?.at(0),
+        pinnedTweetId: input.pinned_tweet_ids_str?.at(0),
         private: input.protected,
         translatable: false,
-        tweets_count: input.statuses_count,
-        media_count: input.media_count,
-        likes_count: input.favourites_count,
-        listed_count: input.listed_count,
+        tweetsCount: input.statuses_count,
+        mediaCount: input.media_count,
+        likesCount: input.favourites_count,
+        listedCount: input.listed_count,
         username: input.screen_name,
         url: input.url || undefined,
         verified: input.verified,
-        verified_type: input.verified ? input.verified_type === 'Business' ? 'gold' : input.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
-        want_retweets: input.want_retweets || true,
-        want_notifications: input.notifications || false
+        verifiedType: input.verified ? input.verified_type === 'Business' ? 'gold' : input.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+        wantRetweets: input.want_retweets || true,
+        wantNotifications: input.notifications || false
     };
 };
 
@@ -133,22 +133,22 @@ export const formatSettings = (input: _AccountSettings): Settings => {
     return {
         country: {
             code: input.country_code,
-            eu_member: (input.settings_metadata?.is_eu || false).toString() === 'true'
+            euMember: (input.settings_metadata?.is_eu || false).toString() === 'true'
         },
         inbox: {
-            allow_incoming_messages: input.allow_dms_from !== 'following',
-            allow_incoming_messages_from_verified_only: input.allow_dms_from === 'verified',
-            read_receipts: input.dm_receipt_setting === 'all_enabled',
-            quality_filter: input.dm_quality_filter === 'enabled'
+            allowIncomingMessages: input.allow_dms_from !== 'following',
+            allowIncomingMessagesFromVerifiedOnly: input.allow_dms_from === 'verified',
+            readReceipts: input.dm_receipt_setting === 'all_enabled',
+            qualityFilter: input.dm_quality_filter === 'enabled'
         },
-        mention_filter: input.mention_filter !== 'unfiltered',
+        mentionFilter: input.mention_filter !== 'unfiltered',
         lang: input.language,
         username: input.screen_name,
         warnings: {
-            personalized_ads_enabled: input.allow_ads_personalization || false,
-            data_selling_enabled: input.allow_sharing_data_for_third_party_personalization || false,
-            discoverable_by_email: input.discoverable_by_email || false,
-            discoverable_by_phone_number: input.discoverable_by_mobile_phone || false
+            personalizedAdsEnabled: input.allow_ads_personalization || false,
+            dataSellingEnabled: input.allow_sharing_data_for_third_party_personalization || false,
+            discoverableByEmail: input.discoverable_by_email || false,
+            discoverableByPhoneNumber: input.discoverable_by_mobile_phone || false
         }
     };
 };

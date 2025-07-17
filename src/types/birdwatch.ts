@@ -12,28 +12,28 @@ export type BirdwatchNotMisleadingTweetTag = 'FactuallyCorrect' | 'PersonalOpini
 export interface BirdwatchContributor {
     __type: 'BirdwatchContributor',
     alias: string,
-    deleted_notes_count?: number,
-    has_notes?: boolean,
+    deletedNotesCount?: number,
+    hasNotes?: boolean,
     ratings: {
-        total_count: number,
-        last_updated_at: string,
-        awaiting_more_ratings_count: number,
+        totalCount: number,
+        lastUpdatedAt: string,
+        awaitingMoreRatingsCount: number,
         successful: {
-            helpful_count: number,
-            not_helpful_count: number,
-            total_count: number
+            helpfulCount: number,
+            notHelpfulCount: number,
+            totalCount: number
         },
         unsuccessful: {
-            helpful_count: number,
-            not_helpful_count: number,
-            total_count: number
+            helpfulCount: number,
+            notHelpfulCount: number,
+            totalCount: number
         }
     },
     notes: {
-        last_updated_at: string,
-        awaiting_count: number,
-        helpful_count: number,
-        not_helpful_count: number
+        lastUpdatedAt: string,
+        awaitingCount: number,
+        helpfulCount: number,
+        notHelpfulCount: number
     }
 }
 
@@ -41,29 +41,29 @@ export interface BirdwatchNote {
     __type: 'BirdwatchNote',
     id: string,
     author: BirdwatchContributor,
-    created_at: string,
-    has_trustworthy_sources: boolean,
+    createdAt: string,
+    hasTrustworthySources: boolean,
     status: BirdwatchRatingStatus,
     tags: {
         helpful?: BirdwatchHelpfulTag[],
-        not_helpful?: BirdwatchNotHelpfulTag[],
+        notHelpful?: BirdwatchNotHelpfulTag[],
     },
     text: string,
-    tweet_id: string,
-    views_count: number
+    tweetId: string,
+    viewsCount: number
 }
 
 export interface BirdwatchTweet {
-    note_needed: (BirdwatchNote & {
-        tweet_tags: {
+    noteNeeded: (BirdwatchNote & {
+        tweetTags: {
             classification: BirdwatchNoteNegativeClassification,
             misleading: BirdwatchMisleadingTweetTag[]
         }
     })[],
-    note_not_needed: (BirdwatchNote & {
-        tweet_tags: {
+    noteNotNeeded: (BirdwatchNote & {
+        tweetTags: {
             classification: BirdwatchNotePositiveClassification,
-            not_misleading: BirdwatchNotMisleadingTweetTag[]
+            notMisleading: BirdwatchNotMisleadingTweetTag[]
         }
     })[]
 }

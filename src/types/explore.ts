@@ -3,7 +3,7 @@ import type { Cursor, Tweet, TweetList, UserList } from '.';
 export interface TrendEvent {
     __type: 'ExploreTrendEvent',
     id: string,
-    image_url: string,
+    imageUrl: string,
     name: string,
     time: string,
     url: string
@@ -14,9 +14,9 @@ export interface Trend {
     name: string,
     location?: string,
     topic?: string,
-    tweets_count?: number,
+    tweetsCount?: number,
     url: string,
-    grouped_trends?: {
+    groupedTrends?: {
         name: string,
         url: string
     }[]
@@ -36,15 +36,15 @@ export interface ExploreSports {
         id: string,
         category: string,
         clock?: string,
-        image_url: string,
-        start_time: string,
+        imageUrl: string,
+        startTime: string,
         state?: 'scheduled' | 'in_progress',
         participants: {
             id: string,
             color: `#${string}`,
-            logo_url: string,
+            logoUrl: string,
             name: string,
-            name_acronym: string,
+            nameAcronym: string,
             score?: string
         }[],
         url: string
@@ -55,7 +55,7 @@ export interface ExploreStories {
     __type: 'ExploreStories',
     items: {
         ai: boolean,
-        highlighted_avatar_urls: string[],
+        highlightedAvatarUrls: string[],
         name: string,
         text: string,
         url: string
@@ -66,8 +66,8 @@ export type TimelineExploreItem = Segment | TrendEvent | Trend | ExploreStories 
 
 export interface Hashflag {
     hashtag: string,
-    start_time: string,
-    end_time: string,
+    startTime: string,
+    endTime: string,
     hashfetti: boolean,
     url: string
 }

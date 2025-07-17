@@ -8,7 +8,7 @@ type NotificationType =
 export interface Notification {
     __type: 'Notification',
     id: string,
-    created_at: string,
+    createdAt: string,
     text: string,
     type: NotificationType,
     users?: User[]

@@ -54,7 +54,7 @@ export const formatEventSummary = (input: _EventSummary): TrendEvent => {
     return {
         __type: 'ExploreTrendEvent',
         id: input.event.rest_id,
-        image_url: input.image.url,
+        imageUrl: input.image.url,
         name: input.title,
         time: input.timeString,
         url: input.eventSummaryUrl.url
@@ -67,11 +67,11 @@ export const formatTrend = (input: _Trend): Trend => {
         name: input.name,
         location: input.trend_metadata.domain_context.match(/^Trending\sin\s(.+?)$/)?.at(1),
         topic: input.trend_metadata.domain_context.match(/^(.+?)\s·\sTrending$/)?.at(1),
-        tweets_count: input.trend_metadata.meta_description
+        tweetsCount: input.trend_metadata.meta_description
             ? Number(input.trend_metadata.meta_description.match(/^([0-9,]+?)\s.*$/)?.at(1)?.replace(/\D/g, '')) || Number(input.trend_metadata.meta_description.match(/^([0-9\.]+?)K\s.*$/)?.at(1)) * 1000 || Number(input.trend_metadata.meta_description.match(/^([0-9\.]+?)M\s.*$/)?.at(1)) * 1000000
             : undefined,
         url: input.trend_url.url,
-        grouped_trends: input.grouped_trends?.map(trend => ({
+        groupedTrends: input.grouped_trends?.map(trend => ({
             name: trend.name,
             url: trend.url.url
         }))
@@ -87,8 +87,8 @@ export const formatSidebarItem = (input: _ExploreSidebarItem) => {
 export const formatHashflag = (input: _Hashflag): Hashflag => {
     return {
         hashtag: input.hashtag,
-        start_time: new Date(input.starting_timestamp_ms).toISOString(),
-        end_time: new Date(input.ending_timestamp_ms).toISOString(),
+        startTime: new Date(input.starting_timestamp_ms).toISOString(),
+        endTime: new Date(input.ending_timestamp_ms).toISOString(),
         hashfetti: !!input.is_hashfetti_enabled,
         url: input.asset_url,
     };
@@ -101,7 +101,7 @@ export const formatStories = (input: _ExploreStoriesItem): ExploreStories => {
         __type: 'ExploreStories',
         items: input.items.map(item => ({
             ai: !!item.item.itemContent.is_ai_trend,
-            highlighted_avatar_urls: item.item.itemContent.social_context.contextImageUrls || [],
+            highlightedAvatarUrls: item.item.itemContent.social_context.contextImageUrls || [],
             name: item.item.itemContent.name,
             text: item.item.itemContent.social_context.text,
             url: item.item.itemContent.trend_url.url

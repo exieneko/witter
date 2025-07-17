@@ -7,19 +7,19 @@ export const formatCommunity = (input: _Community): Community => {
     return {
         __type: 'Community',
         id: input.rest_id,
-        created_at: new Date(input.created_at).toISOString(),
-        creator_username: input.creator_results?.result.legacy.screen_name,
+        createdAt: new Date(input.created_at).toISOString(),
+        creatorUsername: input.creator_results?.result.legacy.screen_name,
         description: input.description || undefined,
-        highlighted_avatar_users: input.members_facepile_results.map(user => formatUser(user.result) as User),
+        highlightedAvatarUsers: input.members_facepile_results.map(user => formatUser(user.result) as User),
         joinable: input.join_policy === 'Open',
         member: input.role !== 'NonMember',
-        members_count: input.member_count,
+        membersCount: input.member_count,
         moderator: input.role === 'Moderator',
-        moderators_count: input.moderator_count,
+        moderatorsCount: input.moderator_count,
         name: input.name,
         nsfw: input.is_nsfw,
         pinned: input.is_pinned,
-        primary_topic: {
+        primaryTopic: {
             id: input.primary_community_topic.topic_id,
             name: input.primary_community_topic.topic_name,
             subtopics: input.primary_community_topic.subtopics?.map(topic => ({

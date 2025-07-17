@@ -11,19 +11,19 @@ export interface Community {
         }[],
         url: string
     },
-    created_at: string,
-    creator_username?: string,
+    createdAt: string,
+    creatorUsername?: string,
     description?: string,
-    highlighted_avatar_users: User[],
+    highlightedAvatarUsers: User[],
     joinable: boolean,
     member: boolean,
-    members_count: number,
+    membersCount: number,
     moderator: boolean,
-    moderators_count: number,
+    moderatorsCount: number,
     name: string,
     nsfw: boolean,
     pinned: boolean,
-    primary_topic: {
+    primaryTopic: {
         id: string,
         name: string,
         subtopics?: {

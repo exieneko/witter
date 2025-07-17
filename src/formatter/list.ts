@@ -11,18 +11,18 @@ export const formatList = (input: _List): List => {
         __type: 'List',
         id: input.id_str,
         author: formatUser(input.user_results.result) as User,
-        banner_url: input.default_banner_media?.media_info.original_img_url || input.default_banner_media?.media_info.original_img_url,
-        created_at: new Date(input.created_at).toISOString(),
+        bannerUrl: input.default_banner_media?.media_info.original_img_url || input.default_banner_media?.media_info.original_img_url,
+        createdAt: new Date(input.created_at).toISOString(),
         description: input.description || undefined,
         pinned: !!input.pinning,
         private: input.mode === 'Private',
         subscribed: input.following,
-        subscribers_count: input.subscriber_count,
-        highlighted_avatar_urls: input.facepile_urls,
-        highlighted_member_username: undefined, // TODO
-        highlighted_subscriber_username: undefined,
+        subscribersCount: input.subscriber_count,
+        highlightedAvatarUrls: input.facepile_urls,
+        highlightedMemberUsername: undefined, // TODO
+        highlightedSubscriberUsername: undefined,
         member: !!input.is_member,
-        members_count: input.member_count,
+        membersCount: input.member_count,
         muted: !!input.muting,
         name: input.name
     };

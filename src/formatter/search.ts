@@ -21,7 +21,7 @@ export const formatSearchEntries = (input: _Entry<_TimelineTweetItem | _SearchUs
 
 export const formatTypeahead = (input: _Typeahead): Typeahead => {
     return {
-        results_count: input.num_results,
+        resultsCount: input.num_results,
         topics: input.topics.map(({ topic }) => topic),
         users: (input.users || []).map(formatUserLegacy),
         query: input.query
