@@ -53,7 +53,17 @@ interface _TweetEntities {
         indices: [number, number],
         text: string
     }[],
-    urls: { url: string, display_url: string, expanded_url: string }[]
+    urls: {
+        url: string,
+        display_url: string,
+        expanded_url: string
+    }[],
+    user_mentions?: {
+        id_str: string,
+        name: string,
+        screen_name: string,
+        indices: [number, number]
+    }[]
 }
 
 export interface _Tweet {

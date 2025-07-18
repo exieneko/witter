@@ -2,7 +2,7 @@ import { formatCursor } from '.';
 import { formatCommunity } from './community';
 import { formatUser } from './user';
 
-import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetTombstone, User } from '../types';
+import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetMedia, TweetTombstone, User } from '../types';
 import type { _Cursor, _Entry } from '../types/raw';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
 import type { _Card, _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
@@ -56,6 +56,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         expandable: tweet.note_tweet?.is_expandable || false,
         hasGrokChatEmbed: !!tweet.grok_share_attachment,
         hasHiddenReplies: hasHiddenReplies || false,
+        hasQuotedTweet: tweet.legacy.is_quote_status || false,
         lang: tweet.legacy.lang,
         likesCount: tweet.legacy.favorite_count,
         liked: tweet.legacy.favorited,
@@ -78,8 +79,9 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : {
             __type: 'MediaPhoto',
             id: media.id_str,
+            alt_text: media.ext_alt_text || undefined,
             url: media.media_url_https
-        }) satisfies NonNullable<Tweet['media']>[number]),
+        }) satisfies TweetMedia) || [],
         muted: false,
         platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
@@ -104,7 +106,12 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             url: url.url,
             displayUrl: url.display_url,
             expandedUrl: url.expanded_url
-        })),
+        })) || [],
+        userMentions: tweet.legacy.entities.user_mentions?.map(mention => ({
+            id: mention.id_str,
+            name: mention.name,
+            username: mention.screen_name
+        })) || [],
         viewsCount: tweet.views.count ? Number(tweet.views.count) : undefined
     };
 };

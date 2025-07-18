@@ -33,6 +33,33 @@ export interface TweetCard {
     }
 }
 
+export interface TweetImage {
+    __type: `Media${'Photo' | 'Gif'}`,
+    id: string,
+    alt_text?: string,
+    /** @deprecated */
+    blurred?: boolean,
+    url: string
+}
+
+export interface TweetVideo {
+    __type: 'MediaVideo'
+    id: string,
+    /** @deprecated */
+    blurred?: boolean,
+    url: string,
+    video: {
+        aspectRatio: [number, number],
+        variants: {
+            bitrate: number,
+            contentType: string,
+            url: string
+        }[]
+    }
+}
+
+export type TweetMedia = TweetImage | TweetVideo;
+
 export interface Tweet {
     __type: 'Tweet',
     id: string,
@@ -57,6 +84,7 @@ export interface Tweet {
     expandable: boolean,
     hasGrokChatEmbed: boolean,
     hasHiddenReplies: boolean,
+    hasQuotedTweet: boolean,
     lang: string,
     likesCount: number,
     liked: boolean,
@@ -64,29 +92,12 @@ export interface Tweet {
         actions?: _LimitedActionType[],
         type: 'hate_limited' | 'severe_hate_limited' | 'blocked_by_author'
     },
-    media?: ({
-        __type: `Media${'Photo' | 'Gif'}`,
-        id: string,
-        blurred?: boolean,
-        url: string
-    } | {
-        __type: 'MediaVideo'
-        id: string,
-        blurred?: boolean,
-        url: string,
-        video: {
-            aspectRatio: [number, number],
-            variants: {
-                bitrate: number,
-                contentType: string,
-                url: string
-            }[]
-        }
-    })[],
+    media: TweetMedia[],
     muted: boolean,
     platform?: string,
     quoteTweetsCount: number,
     quotedTweet?: Tweet,
+    /** @deprecated */
     quotedTweetFallback?: {
         hasQuotedTweet: boolean,
         tweetId: string
@@ -107,6 +118,11 @@ export interface Tweet {
         displayUrl: string,
         expandedUrl: string
     }[],
+    userMentions: {
+        id: string,
+        name: string,
+        username: string
+    }[]
     viewsCount?: number
 }
 
