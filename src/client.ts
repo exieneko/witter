@@ -21,6 +21,12 @@ export class TwitterClient {
         };
     }
 
+    async getBlockedUsers(args?: CursorOnly) {
+        return await request(endpoints.BlockedAccountsAll, this.headers, args);
+    }
+    async getMutedUsers(args?: CursorOnly) {
+        return await request(endpoints.MutedAccounts, this.headers, args);
+    }
     async verifyCredentials() {
         return await request(endpoints.account_verify_credentials, this.headers);
     }
@@ -35,6 +41,19 @@ export class TwitterClient {
     }
     async getSettings() {
         return await request(endpoints.account_settings, this.headers);
+    }
+    async getMutedPhrases() {
+        return await request(endpoints.mutes_keywords_list, this.headers);
+    }
+    /**
+     * `mute_surfaces: home_timeline,tweet_replies,notifications`  
+     * `mute_options: exclude_following_accounts`
+     */
+    async mutePhrase(phrase: string, args: { mute_surfaces: string, mute_options: string, duration: string }) {
+        return await request(endpoints.mutes_keywords_create, this.headers, { keyword: phrase, ...args });
+    }
+    async unmutePhrase(id: string) {
+        return await request(endpoints.mutes_keywords_destroy, this.headers, { ids: id });
     }
 
 

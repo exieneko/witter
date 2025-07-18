@@ -19,3 +19,16 @@ export interface Settings {
         discoverableByPhoneNumber: boolean
     }
 }
+
+export interface MutedWord {
+    id: string,
+    createdAt: string,
+    expires?: string,
+    includes: {
+        following: boolean,
+        timeline: boolean,
+        replies: boolean,
+        notifications: boolean
+    },
+    value: string
+}

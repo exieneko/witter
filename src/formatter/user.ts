@@ -1,8 +1,8 @@
 import { formatCursor } from '.';
 
-import type { Cursor, Entry, Settings, UnavailableUser, User } from '../types';
+import type { Cursor, Entry, MutedWord, Settings, UnavailableUser, User } from '../types';
 import type { _Cursor, _Entry } from '../types/raw';
-import type { _AccountSettings } from '../types/raw/account';
+import type { _AccountSettings, _MutedWord } from '../types/raw/account';
 import type { _UserItem } from '../types/raw/items';
 import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user';
 
@@ -150,5 +150,20 @@ export const formatSettings = (input: _AccountSettings): Settings => {
             discoverableByEmail: input.discoverable_by_email || false,
             discoverableByPhoneNumber: input.discoverable_by_mobile_phone || false
         }
+    };
+};
+
+export const formatMutedWord = (input: _MutedWord): MutedWord => {
+    return {
+        id: input.id,
+        createdAt: new Date(input.created_at).toISOString(),
+        expires: input.valid_until ? new Date(input.valid_until).toISOString() : undefined,
+        includes: {
+            following: !input.mute_options.includes('exclude_following_accounts'),
+            timeline: input.mute_surfaces.includes('home_timeline'),
+            replies: input.mute_surfaces.includes('tweet_replies'),
+            notifications: input.mute_surfaces.includes('notifications')
+        },
+        value: input.keyword
     };
 };

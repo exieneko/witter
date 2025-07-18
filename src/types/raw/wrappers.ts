@@ -26,6 +26,26 @@ export interface _GenericTimelineWrapper<T extends { __typename: string } = _Tim
     }
 }
 
+export interface _AccountBlockedUsersWrapper {
+    viewer: {
+        timeline: {
+            timeline: {
+                instructions: Instructions<_UserItem>
+            }
+        }
+    }
+}
+
+export interface _AccountMutedUsersWrapper {
+    viewer: {
+        muting_timeline: {
+            timeline: {
+                instructions: Instructions<_UserItem>
+            }
+        }
+    }
+}
+
 export interface _BirdwatchTweetsWrapper {
     viewer: {
         birdwatch_home_page: {

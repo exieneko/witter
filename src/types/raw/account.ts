@@ -35,3 +35,13 @@ export interface _AccountSettings {
         is_eu: 'true' | 'false'
     }
 }
+
+export interface _MutedWord {
+    keyword: string,
+    id: string,
+    valid_from: string | null,
+    valid_until: string | null,
+    created_at: string,
+    mute_surfaces: ('home_timeline' | 'tweet_replies' | 'notifications')[],
+    mute_options: ('exclude_following_accounts')[]
+}

@@ -1,16 +1,16 @@
 import { type Endpoint, gql, v11 } from './utils';
-import { entries, formatCard, formatEntries, formatExplorePage, formatGenericTimeline, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy, normalizeUserV3 } from './formatter';
+import { entries, formatCard, formatEntries, formatExplorePage, formatGenericTimeline, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatMutedWord, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy, normalizeUserV3 } from './formatter';
 
 import type { Result, User } from './types';
-import type { _AccountSettings } from './types/raw/account';
-import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results';
+import type { _AccountSettings, _MutedWord } from './types/raw/account';
+import type { _Hashflag } from './types/raw/explore';
+import type { _ExploreTrendItem } from './types/raw/items';
 import type { _Typeahead } from './types/raw/search';
 import type { _UnreadCount } from './types/raw/notifications';
+import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results';
+import type { _Card, _Tweet } from './types/raw/tweet';
 import type { _User } from './types/raw/user';
-import type { _BookmarksWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers';
-import { _Card, _Tweet } from './types/raw/tweet';
-import { _Hashflag } from './types/raw/explore';
-import { _ExploreTrendItem } from './types/raw/items';
+import type { _AccountBlockedUsersWrapper, _AccountMutedUsersWrapper, _BookmarksWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers';
 
 export const PUBLIC_TOKEN = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
 export const OAUTH_KEY = 'Bearer AAAAAAAAAAAAAAAAAAAAAG5LOQEAAAAAbEKsIYYIhrfOQqm4H8u7xcahRkU%3Dz98HKmzbeXdKqBfUDmElcqYl0cmmKY9KdS2UoNIz3Phapgsowi';
@@ -24,6 +24,26 @@ const optional = <T>(value: T): T | undefined => value;
 
 export const endpoints = {
     // account
+    BlockedAccountsAll: {
+        url: gql('h52d1F7dumWGE1tJAhQBpg/BlockedAccountsAll'),
+        method: GET,
+        params: { cursor: optional(String()) },
+        static: {
+            variables: {"count":20,"includePromotedContent":false},
+            features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_enhance_cards_enabled":false}
+        },
+        parser: (data: Data<_AccountBlockedUsersWrapper>) => formatUserEntries(entries(data.data.viewer.timeline.timeline.instructions))
+    },
+    MutedAccounts: {
+        url: gql('-G9eXTmseyiSenbqjrEG6w/MutedAccounts'),
+        method: GET,
+        params: { cursor: optional(String()) },
+        static: {
+            variables: {"count":20,"includePromotedContent":false},
+            features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_enhance_cards_enabled":false}
+        },
+        parser: (data: Data<_AccountMutedUsersWrapper>) => formatUserEntries(entries(data.data.viewer.muting_timeline.timeline.instructions))
+    },
     account_verify_credentials: {
         url: v11('account/verify_credentials.json'),
         method: GET,
@@ -61,6 +81,32 @@ export const endpoints = {
         method: GET,
         headers: { authorization: OAUTH_KEY },
         parser: (data: _AccountSettings) => formatSettings(data)
+    },
+    mutes_keywords_list: {
+        url: v11('mutes/keywords/list.json'),
+        method: GET,
+        headers: { authorization: OAUTH_KEY },
+        parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
+    },
+    mutes_keywords_create: {
+        url: v11('mutes/keywords/create.json'),
+        method: POST,
+        params: { keyword: String(), mute_surfaces: String(), mute_options: String(), duration: String() },
+        static: {
+            form: 'keyword={}&mute_surfaces={}&mute_options={}&duration={}'
+        },
+        headers: { authorization: OAUTH_KEY, ...CONTENT_TYPE_FORM },
+        parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
+    },
+    mutes_keywords_destroy: {
+        url: v11('mutes/keywords/destroy.json'),
+        method: POST,
+        params: { ids: String() },
+        static: {
+            form: 'ids={}'
+        },
+        headers: { authorization: OAUTH_KEY, ...CONTENT_TYPE_FORM },
+        parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
     },
 
 
