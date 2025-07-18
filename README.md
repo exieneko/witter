@@ -19,12 +19,12 @@ a basic twitter api client for javascript & typescript because i love reinventin
 ## usage
 
 > [!NOTE]
-> currently only one account can be logged in at a time  
+> currently only one account can be used at a time  
 > making too many requests in a short time period might cause your account to get rate limited or suspended
 
 this package is intended to be used in frameworks like nextjs or sveltekit. to do so, set up a `twitter.ts` file in your project. it should look something like this:
 
-### ▲ nextjs
+### nextjs
 
 ```typescript
 // src/lib/twitter.ts
@@ -41,14 +41,14 @@ if (process.env.NODE_ENV !== 'production') {
     global.twitterClient = twitter;
 }
 
-export { twitter };
+export default twitter;
 ```
 
 ### sveltekit
 
 ```typescript
 // src/app.d.ts
-import { TwitterClient } from 'twitter-api-unofficial';
+import type { TwitterClient } from 'twitter-api-unofficial';
 
 declare global {
     namespace App { /* ... */ }
@@ -73,5 +73,5 @@ if (process.env.NODE_ENV !== 'production') {
     global.twitterClient = twitter;
 }
 
-export { twitter };
+export default twitter;
 ```
