@@ -1,4 +1,4 @@
-import { formatCursor } from '.';
+import { formatCursor, formatMedia } from '.';
 import { formatUser, formatUserLegacy, normalizeUserV3 } from './user';
 
 import type { Cursor, Entry, Notification, Tweet, UnreadNotifications, User } from '../types';
@@ -56,26 +56,11 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             expandable: false,
             hasGrokChatEmbed: false,
             hasHiddenReplies: false,
+            hasQuotedTweet: tweet.is_quote_status,
             lang: tweet.lang,
             likesCount: tweet.favorite_count,
             liked: tweet.favorited,
-            media: tweet.entities.media?.map(media => (media.type === 'video' ? {
-                __type: 'MediaVideo',
-                id: media.id_str,
-                url: media.media_url_https,
-                video: {
-                    aspectRatio: media.video_info!.aspect_ratio,
-                    variants: media.video_info!.variants.map(variant => ({
-                        bitrate: variant.bitrate,
-                        contentType: variant.content_type,
-                        url: variant.url
-                    }))
-                }
-            } : {
-                __type: 'MediaPhoto',
-                id: media.id_str,
-                url: media.media_url_https
-            }) satisfies NonNullable<Tweet['media']>[number]),
+            media: tweet.entities.media?.map(formatMedia) || [],
             muted: false,
             // @ts-ignore
             platform: tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
@@ -99,7 +84,12 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
                 url: url.url,
                 displayUrl: url.display_url,
                 expandedUrl: url.expanded_url
-            }))
+            })),
+            userMentions: tweet.entities.user_mentions?.map(mention => ({
+                id: mention.id_str,
+                name: mention.name,
+                username: mention.screen_name
+            })) || [],
         };
     };
 

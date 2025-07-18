@@ -5,7 +5,7 @@ import { formatUser } from './user';
 import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetMedia, TweetTombstone, User } from '../types';
 import type { _Cursor, _Entry } from '../types/raw';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
-import type { _Card, _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
+import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
 
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
@@ -64,24 +64,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             actions: limitations.actions?.map(({ action }) => action),
             type: tweet.core.user_results.result.legacy.blocked_by ? 'blocked_by_author' : limitations.limitedText ? 'severe_hate_limited' : 'hate_limited'
         } : undefined,
-        media: tweet.legacy.entities.media?.map(media => (media.type === 'video' ? {
-            __type: 'MediaVideo',
-            id: media.id_str,
-            url: media.media_url_https,
-            video: {
-                aspectRatio: media.video_info!.aspect_ratio,
-                variants: media.video_info!.variants.map(variant => ({
-                    bitrate: variant.bitrate,
-                    contentType: variant.content_type,
-                    url: variant.url
-                }))
-            }
-        } : {
-            __type: 'MediaPhoto',
-            id: media.id_str,
-            alt_text: media.ext_alt_text || undefined,
-            url: media.media_url_https
-        }) satisfies TweetMedia) || [],
+        media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,
         platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
@@ -168,6 +151,27 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
 };
 
 
+
+export const formatMedia = (input: _TweetMedia): TweetMedia => {
+    return input.type === 'video' ? {
+        __type: 'MediaVideo',
+        id: input.id_str,
+        url: input.media_url_https,
+        video: {
+            aspectRatio: input.video_info!.aspect_ratio,
+            variants: input.video_info!.variants.map(variant => ({
+                bitrate: variant.bitrate,
+                contentType: variant.content_type,
+                url: variant.url
+            }))
+        }
+    } : {
+        __type: 'MediaPhoto',
+        id: input.id_str,
+        alt_text: input.ext_alt_text || undefined,
+        url: input.media_url_https
+    };
+};
 
 export const formatCard = (input: _Card['legacy']): TweetCard => {
     const getValue = <T extends 'STRING' | 'BOOLEAN'>(key: string, type: T): (T extends 'STRING' ? string : boolean) | undefined => {
