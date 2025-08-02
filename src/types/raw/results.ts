@@ -1,8 +1,8 @@
-import type { _List } from './list';
-import type { _Topic } from './topic';
-import type { _PollBindingKeysBoolean, _PollBindingKeysString, _Tweet } from './tweet';
-import type { _User } from './user';
-import type { Data } from './wrappers';
+import type { _List } from './list.js';
+import type { _Topic } from './topic.js';
+import type { _PollBindingKeysBoolean, _PollBindingKeysString, _Tweet } from './tweet.js';
+import type { _User } from './user.js';
+import type { Data } from './wrappers.js';
 
 /** create, update data, update members */
 export type _ListUpdate = Data<{

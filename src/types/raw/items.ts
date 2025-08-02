@@ -1,9 +1,9 @@
-import type { _Cursor } from '.';
-import type { _EventSummary, _SportsTile, _Trend, _TrendStory } from './explore';
-import type { _List } from './list';
-import type { _Topic } from './topic';
-import type { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from './tweet';
-import type { _User, _UserV3 } from './user';
+import type { _Cursor } from './index.js';
+import type { _EventSummary, _SportsTile, _Trend, _TrendStory } from './explore.js';
+import type { _List } from './list.js';
+import type { _Topic } from './topic.js';
+import type { _Tweet, _TweetTombstone, _VisibilityLimitedTweet } from './tweet.js';
+import type { _User, _UserV3 } from './user.js';
 
 // REMINDER!!!!!
 // BASICALLY EVERYTHING HERE IS WHAT GOES IN EACH ENTRY, UNDER `content`

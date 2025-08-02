@@ -1,16 +1,16 @@
-import { type Endpoint, gql, v11 } from './utils';
-import { entries, formatCard, formatEntries, formatExplorePage, formatGenericTimeline, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatMutedWord, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy, normalizeUserV3 } from './formatter';
+import { type Endpoint, gql, v11 } from './utils.js';
+import { entries, formatCard, formatEntries, formatExplorePage, formatGenericTimeline, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatMutedWord, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy, normalizeUserV3 } from './formatter/index.js';
 
-import type { Result, User } from './types';
-import type { _AccountSettings, _MutedWord } from './types/raw/account';
-import type { _Hashflag } from './types/raw/explore';
-import type { _ExploreTrendItem } from './types/raw/items';
-import type { _Typeahead } from './types/raw/search';
-import type { _UnreadCount } from './types/raw/notifications';
-import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results';
-import type { _Card, _Tweet } from './types/raw/tweet';
-import type { _User } from './types/raw/user';
-import type { _AccountBlockedUsersWrapper, _AccountMutedUsersWrapper, _BookmarksWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers';
+import type { Result, User } from './types/index.js';
+import type { _AccountSettings, _MutedWord } from './types/raw/account.js';
+import type { _Hashflag } from './types/raw/explore.js';
+import type { _ExploreTrendItem } from './types/raw/items.js';
+import type { _Typeahead } from './types/raw/search.js';
+import type { _UnreadCount } from './types/raw/notifications.js';
+import type { _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results.js';
+import type { _Card, _Tweet } from './types/raw/tweet.js';
+import type { _User } from './types/raw/user.js';
+import type { _AccountBlockedUsersWrapper, _AccountMutedUsersWrapper, _BookmarksWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers.js';
 
 export const PUBLIC_TOKEN = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
 export const OAUTH_KEY = 'Bearer AAAAAAAAAAAAAAAAAAAAAG5LOQEAAAAAbEKsIYYIhrfOQqm4H8u7xcahRkU%3Dz98HKmzbeXdKqBfUDmElcqYl0cmmKY9KdS2UoNIz3Phapgsowi';

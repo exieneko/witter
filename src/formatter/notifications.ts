@@ -1,10 +1,10 @@
-import { formatCursor, formatMedia } from '.';
-import { formatUser, formatUserLegacy, normalizeUserV3 } from './user';
+import { formatCursor, formatMedia } from './index.js';
+import { formatUser, formatUserLegacy, normalizeUserV3 } from './user.js';
 
-import type { Cursor, Entry, Notification, Tweet, UnreadNotifications, User } from '../types';
-import type { _Cursor, _Entry, _ShittyAssCursor } from '../types/raw';
-import type { _NotificationItem, _NotificationTweetItem, _NotificationUserEntity } from '../types/raw/items';
-import type { _NotificationGlobalObjects, _UnreadCount } from '../types/raw/notifications';
+import type { Cursor, Entry, Notification, Tweet, UnreadNotifications, User } from '../types/index.js';
+import type { _Cursor, _Entry, _ShittyAssCursor } from '../types/raw/index.js';
+import type { _NotificationItem, _NotificationTweetItem, _NotificationUserEntity } from '../types/raw/items.js';
+import type { _NotificationGlobalObjects, _UnreadCount } from '../types/raw/notifications.js';
 
 const formatNotificationItem = (input: _NotificationItem): Notification => {
     return {

@@ -1,4 +1,4 @@
-import type { _TimelineTweetItem } from './items';
+import type { _TimelineTweetItem } from './items.js';
 
 export interface _Entry<T extends { __typename: string }> {
     entryId: string,

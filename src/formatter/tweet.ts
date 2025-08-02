@@ -1,11 +1,11 @@
-import { formatCursor } from '.';
-import { formatCommunity } from './community';
-import { formatUser } from './user';
+import { formatCursor } from './index.js';
+import { formatCommunity } from './community.js';
+import { formatUser } from './user.js';
 
-import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetMedia, TweetTombstone, User } from '../types';
-import type { _Cursor, _Entry } from '../types/raw';
-import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items';
-import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet';
+import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetMedia, TweetTombstone, User } from '../types/index.js';
+import type { _Cursor, _Entry } from '../types/raw/index.js';
+import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items.js';
+import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
 
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;

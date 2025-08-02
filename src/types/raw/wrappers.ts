@@ -6,7 +6,7 @@ import type { _List } from './list';
 import type { _NotificationGlobalObjects } from './notifications';
 import type { _SearchUserModulesItem } from './search';
 import type { _Tweet } from './tweet';
-import type { _User, _UserV3 } from './user';
+import type { _User, _UserV3 } from './user.js';
 
 export interface Data<T extends object> {
     data: T,

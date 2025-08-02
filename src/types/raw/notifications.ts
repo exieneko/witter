@@ -1,5 +1,5 @@
-import type { _Tweet } from './tweet';
-import type { _User } from './user';
+import type { _Tweet } from './tweet.js';
+import type { _User } from './user.js';
 
 export interface _NotificationGlobalObjects {
     users: Record<string, _User['legacy']>,

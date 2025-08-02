@@ -1,10 +1,10 @@
-import { formatCursor } from '.';
-import { formatUser } from './user';
+import { formatCursor } from './index.js';
+import { formatUser } from './user.js';
 
-import type { Cursor, Entry, List, ListModule, User } from '../types';
-import type { _Cursor, _Entry } from '../types/raw';
-import type { _ListItem, _ListModuleItem, _ListsItem } from '../types/raw/items';
-import type { _List } from '../types/raw/list';
+import type { Cursor, Entry, List, ListModule, User } from '../types/index.js';
+import type { _Cursor, _Entry } from '../types/raw/index.js';
+import type { _ListItem, _ListModuleItem, _ListsItem } from '../types/raw/items.js';
+import type { _List } from '../types/raw/list.js';
 
 export const formatList = (input: _List): List => {
     return {

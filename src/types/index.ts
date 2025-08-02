@@ -1,13 +1,13 @@
-export * from './account';
-export * from './birdwatch';
-export * from './community';
-export * from './explore';
-export * from './list';
-export * from './notifications';
-export * from './search';
-export * from './topic';
-export * from './tweet';
-export * from './user';
+export * from './account.js';
+export * from './birdwatch.js';
+export * from './community.js';
+export * from './explore.js';
+export * from './list.js';
+export * from './notifications.js';
+export * from './search.js';
+export * from './topic.js';
+export * from './tweet.js';
+export * from './user.js';
 
 export interface Result {
     result: boolean

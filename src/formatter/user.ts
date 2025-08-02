@@ -1,10 +1,10 @@
-import { formatCursor } from '.';
+import { formatCursor } from './index.js';
 
-import type { Cursor, Entry, MutedWord, Settings, UnavailableUser, User } from '../types';
-import type { _Cursor, _Entry } from '../types/raw';
-import type { _AccountSettings, _MutedWord } from '../types/raw/account';
-import type { _UserItem } from '../types/raw/items';
-import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user';
+import type { Cursor, Entry, MutedWord, Settings, UnavailableUser, User } from '../types/index.js';
+import type { _Cursor, _Entry } from '../types/raw/index.js';
+import type { _AccountSettings, _MutedWord } from '../types/raw/account.js';
+import type { _UserItem } from '../types/raw/items.js';
+import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user.js';
 
 export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUser => {
     if (input.__typename === 'User') {

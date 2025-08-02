@@ -1,4 +1,4 @@
-import type { User } from './user';
+import type { User } from './user.js';
 
 type NotificationType =
     'tweets_from_following' |

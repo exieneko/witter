@@ -1,4 +1,4 @@
-import type { _User } from './user';
+import type { _User } from './user.js';
 
 interface _MediaInfo {
     original_img_url: string,

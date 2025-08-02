@@ -1,4 +1,4 @@
-import type { Cursor, Tweet, TweetList, UserList } from '.';
+import type { Cursor, Tweet, TweetList, UserList } from './index.js';
 
 export interface TrendEvent {
     __type: 'ExploreTrendEvent',

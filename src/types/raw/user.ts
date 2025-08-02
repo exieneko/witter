@@ -1,4 +1,4 @@
-import type { _Url } from '.';
+import type { _Url } from './index.js';
 
 export interface _User {
     __typename: 'User',

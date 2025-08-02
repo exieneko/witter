@@ -1,9 +1,9 @@
-import { formatCursor, formatTweet, formatUser } from '.';
+import { formatCursor, formatTweet, formatUser } from './index.js';
 
-import { Entry, ExploreStories, Hashflag, Segment, TimelineExploreItem, Trend, TrendEvent, Tweet, User } from '../types';
-import { _Cursor, _Entry, SegmentedTimelines } from '../types/raw';
-import { _EventSummary, _Hashflag, _Trend } from '../types/raw/explore';
-import { _ExplorePageItem, _ExploreSidebarItem, _ExploreStoriesItem, _ExploreTopicItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _TweetItem } from '../types/raw/items';
+import { Entry, ExploreStories, Hashflag, Segment, TimelineExploreItem, Trend, TrendEvent, Tweet, User } from '../types/index.js';
+import { _Cursor, _Entry, SegmentedTimelines } from '../types/raw/index.js';
+import { _EventSummary, _Hashflag, _Trend } from '../types/raw/explore.js';
+import { _ExplorePageItem, _ExploreSidebarItem, _ExploreStoriesItem, _ExploreTopicItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _TweetItem } from '../types/raw/items.js';
 
 export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], segments: SegmentedTimelines['timelines']): Entry<TimelineExploreItem>[] => {
     // @ts-ignore

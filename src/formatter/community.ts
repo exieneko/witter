@@ -1,7 +1,7 @@
-import { formatUser } from './user';
+import { formatUser } from './user.js';
 
-import type { Community, User } from '../types';
-import type { _Community } from '../types/raw/community';
+import type { Community, User } from '../types/index.js';
+import type { _Community } from '../types/raw/community.js';
 
 export const formatCommunity = (input: _Community): Community => {
     return {

@@ -1,4 +1,4 @@
-import * as Birdwatch from '../birdwatch';
+import * as Birdwatch from '../birdwatch.js';
 
 export interface _BirdwatchContributor {
     alias: string,

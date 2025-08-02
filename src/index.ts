@@ -1,1 +1,1 @@
-export { TwitterClient } from './client';
+export { TwitterClient } from './client.js';

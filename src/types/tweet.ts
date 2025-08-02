@@ -1,7 +1,7 @@
-import type { Cursor, ShowMoreCursor } from '.';
-import type { Community } from './community';
-import type { User } from './user';
-import { _LimitedActionType } from './raw/tweet';
+import type { Cursor, ShowMoreCursor } from './index.js';
+import type { Community } from './community.js';
+import type { User } from './user.js';
+import { _LimitedActionType } from './raw/tweet.js';
 
 interface PollOption {
     label: string,
@@ -60,6 +60,8 @@ export interface TweetVideo {
 
 export type TweetMedia = TweetImage | TweetVideo;
 
+export type LimitedActionType = _LimitedActionType;
+
 export interface Tweet {
     __type: 'Tweet',
     id: string,
@@ -89,7 +91,7 @@ export interface Tweet {
     likesCount: number,
     liked: boolean,
     limited?: {
-        actions?: _LimitedActionType[],
+        actions?: LimitedActionType[],
         type: 'hate_limited' | 'severe_hate_limited' | 'blocked_by_author'
     },
     media: TweetMedia[],

@@ -1,4 +1,4 @@
-import type { _User } from './user';
+import type { _User } from './user.js';
 
 export interface _Community {
     __typename: 'Community',

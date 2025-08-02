@@ -1,6 +1,6 @@
-import type { _Url } from '.';
-import type { _Community } from './community';
-import type { _User } from './user';
+import type { _Url } from './index.js';
+import type { _Community } from './community.js';
+import type { _User } from './user.js';
 
 export interface _TweetMedia {
     display_url: string,

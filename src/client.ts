@@ -1,5 +1,5 @@
-import { endpoints, PUBLIC_TOKEN } from './consts';
-import { type Params, request } from './utils';
+import { endpoints, PUBLIC_TOKEN } from './consts.js';
+import { type Params, request } from './utils.js';
 
 interface CursorOnly {
     cursor?: string

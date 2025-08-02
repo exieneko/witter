@@ -1,14 +1,14 @@
-import type { Cursor } from '../types';
-import type { _Cursor } from '../types/raw';
+import type { Cursor } from '../types/index.js';
+import type { _Cursor } from '../types/raw/index.js';
 
-export * from './birdwatch';
-export * from './community';
-export * from './explore';
-export * from './search';
-export * from './list';
-export * from './notifications';
-export * from './tweet';
-export * from './user';
+export * from './birdwatch.js';
+export * from './community.js';
+export * from './explore.js';
+export * from './search.js';
+export * from './list.js';
+export * from './notifications.js';
+export * from './tweet.js';
+export * from './user.js';
 
 export const formatCursor = (input: _Cursor): Cursor => {
     return {
