@@ -216,7 +216,7 @@ export const formatCard = (input: _Card['legacy']): TweetCard => {
             description: getValue('description', 'STRING'),
             domain: getValue('domain', 'STRING')!,
             imageUrl: getValue('thumbnail_image_original', 'STRING') ?? getValue('photo_image_full_size_original', 'STRING'),
-            users: (input.user_refs_results || []).map(x => formatUser(x.user_results.result) as User)
+            users: (input.user_refs_results || []).map(x => x.user_results ? formatUser(x.user_results.result) as User : null).filter(x => !!x)
         } : undefined
     };
 };

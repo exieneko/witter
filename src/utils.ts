@@ -1,13 +1,22 @@
-export interface Endpoint<Params extends object = {}, Variables extends object = {}, Features extends object = {}, Headers extends object = {}, RawData extends object = any, Data extends object = any> {
+import { OAUTH_KEY } from './consts.js';
+
+export type Endpoint = GqlEndpoint | V11Endpoint;
+
+export interface GqlEndpoint<Params extends object = {}, Variables extends object = {}, Features extends object = {}, RawData extends object = any, Data extends object = any> {
+    url: [string, string],
+    method: 'get' | 'post',
+    params?: Params,
+    variables?: Variables,
+    features?: Features,
+    useOauthKey?: boolean,
+    parser: (data: RawData) => Data
+}
+
+export interface V11Endpoint<Params extends object = {}, Body extends string = any, RawData extends object = any, Data extends object = any> {
     url: string,
     method: 'get' | 'post',
     params?: Params,
-    static?: {
-        variables?: Variables,
-        features?: Features,
-        form?: string
-    },
-    headers?: Headers,
+    body?: Body,
     parser: (data: RawData) => Data
 }
 
@@ -17,21 +26,15 @@ type OptionalUndefined<T extends object | undefined> = {
     [K in keyof T as undefined extends T[K] ? never : K]: T[K];
 };
 
-export type Params<T extends { params: object }> = OptionalUndefined<T['params']>;
+export type Params<T extends { params?: object }> = OptionalUndefined<T['params']>;
 
 
-
-export const gql = (route: string) => {
-    return `https://twitter.com/i/api/graphql/${route}`;
-};
 
 export const v11 = (route: string) => {
     return `https://api.twitter.com/1.1/${route}`;
 };
 
-
-
-export const request = async <T extends Endpoint>(endpoint: T, headers?: object, params?: OptionalUndefined<T['params']>): Promise<ReturnType<T['parser']>> => {
+const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
     const toSearchParams = (obj: object) => {
         if (!obj || Object.entries(obj).every(([, value]) => value === undefined)) {
             return '';
@@ -43,27 +46,55 @@ export const request = async <T extends Endpoint>(endpoint: T, headers?: object,
             .join('&');
     };
 
-    const urlencodedForm = (data: string) => {
-        return Object.entries(params || {}).reduce((acc, [key, value]) => acc.replace(new RegExp(`${key}=\\{\\}`), `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`), data);
-    };
+    const url = `https://twitter.com/i/api/graphql/${endpoint.url.join('/')}`;
 
-    const response = await (endpoint.static?.form
-        ? fetch(endpoint.method === 'get' ? `${endpoint.url}?${urlencodedForm(endpoint.static.form)}` : endpoint.url, {
+    const headers2 = endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers;
+
+    const response = await (endpoint.method === 'get'
+        ? fetch(url + toSearchParams({ variables: { ...endpoint.variables, ...params }, features: endpoint.features }), {
             method: endpoint.method,
-            headers: { ...headers, ...endpoint.headers },
-            body: endpoint.method === 'post' ? urlencodedForm(endpoint.static.form) : undefined
+            headers: headers2
         })
-        : fetch(endpoint.method === 'get' ? endpoint.url + (endpoint.static ? toSearchParams({ variables: { ...endpoint.static.variables, ...params }, features: endpoint.static.features }) : '') : endpoint.url, {
+        : fetch(url, {
             method: endpoint.method,
-            headers: { ...headers, ...endpoint.headers },
-            body: endpoint.method === 'post' ? JSON.stringify({
-                variables: { ...endpoint.static?.variables, ...params },
-                features: endpoint.static?.features,
-                queryId: endpoint.url.includes('graphql') ? endpoint.url.match(/\/graphql\/(.+?)\/.+$/)?.at(1) : undefined
-            }) : undefined
-        }));
+            headers: headers2,
+            body: JSON.stringify({
+                variables: { ...endpoint.variables, ...params },
+                features: endpoint.features,
+                queryId: endpoint.url[0]
+            })
+        })
+    );
 
     const data = <Parameters<Endpoint['parser']>[0]>await response.json();
 
     return endpoint.parser(data);
+};
+
+const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+    const encode = (data: string | undefined, params?: Params<T>) => {
+        return data
+            ? Object.entries(params || {}).reduce((acc, [key, value]) => acc.replace(new RegExp(`${key}=\\{\\}`), `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`), data)
+            : '';
+    };
+
+    const urlencoded = encode(endpoint.body, params);
+
+    const response = await fetch(endpoint.method === 'get' ? `${endpoint.url}?${urlencoded}` : endpoint.url, {
+        method: endpoint.method,
+        headers: { ...headers, authorization: OAUTH_KEY, 'content-type': 'application/x-www-form-urlencoded' },
+        body: endpoint.method === 'post' && endpoint.body ? urlencoded : undefined
+    });
+
+    const data = <Parameters<Endpoint['parser']>[0]>await response.json();
+
+    return endpoint.parser(data);
+};
+
+export const request = <T extends Endpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+    if (typeof endpoint.url === 'string') {
+        return requestV11(endpoint as V11Endpoint, headers, params);
+    }
+
+    return requestGql(endpoint as GqlEndpoint, headers, params);
 };

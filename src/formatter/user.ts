@@ -11,7 +11,7 @@ export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUse
         return {
             __type: 'User',
             id: input.rest_id,
-            affiliatesCount: input.business_account?.affiliates_count,
+            affiliatesCount: input.business_account?.affiliates_count || 0,
             affiliateLabel: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
                 title: input.affiliates_highlighted_label.label.description,
                 owner: input.affiliates_highlighted_label.label.url.url.split('.com/')[1],
@@ -21,7 +21,7 @@ export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUse
             bannerUrl: input.legacy.profile_banner_url,
             birthdate: input.legacy_extended_profile?.birthdate ? {
                 day: input.legacy_extended_profile.birthdate.day,
-                month: input.legacy_extended_profile.birthdate.month - 1,
+                month: input.legacy_extended_profile.birthdate.month,
                 year: input.legacy_extended_profile.birthdate.year
             } : undefined,
             blocked: input.legacy.blocking || false,
@@ -40,7 +40,7 @@ export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUse
             muted: input.legacy.muting || false,
             name: input.legacy.name,
             pinnedTweetId: input.legacy.pinned_tweet_ids_str.at(0),
-            private: input.legacy.protected,
+            private: input.legacy.protected || false,
             translatable: input.is_profile_translatable,
             tweetsCount: input.legacy.statuses_count,
             mediaCount: input.legacy.media_count,
