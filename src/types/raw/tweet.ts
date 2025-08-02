@@ -322,6 +322,11 @@ export interface _TweetTombstone {
     }
 }
 
+export interface _TweetUnavailable {
+    __typename: 'TweetUnavailable'
+}
+
+
 
 export interface _TweetTranslation {
     id_str: string,

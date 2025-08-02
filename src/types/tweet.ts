@@ -142,7 +142,7 @@ export interface TweetConversation {
 
 export interface TweetTombstone {
     __type: 'TweetTombstone',
-    text: string
+    text?: string
 }
 
 

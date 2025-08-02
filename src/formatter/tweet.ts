@@ -5,9 +5,9 @@ import { formatUser } from './user.js';
 import type { Entry, Retweet, TimelineTweet, Tweet, TweetCard, TweetMedia, TweetTombstone, User } from '../types/index.js';
 import type { _Cursor, _Entry } from '../types/raw/index.js';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items.js';
-import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
+import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _TweetUnavailable, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
 
-export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
+export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
     const limitations = input.__typename === 'TweetWithVisibilityResults' ? {
         actions: input.limitedActionResults?.limited_actions,
@@ -15,6 +15,12 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         warningText: input.softInterventionPivot?.text.text,
         limitedText: input.tweetInterstitial?.text
     } : undefined
+
+    if (tweet.__typename === 'TweetUnavailable') {
+        return {
+            __type: 'TweetTombstone'
+        }
+    }
 
     if (tweet.__typename === 'TweetTombstone') {
         return {
