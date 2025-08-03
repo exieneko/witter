@@ -34,19 +34,16 @@ export interface TweetCard {
 }
 
 export interface TweetImage {
-    __type: `Media${'Photo' | 'Gif'}`,
+    __type: 'MediaPhoto',
     id: string,
     alt_text?: string,
-    /** @deprecated */
-    blurred?: boolean,
     url: string
 }
 
-export interface TweetVideo {
-    __type: 'MediaVideo'
+export interface TweetGif {
+    __type: 'MediaGif',
     id: string,
-    /** @deprecated */
-    blurred?: boolean,
+    alt_text?: string,
     url: string,
     video: {
         aspectRatio: [number, number],
@@ -58,7 +55,21 @@ export interface TweetVideo {
     }
 }
 
-export type TweetMedia = TweetImage | TweetVideo;
+export interface TweetVideo {
+    __type: 'MediaVideo'
+    id: string,
+    url: string,
+    video: {
+        aspectRatio: [number, number],
+        variants: {
+            bitrate: number,
+            contentType: string,
+            url: string
+        }[]
+    }
+}
+
+export type TweetMedia = TweetImage | TweetGif | TweetVideo;
 
 export type LimitedActionType = _LimitedActionType;
 

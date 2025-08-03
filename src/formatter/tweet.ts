@@ -167,24 +167,40 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
 
 
 export const formatMedia = (input: _TweetMedia): TweetMedia => {
-    return input.type === 'video' ? {
-        __type: 'MediaVideo',
-        id: input.id_str,
-        url: input.media_url_https,
-        video: {
-            aspectRatio: input.video_info!.aspect_ratio,
-            variants: input.video_info!.variants.map(variant => ({
-                bitrate: variant.bitrate,
-                contentType: variant.content_type,
-                url: variant.url
-            }))
+    return input.type === 'video'
+        ? {
+            __type: 'MediaVideo',
+            id: input.id_str,
+            url: input.media_url_https,
+            video: {
+                aspectRatio: input.video_info!.aspect_ratio,
+                variants: input.video_info!.variants.map(variant => ({
+                    bitrate: variant.bitrate,
+                    contentType: variant.content_type,
+                    url: variant.url
+                }))
+            }
         }
-    } : {
-        __type: 'MediaPhoto',
-        id: input.id_str,
-        alt_text: input.ext_alt_text || undefined,
-        url: input.media_url_https
-    };
+    : input.type === 'animated_gif'
+        ? {
+            __type: 'MediaGif',
+            id: input.id_str,
+            url: input.video_info!.variants.at(-1)!.url,
+            video: {
+                aspectRatio: input.video_info!.aspect_ratio,
+                variants: input.video_info!.variants.map(variant => ({
+                    bitrate: variant.bitrate,
+                    contentType: variant.content_type,
+                    url: variant.url
+                }))
+            }
+        }
+        : {
+            __type: 'MediaPhoto',
+            id: input.id_str,
+            alt_text: input.ext_alt_text || undefined,
+            url: input.media_url_https
+        };
 };
 
 export const formatCard = (input: _Card['legacy']): TweetCard => {
