@@ -50,7 +50,7 @@ export interface _User {
         profile_image_url_https: string,
         profile_banner_url: string,
         has_extended_profile: boolean,
-        pinned_tweet_ids_str: string[],
+        pinned_tweet_ids_str?: string[],
         has_custom_timelines: boolean,
         can_dm: boolean
         can_media_tag: boolean,
@@ -116,17 +116,17 @@ export interface _UserV3 extends _User {
         image_url: string
     },
     core: {
-        created_at: string,
+        created_at?: string,
         name: string,
         screen_name: string
     },
-    dm_permissions: {
+    dm_permissions?: {
         can_dm: boolean
     },
-    location: {
+    location?: {
         location: string
     }
-    media_permissions: {
+    media_permissions?: {
         can_media_tag: boolean
     },
     privacy: {

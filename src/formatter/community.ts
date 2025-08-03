@@ -1,7 +1,9 @@
 import { formatUser } from './user.js';
 
-import type { Community, User } from '../types/index.js';
+import type { Community, Cursor, Entry, User } from '../types/index.js';
 import type { _Community } from '../types/raw/community.js';
+import { _Entry } from '../types/raw/index.js';
+import { _UserV3 } from '../types/raw/user.js';
 
 export const formatCommunity = (input: _Community): Community => {
     return {
@@ -17,20 +19,32 @@ export const formatCommunity = (input: _Community): Community => {
         moderator: input.role === 'Moderator',
         moderatorsCount: input.moderator_count,
         name: input.name,
-        nsfw: input.is_nsfw,
-        pinned: input.is_pinned,
-        primaryTopic: {
-            id: input.primary_community_topic.topic_id,
-            name: input.primary_community_topic.topic_name,
-            subtopics: input.primary_community_topic.subtopics?.map(topic => ({
-                id: topic.topic_id,
-                name: topic.topic_name
-            }))
-        },
+        nsfw: input.is_nsfw || false,
+        pinned: input.is_pinned || false,
         rules: input.rules.map(rule => ({
             id: rule.rest_id,
             description: rule.description,
             name: rule.name
         }))
     };
+};
+
+export const formatCommunityMembers = (input: _UserV3[], nextCursor?: string): Entry<User | Cursor>[] => {
+    const result: Entry<User | Cursor>[] = input.map(user => ({
+        id: `user-${user.rest_id}`,
+        content: formatUser(user) as User
+    }));
+
+    if (nextCursor) {
+        result.push({
+            id: `cursor-bottom-${input.at(-1)?.rest_id || Math.random()}`,
+            content: {
+                __type: 'Cursor',
+                direction: 'bottom',
+                value: nextCursor
+            }
+        });
+    }
+
+    return result;
 };

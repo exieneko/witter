@@ -15,10 +15,10 @@ export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], s
             : /^tweet/.test(entry.entryId) && Object.hasOwn(entry.content, 'items')
                 ? {
                     __type: 'TweetList',
-                    items: (entry.content as _ExploreTopicItem).items.map(item => formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies) as Tweet)
+                    items: (entry.content as _ExploreTopicItem).items.map(item => formatTweet(item.item.itemContent.tweet_results.result, { hasHiddenReplies: item.item.itemContent.hasModeratedReplies }) as Tweet)
                 }
             : /^tweet/.test(entry.entryId)
-                ? formatTweet((entry.content as _TweetItem).itemContent.tweet_results.result, (entry.content as _TweetItem).itemContent.hasModeratedReplies) as Tweet
+                ? formatTweet((entry.content as _TweetItem).itemContent.tweet_results.result, { hasHiddenReplies: (entry.content as _TweetItem).itemContent.hasModeratedReplies }) as Tweet
             : /^who-to-follow/.test(entry.entryId)
                 ? {
                     __type: 'UserList',

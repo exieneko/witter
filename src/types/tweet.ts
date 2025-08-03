@@ -96,6 +96,7 @@ export interface Tweet {
     },
     media: TweetMedia[],
     muted: boolean,
+    pinned: boolean,
     platform?: string,
     quoteTweetsCount: number,
     quotedTweet?: Tweet,

@@ -1,7 +1,7 @@
 import { formatCursor, formatMedia } from './index.js';
-import { formatUser, formatUserLegacy, normalizeUserV3 } from './user.js';
+import { formatUser, formatUserLegacy } from './user.js';
 
-import type { Cursor, Entry, Notification, Tweet, UnreadNotifications, User } from '../types/index.js';
+import type { Cursor, Entry, Notification, TimelineTweet, Tweet, UnreadNotifications, User } from '../types/index.js';
 import type { _Cursor, _Entry, _ShittyAssCursor } from '../types/raw/index.js';
 import type { _NotificationItem, _NotificationTweetItem, _NotificationUserEntity } from '../types/raw/items.js';
 import type { _NotificationGlobalObjects, _UnreadCount } from '../types/raw/notifications.js';
@@ -26,7 +26,7 @@ const formatNotificationItem = (input: _NotificationItem): Notification => {
         users: input.itemContent.rich_message.entities
             .filter(entity => entity.ref.type === 'TimelineRichTextUser')
             .map(entity => entity.ref as _NotificationUserEntity)
-            .map(ref => formatUser(normalizeUserV3(ref.user_results.result)) as User)
+            .map(ref => formatUser(ref.user_results.result) as User)
     };
 };
 
@@ -39,7 +39,7 @@ export const formatNotificationEntries = (input: _Entry<_NotificationItem | _Cur
     }));
 };
 
-export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetItem | _ShittyAssCursor>[], globalObjects: _NotificationGlobalObjects): Entry<Tweet | Cursor>[] => {
+export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetItem | _ShittyAssCursor>[], globalObjects: _NotificationGlobalObjects): Entry<TimelineTweet>[] => {
     const getFromId = (id: string): Tweet => {
         const tweet = globalObjects.tweets[id];
         const author = globalObjects.users[tweet.user_id_str];
@@ -62,6 +62,7 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             liked: tweet.favorited,
             media: tweet.entities.media?.map(formatMedia) || [],
             muted: false,
+            pinned: false,
             // @ts-ignore
             platform: tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
             quoteTweetsCount: tweet.quote_count,

@@ -67,6 +67,45 @@ export class TwitterClient {
 
 
 
+    async getCommunity(id: string) {
+        return await request(endpoints.CommunityByRestId, this.headers, { communityId: id });
+    }
+    async getCommunityTweets(id: string, args?: { rankingMode: 'Relevance' | 'Recency' } & CursorOnly) {
+        return await request(endpoints.CommunityTweetsTimeline, this.headers, { communityId: id, rankingMode: args?.rankingMode || 'Relevance', cursor: args?.cursor });
+    }
+    async getCommunityMedia(id: string, args?: CursorOnly) {
+        return await request(endpoints.CommunityMediaTimeline, this.headers, { communityId: id, cursor: args?.cursor });
+    }
+    async searchCommunity(id: string, query: string, args?: { rankingMode: 'Recency' | 'Likes' } & CursorOnly) {
+        return await request(endpoints.CommunityTweetSearchModuleQuery, this.headers, { communityId: id, query, timelineRankingMode: args?.rankingMode || 'Likes', timelineId: `communityTweetSearch-${id}-a-${args?.rankingMode || 'Likes'}`, cursor: args?.cursor });
+    }
+    async getCommunityMembers(id: string, args?: CursorOnly) {
+        return await request(endpoints.membersSliceTimeline_Query, this.headers, { communityId: id, cursor: args?.cursor });
+    }
+    async getCommunityModerators(id: string, args?: CursorOnly) {
+        return await request(endpoints.moderatorsSliceTimeline_Query, this.headers, { communityId: id, cursor: args?.cursor });
+    }
+    async getCommunitiesTimeline(args?: CursorOnly) {
+        return await request(endpoints.CommunitiesExploreTimeline, this.headers, { cursor: args?.cursor });
+    }
+    async joinCommunity(id: string) {
+        return await request(endpoints.JoinCommunity, this.headers, { communityId: id });
+    }
+    async leaveCommunity(id: string) {
+        return await request(endpoints.LeaveCommunity, this.headers, { communityId: id });
+    }
+    async pinCommunity(id: string) {
+        return await request(endpoints.PinTimeline, this.headers, { pinnedTimelineItem: { id, pinned_timeline_type: 'Community' } });
+    }
+    async unpinCommunity(id: string) {
+        return await request(endpoints.UnpinTimeline, this.headers, { pinnedTimelineItem: { id, pinned_timeline_type: 'Community' } });
+    }
+    async canCreateCommunity() {
+        return (await request(endpoints.CommunitiesCreateButtonQuery, this.headers)).result
+    }
+
+
+
     async getExplorePage(args?: CursorOnly) {
         return await request(endpoints.ExplorePage, this.headers, args);
     }
@@ -249,8 +288,8 @@ export class TwitterClient {
 
 
     async getUser(id: string, args?: { byUsername?: boolean }) {
-        return await (args?.byUsername
-            ? request(endpoints.UserByScreenName, this.headers, { screen_name: id })
+        return await (args?.byUsername || id.startsWith('@')
+            ? request(endpoints.UserByScreenName, this.headers, { screen_name: id.startsWith('@') ? id.slice(1) : id })
             : request(endpoints.UserByRestId, this.headers, { userId: id }));
     }
     async getUsers(ids: string[]) {

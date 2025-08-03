@@ -7,7 +7,7 @@ import type { _Cursor, _Entry } from '../types/raw/index.js';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items.js';
 import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _TweetUnavailable, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
 
-export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, hasHiddenReplies?: boolean, highlights?: [number, number][]): Tweet | Retweet | TweetTombstone => {
+export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, options?: { hasHiddenReplies?: boolean, highlights?: [number, number][], pinned?: boolean }): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
     const limitations = input.__typename === 'TweetWithVisibilityResults' ? {
         actions: input.limitedActionResults?.limited_actions,
@@ -61,7 +61,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         expandable: tweet.note_tweet?.is_expandable || false,
         hasGrokChatEmbed: !!tweet.grok_share_attachment,
-        hasHiddenReplies: hasHiddenReplies || false,
+        hasHiddenReplies: options?.hasHiddenReplies || false,
         hasQuotedTweet: tweet.legacy.is_quote_status || false,
         lang: tweet.legacy.lang,
         likesCount: tweet.legacy.favorite_count,
@@ -72,6 +72,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,
+        pinned: options?.pinned || false,
         platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
         quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
@@ -89,7 +90,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         retweetsCount: tweet.legacy.retweet_count,
         retweeted: tweet.legacy.retweeted,
         text: tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '',
-        textHighlights: highlights || [],
+        textHighlights: options?.highlights || [],
         translatable: tweet.is_translatable,
         urls: tweet.legacy.entities.urls.map(url => ({
             url: url.url,
@@ -120,7 +121,11 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
     if (input.content.__typename === 'TimelineTimelineItem') {
         return {
             id: input.entryId,
-            content: formatTweet(input.content.itemContent.tweet_results.result, input.content.itemContent.hasModeratedReplies, input.content.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]))
+            content: formatTweet(input.content.itemContent.tweet_results.result, {
+                hasHiddenReplies: input.content.itemContent.hasModeratedReplies,
+                highlights: input.content.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]),
+                pinned: input.entryId.endsWith('-pin')
+            })
         };
     }
 
@@ -151,7 +156,10 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
         })),
         ...(grid ? grid.items.map(item => ({
             id: item.entryId,
-            content: formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]))
+            content: formatTweet(item.item.itemContent.tweet_results.result, {
+                hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
+                highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
+            })
         })) : [])
     ];
 };

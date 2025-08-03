@@ -23,14 +23,6 @@ export interface Community {
     name: string,
     nsfw: boolean,
     pinned: boolean,
-    primaryTopic: {
-        id: string,
-        name: string,
-        subtopics?: {
-            id: string,
-            name: string
-        }[]
-    },
     rules: {
         id: string,
         description: string,

@@ -1,7 +1,7 @@
 import type { _Cursor, _GenericGetUserCursors, _ShittyAssCursor, Instructions, SegmentedTimelines } from '.';
 import type { _BirdwatchContributor, _BirdwatchTweet } from './birdwatch';
 import type { _Community, _CommunityTopic } from './community';
-import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items';
+import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items';
 import type { _List } from './list';
 import type { _NotificationGlobalObjects } from './notifications';
 import type { _SearchUserModulesItem } from './search';
@@ -71,9 +71,55 @@ export interface _CommunityWrapper {
 export interface _CommunityTweetsWrapper {
     communityResults: {
         result: {
+            community_timeline: {
+                timeline: {
+                    instructions: Instructions<_TimelineTweetItem, 'pin'>
+                }
+            },
             ranked_community_timeline: {
                 timeline: {
                     instructions: Instructions<_TimelineTweetItem, 'pin'>
+                }
+            }
+        }
+    }
+}
+
+export interface _CommunityMediaWrapper {
+    communityResults: {
+        result: {
+            community_timeline: {
+                timeline: {
+                    instructions: Instructions
+                }
+            },
+            community_media_timeline: {
+                timeline: {
+                    instructions: Instructions<_TweetConversationItem | _Cursor>
+                }
+            }
+        }
+    }
+}
+
+export interface _CommunityAboutWrapper {
+    communityResults: {
+        result: {
+            about_timeline: {
+                timeline: {
+                    instructions: Instructions<_ExploreWhoToFollowItem>
+                }
+            }
+        }
+    }
+}
+
+export interface _CommunitySearchWrapper {
+    communityResults: {
+        result: {
+            community_filtered_timeline: {
+                timeline: {
+                    instructions: Instructions
                 }
             }
         }
@@ -85,6 +131,36 @@ export interface _CommunityExploreWrapper {
         explore_communities_timeline: {
             timeline: {
                 instructions: Instructions
+            }
+        }
+    }
+}
+
+export interface _CommunityMembersWrapper {
+    communityResults: {
+        result: {
+            members_slice: {
+                items_results: {
+                    result: _UserV3
+                }[],
+                slice_info?: {
+                    next_cursor: string
+                }
+            }
+        }
+    }
+}
+
+export interface _CommunityModeratorsWrapper {
+    communityResults: {
+        result: {
+            moderators_slice: {
+                items_results: {
+                    result: _UserV3
+                }[],
+                slice_info?: {
+                    next_cursor: string
+                }
             }
         }
     }

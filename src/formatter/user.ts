@@ -6,58 +6,68 @@ import type { _AccountSettings, _MutedWord } from '../types/raw/account.js';
 import type { _UserItem } from '../types/raw/items.js';
 import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user.js';
 
-export const formatUser = (input: _User | _SuspendedUser): User | UnavailableUser => {
-    if (input.__typename === 'User') {
+export const formatUser = (input: _User | _SuspendedUser | _UserV3): User | UnavailableUser => {
+    if (!input) {
+        return {
+            __type: 'UnavailableUser',
+            reason: 'not_found'
+        };
+    }
+
+    // @ts-ignore
+    const user = input && input.core ? normalizeUserV3(input as _UserV3) : input;
+
+    if (user.__typename === 'User') {
         return {
             __type: 'User',
-            id: input.rest_id,
-            affiliatesCount: input.business_account?.affiliates_count || 0,
-            affiliateLabel: input.affiliates_highlighted_label.label && !!input.affiliates_highlighted_label.label.url?.url ? {
-                title: input.affiliates_highlighted_label.label.description,
-                owner: input.affiliates_highlighted_label.label.url.url.split('.com/')[1],
-                imageUrl: input.affiliates_highlighted_label.label.badge.url
+            id: user.rest_id,
+            affiliatesCount: user.business_account?.affiliates_count || 0,
+            affiliateLabel: user.affiliates_highlighted_label.label && !!user.affiliates_highlighted_label.label.url?.url ? {
+                title: user.affiliates_highlighted_label.label.description,
+                owner: user.affiliates_highlighted_label.label.url.url.split('.com/')[1],
+                imageUrl: user.affiliates_highlighted_label.label.badge.url
             } : undefined,
-            avatarUrl: input.legacy.profile_image_url_https.replace('normal', '400x400'),
-            bannerUrl: input.legacy.profile_banner_url,
-            birthdate: input.legacy_extended_profile?.birthdate ? {
-                day: input.legacy_extended_profile.birthdate.day,
-                month: input.legacy_extended_profile.birthdate.month,
-                year: input.legacy_extended_profile.birthdate.year
+            avatarUrl: user.legacy.profile_image_url_https.replace('normal', '400x400'),
+            bannerUrl: user.legacy.profile_banner_url,
+            birthdate: user.legacy_extended_profile?.birthdate ? {
+                day: user.legacy_extended_profile.birthdate.day,
+                month: user.legacy_extended_profile.birthdate.month,
+                year: user.legacy_extended_profile.birthdate.year
             } : undefined,
-            blocked: input.legacy.blocking || false,
-            blockedBy: input.legacy.blocked_by || false,
-            canDm: input.legacy.can_dm,
-            canMediaTag: input.legacy.can_media_tag,
-            createdAt: new Date(input.legacy.created_at).toISOString(),
-            description: input.legacy.description || undefined,
-            followersCount: input.legacy.followers_count,
-            followingCount: input.legacy.friends_count,
-            followed: input.legacy.following || false,
-            followRequested: input.legacy.protected ? input.legacy.follow_request_sent || false : undefined,
-            followedBy: input.legacy.followed_by || false,
-            job: input.professional?.category.at(0)?.name,
-            location: input.legacy.location || undefined,
-            muted: input.legacy.muting || false,
-            name: input.legacy.name,
-            pinnedTweetId: input.legacy.pinned_tweet_ids_str.at(0),
-            private: input.legacy.protected || false,
-            translatable: input.is_profile_translatable,
-            tweetsCount: input.legacy.statuses_count,
-            mediaCount: input.legacy.media_count,
-            likesCount: input.legacy.favourites_count,
-            listedCount: input.legacy.listed_count,
-            username: input.legacy.screen_name,
-            url: input.legacy.url || undefined,
-            verified: input.legacy.verified,
-            verifiedType: input.legacy.verified ? input.legacy.verified_type === 'Business' ? 'gold' : input.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
-            wantRetweets: input.legacy.want_retweets || true,
-            wantNotifications: input.legacy.notifications || false
+            blocked: user.legacy.blocking || false,
+            blockedBy: user.legacy.blocked_by || false,
+            canDm: user.legacy.can_dm,
+            canMediaTag: user.legacy.can_media_tag,
+            createdAt: new Date(user.legacy.created_at).toISOString(),
+            description: user.legacy.description || undefined,
+            followersCount: user.legacy.followers_count,
+            followingCount: user.legacy.friends_count,
+            followed: user.legacy.following || false,
+            followRequested: user.legacy.protected ? user.legacy.follow_request_sent || false : undefined,
+            followedBy: user.legacy.followed_by || false,
+            job: user.professional?.category.at(0)?.name,
+            location: user.legacy.location || undefined,
+            muted: user.legacy.muting || false,
+            name: user.legacy.name,
+            pinnedTweetId: user.legacy.pinned_tweet_ids_str?.at(0),
+            private: user.legacy.protected || false,
+            translatable: user.is_profile_translatable,
+            tweetsCount: user.legacy.statuses_count,
+            mediaCount: user.legacy.media_count,
+            likesCount: user.legacy.favourites_count,
+            listedCount: user.legacy.listed_count,
+            username: user.legacy.screen_name,
+            url: user.legacy.url || undefined,
+            verified: user.legacy.verified,
+            verifiedType: user.legacy.verified ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+            wantRetweets: user.legacy.want_retweets || true,
+            wantNotifications: user.legacy.notifications || false
         };
     }
 
     return {
         __type: 'UnavailableUser',
-        reason: input.__typename === 'UserUnavailable' ? 'suspended' : 'not_found'
+        reason: user.__typename === 'UserUnavailable' ? 'suspended' : 'not_found'
     };
 };
 
@@ -108,17 +118,17 @@ export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<U
 
 
 
-export const normalizeUserV3 = (input: _UserV3): _User => {
+const normalizeUserV3 = (input: _UserV3): _User => {
     let legacy = {
         ...input.legacy,
-        can_dm: input.dm_permissions.can_dm,
-        can_media_tag: input.media_permissions.can_media_tag,
-        created_at: input.core.created_at,
+        can_dm: input.dm_permissions?.can_dm || false,
+        can_media_tag: input.media_permissions?.can_media_tag || false,
+        created_at: input.core.created_at || new Date().toISOString(),
         followed_by: !!input.relationship_perspective?.followed_by,
         following: !!input.relationship_perspective?.following,
         name: input.core.name,
         screen_name: input.core.screen_name,
-        location: input.location.location,
+        location: input.location?.location,
         profile_image_url_https: input.avatar.image_url,
         protected: input.privacy.protected,
         verified: input.verification.verified

@@ -1,8 +1,37 @@
+import type { _Community } from './community.js';
 import type { _List } from './list.js';
 import type { _Topic } from './topic.js';
 import type { _PollBindingKeysBoolean, _PollBindingKeysString, _Tweet } from './tweet.js';
 import type { _User } from './user.js';
 import type { Data } from './wrappers.js';
+
+export type _CommunityAllowCreation = Data<{
+    viewer: {
+        create_community_action_result: {
+            reason?: string
+        }
+    }
+}>;
+
+export type _CommunityJoin = Data<{
+    community_join: _Community
+}>;
+
+export type _CommunityLeave = Data<{
+    community_leave: _Community
+}>;
+
+export type _CommunityPin = Data<{
+    pin_timeline: {
+        __typename: 'PinTimelineSuccessResult'
+    }
+}>;
+
+export type _CommunityUnpin = Data<{
+    unpin_timeline: {
+        __typename: 'UnpinTimelineSuccessResult'
+    }
+}>;
 
 /** create, update data, update members */
 export type _ListUpdate = Data<{

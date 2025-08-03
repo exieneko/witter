@@ -18,6 +18,19 @@ export const formatCursor = (input: _Cursor): Cursor => {
     };
 };
 
-export const entries = <T>(instructions: { type?: string, entries?: T[] }[]) => {
-    return instructions.find(instruction => instruction.type === 'TimelineAddEntries')?.entries || [];
+export const entries = <T>(instructions: { type?: string, entries?: T[] }[]): T[] => {
+    const pin = instructions.find(instruction => instruction.type === 'TimelinePinEntry') as { type: 'TimelinePinEntry', entry: T } | undefined;
+    const entries = instructions.find(instruction => instruction.type === 'TimelineAddEntries')?.entries || [];
+
+    if (pin) {
+        // @ts-ignore
+        if (pin.entry.entryId && typeof pin.entry.entryId === 'string') {
+            // @ts-ignore
+            pin.entry.entryId += '-pin';
+        }
+
+        return [pin.entry, ...entries];
+    }
+
+    return entries;
 };
