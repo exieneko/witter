@@ -118,7 +118,7 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
         };
     }
 
-    if (input.content.__typename === 'TimelineTimelineItem') {
+    if (input.content.__typename === 'TimelineTimelineItem' && !input.entryId.startsWith('promoted-tweet')) {
         return {
             id: input.entryId,
             content: formatTweet(input.content.itemContent.tweet_results.result, {
