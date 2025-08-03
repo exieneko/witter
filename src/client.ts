@@ -288,8 +288,8 @@ export class TwitterClient {
 
 
     async getUser(id: string, args?: { byUsername?: boolean }) {
-        return await (args?.byUsername || id.startsWith('@')
-            ? request(endpoints.UserByScreenName, this.headers, { screen_name: id.startsWith('@') ? id.slice(1) : id })
+        return await (args?.byUsername || !/^\d+$/.test(id)
+            ? request(endpoints.UserByScreenName, this.headers, { screen_name: id })
             : request(endpoints.UserByRestId, this.headers, { userId: id }));
     }
     async getUsers(ids: string[]) {

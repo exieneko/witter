@@ -1,3 +1,5 @@
+import { Cursor } from './index.js';
+
 export interface User {
     __type: 'User',
     id: string,
@@ -48,6 +50,8 @@ export interface UnavailableUser {
     __type: 'UnavailableUser',
     reason: 'suspended' | 'not_found'
 }
+
+export type TimelineUser = User | UnavailableUser | Cursor;
 
 
 

@@ -1,12 +1,12 @@
 import { formatCursor } from './index.js';
 
-import type { Cursor, Entry, MutedWord, Settings, UnavailableUser, User } from '../types/index.js';
+import type { Entry, MutedWord, Settings, TimelineUser, User } from '../types/index.js';
 import type { _Cursor, _Entry } from '../types/raw/index.js';
 import type { _AccountSettings, _MutedWord } from '../types/raw/account.js';
 import type { _UserItem } from '../types/raw/items.js';
 import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user.js';
 
-export const formatUser = (input: _User | _SuspendedUser | _UserV3): User | UnavailableUser => {
+export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUser => {
     if (!input) {
         return {
             __type: 'UnavailableUser',
@@ -107,7 +107,7 @@ export const formatUserLegacy = (input: _User['legacy']): User => {
     };
 };
 
-export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<User | Cursor>[] => {
+export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<TimelineUser>[] => {
     return input.map(entry => ({
         id: entry.entryId,
         content: entry.content.__typename === 'TimelineTimelineCursor'

@@ -1,6 +1,6 @@
 import { formatUser } from './user.js';
 
-import type { Community, Cursor, Entry, User } from '../types/index.js';
+import type { Community, Entry, TimelineUser, User } from '../types/index.js';
 import type { _Community } from '../types/raw/community.js';
 import { _Entry } from '../types/raw/index.js';
 import { _UserV3 } from '../types/raw/user.js';
@@ -29,10 +29,10 @@ export const formatCommunity = (input: _Community): Community => {
     };
 };
 
-export const formatCommunityMembers = (input: _UserV3[], nextCursor?: string): Entry<User | Cursor>[] => {
-    const result: Entry<User | Cursor>[] = input.map(user => ({
+export const formatCommunityMembers = (input: _UserV3[], nextCursor?: string): Entry<TimelineUser>[] => {
+    const result: Entry<TimelineUser>[] = input.map(user => ({
         id: `user-${user.rest_id}`,
-        content: formatUser(user) as User
+        content: formatUser(user)
     }));
 
     if (nextCursor) {
