@@ -208,8 +208,18 @@ export class TwitterClient {
 
 
 
-    async createTweet(text: string) {
-        return await request(endpoints.CreateTweet, this.headers, { tweet_text: text });
+    async createTweet(text: string, args?: { conversationControl?: 'Community' | 'Verified' | 'ByInvitation', media?: { id: string, taggedUsers: string[] }[] }) {
+        return await request(endpoints.CreateTweet, this.headers, {
+            tweet_text: text,
+            conversation_control: args?.conversationControl ? { mode: args.conversationControl } : undefined,
+            media: {
+                media_entities: args?.media?.map(media => ({
+                    media_id: media.id,
+                    tagged_users: media.taggedUsers
+                })) || [],
+                possibly_sensitive: false
+            }
+        });
     }
     async deleteTweet(id: string) {
         return await request(endpoints.DeleteTweet, this.headers, { tweet_id: id });
