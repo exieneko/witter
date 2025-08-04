@@ -21,8 +21,8 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUse
         return {
             __type: 'User',
             id: user.rest_id,
-            affiliatesCount: user.business_account?.affiliates_count || 0,
-            affiliateLabel: user.affiliates_highlighted_label.label && !!user.affiliates_highlighted_label.label.url?.url ? {
+            affiliatesCount: user.business_account?.affiliates_count,
+            affiliateLabel: user.affiliates_highlighted_label.label && user.affiliates_highlighted_label.label.url?.url ? {
                 title: user.affiliates_highlighted_label.label.description,
                 owner: user.affiliates_highlighted_label.label.url.url.split('.com/')[1],
                 imageUrl: user.affiliates_highlighted_label.label.badge.url
@@ -34,34 +34,34 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUse
                 month: user.legacy_extended_profile.birthdate.month,
                 year: user.legacy_extended_profile.birthdate.year
             } : undefined,
-            blocked: user.legacy.blocking || false,
-            blockedBy: user.legacy.blocked_by || false,
-            canDm: user.legacy.can_dm,
-            canMediaTag: user.legacy.can_media_tag,
+            blocked: !!user.legacy.blocking,
+            blockedBy: !!user.legacy.blocked_by,
+            canDm: !!user.legacy.can_dm,
+            canMediaTag: !!user.legacy.can_media_tag,
             createdAt: new Date(user.legacy.created_at).toISOString(),
             description: user.legacy.description || undefined,
             followersCount: user.legacy.followers_count,
             followingCount: user.legacy.friends_count,
-            followed: user.legacy.following || false,
+            followed: !!user.legacy.following,
             followRequested: user.legacy.protected ? user.legacy.follow_request_sent || false : undefined,
-            followedBy: user.legacy.followed_by || false,
+            followedBy: !!user.legacy.followed_by,
             job: user.professional?.category.at(0)?.name,
             location: user.legacy.location || undefined,
-            muted: user.legacy.muting || false,
+            muted: !!user.legacy.muting,
             name: user.legacy.name,
             pinnedTweetId: user.legacy.pinned_tweet_ids_str?.at(0),
             private: user.legacy.protected || false,
-            translatable: user.is_profile_translatable,
+            translatable: !!user.is_profile_translatable,
             tweetsCount: user.legacy.statuses_count,
             mediaCount: user.legacy.media_count,
             likesCount: user.legacy.favourites_count,
             listedCount: user.legacy.listed_count,
             username: user.legacy.screen_name,
-            url: user.legacy.url || undefined,
+            url: user.legacy.entities.url.urls.at(0)?.extended_url,
             verified: user.legacy.verified,
             verifiedType: user.legacy.verified ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
             wantRetweets: user.legacy.want_retweets || true,
-            wantNotifications: user.legacy.notifications || false
+            wantNotifications: !!user.legacy.notifications
         };
     }
 
