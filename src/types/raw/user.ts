@@ -29,8 +29,8 @@ export interface _User {
             description: {
                 urls: _Url[]
             },
-            url: {
-                urls: [_Url]
+            url?: {
+                urls?: [_Url]
             }
         },
         protected: boolean,

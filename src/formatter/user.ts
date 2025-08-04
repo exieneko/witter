@@ -57,7 +57,7 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUse
             likesCount: user.legacy.favourites_count,
             listedCount: user.legacy.listed_count,
             username: user.legacy.screen_name,
-            url: user.legacy.entities.url.urls.at(0)?.extended_url,
+            url: user.legacy.entities?.url?.urls?.at(0)?.extended_url,
             verified: user.legacy.verified,
             verifiedType: user.legacy.verified ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
             wantRetweets: user.legacy.want_retweets || true,
