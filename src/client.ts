@@ -1,6 +1,11 @@
 import { endpoints, PUBLIC_TOKEN } from './consts.js';
 import { type Params, request } from './utils.js';
 
+import { formatGenericTimeline } from './formatter/index.js';
+import type { BirdwatchHelpfulTag, BirdwatchNotHelpfulTag, Trend } from './types/index.js';
+import type { TimelineTweet } from './types/tweet.js';
+import type { _ExploreTrendItem, _TweetConversationItem } from './types/raw/items.js';
+
 interface CursorOnly {
     cursor?: string
 }
@@ -58,6 +63,51 @@ export class TwitterClient {
 
 
 
+    async getBirdwatchTimeline() {
+        return await request(endpoints.BirdwatchFetchGlobalTimeline, this.headers);
+    }
+    async getBirdwatchAlternateTimeline(timelineId: string) {
+        const data = await request(endpoints.GenericTimelineById, this.headers, { timelineId });
+        return formatGenericTimeline<_TweetConversationItem, TimelineTweet>(data, 'birdwatch');
+    }
+    async getBirdwatchContributor(alias: string) {
+        return await request(endpoints.BirdwatchFetchBirdwatchProfile, this.headers, { alias });
+    }
+    async getBirdwatchUser() {
+        return await request(endpoints.BirdwatchFetchAuthenticatedUserProfile, this.headers);
+    }
+    async changeBirdwatchNotificationFrequency(frequency: 'All' | 'Week' | 'Month' | 'Never') {
+        return await request(endpoints.BirdwatchEditNotificationSettings, this.headers, { settings: frequency });
+    }
+    async getTweetBirdwatchNotes(id: string) {
+        return await request(endpoints.BirdwatchFetchNotes, this.headers, { tweet_id: id });
+    }
+    async rateBirdwatchNote(noteId: string, args: { helpfulTags?: BirdwatchHelpfulTag[], notHelpfulTags?: BirdwatchNotHelpfulTag[], tweetId: string, showOnSimilarTweets?: boolean }) {
+        if (!args.helpfulTags && !args.notHelpfulTags) {
+            return { result: false };
+        }
+
+        const helpfulTagsCount = args.helpfulTags?.length || 0;
+        const notHelpfulTagsCount = args.notHelpfulTags?.length || 0;
+        const helpfulness = helpfulTagsCount > 0 && notHelpfulTagsCount > 0 ? 'SomewhatHelpful' : helpfulTagsCount > 0 ? 'Helpful' : 'NotHelpful';
+
+        return await request(endpoints.BirdwatchCreateRating, this.headers, {
+            data_v2: {
+                helpfulness_level: helpfulness,
+                helpful_tags: helpfulness !== 'NotHelpful' ? args.helpfulTags : undefined,
+                not_helpful_tags: helpfulness !== 'Helpful' ? args.notHelpfulTags : undefined,
+                note_match: args.showOnSimilarTweets !== undefined ? { all_media_note_match: args.showOnSimilarTweets } : undefined
+            },
+            note_id: noteId,
+            tweet_id: args.tweetId
+        });
+    }
+    async unrateBirdwatchNote(noteId: string) {
+        return await request(endpoints.BirdwatchDeleteRating, this.headers, { note_id: noteId });
+    }
+
+
+
     async getBookmarks(args?: CursorOnly) {
         return await request(endpoints.Bookmarks, this.headers, args);
     }
@@ -109,8 +159,9 @@ export class TwitterClient {
     async getExplorePage(args?: CursorOnly) {
         return await request(endpoints.ExplorePage, this.headers, args);
     }
-    async getGenericTimeline(id: string) {
-        return await request(endpoints.GenericTimelineById, this.headers, { timelineId: id });
+    async getExploreAlternateTimeline(timelineId: string) {
+        const data = await request(endpoints.GenericTimelineById, this.headers, { timelineId: timelineId });
+        return formatGenericTimeline<_ExploreTrendItem<'Item'>, Trend>(data, 'trends');
     }
     async getTrends() {
         return await request(endpoints.ExploreSidebar, this.headers);

@@ -5,6 +5,20 @@ import type { _PollBindingKeysBoolean, _PollBindingKeysString, _Tweet } from './
 import type { _User } from './user.js';
 import type { Data } from './wrappers.js';
 
+export type _BirdwatchNotificationSettingsChange = Data<{
+    authenticated_user_birdwatch_profile_set_notification_settings_put: 'Done'
+}>;
+
+export type _BirdwatchCreateRating = Data<{
+    birdwatchnote_rate_v3: {
+        __typename: 'BirdwatchNoteRating'
+    }
+}>;
+
+export type _BirdwatchDeleteRating = Data<{
+    birdwatch_rating_delete: 'Done'
+}>;
+
 export type _CommunityAllowCreation = Data<{
     viewer: {
         create_community_action_result: {

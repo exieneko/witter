@@ -80,6 +80,8 @@ export interface Tweet {
     birdwatchNote?: {
         id: string,
         text: string,
+        language: string,
+        translatable: boolean,
         public: boolean,
         url: string
     },
@@ -95,6 +97,7 @@ export interface Tweet {
         tweetIds: string[]
     },
     expandable: boolean,
+    hasBirdwatchNote: boolean,
     hasGrokChatEmbed: boolean,
     hasHiddenReplies: boolean,
     hasQuotedTweet: boolean,

@@ -1,11 +1,11 @@
-import type { _Cursor, _GenericGetUserCursors, _ShittyAssCursor, Instructions, SegmentedTimelines } from '.';
-import type { _BirdwatchContributor, _BirdwatchTweet } from './birdwatch';
-import type { _Community, _CommunityTopic } from './community';
-import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items';
-import type { _List } from './list';
-import type { _NotificationGlobalObjects } from './notifications';
-import type { _SearchUserModulesItem } from './search';
-import type { _Tweet } from './tweet';
+import type { _Cursor, _GenericGetUserCursors, _ShittyAssCursor, Instructions, SegmentedTimelines } from './index.js';
+import type { _BirdwatchAuthenticatedUser, _BirdwatchContributor, _BirdwatchTweet } from './birdwatch.js';
+import type { _Community, _CommunityTopic } from './community.js';
+import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items.js';
+import type { _List } from './list.js';
+import type { _NotificationGlobalObjects } from './notifications.js';
+import type { _SearchUserModulesItem } from './search.js';
+import type { _Tweet } from './tweet.js';
 import type { _User, _UserV3 } from './user.js';
 
 export interface Data<T extends object> {
@@ -49,7 +49,7 @@ export interface _AccountMutedUsersWrapper {
 export interface _BirdwatchTweetsWrapper {
     viewer: {
         birdwatch_home_page: {
-            body: SegmentedTimelines
+            body: SegmentedTimelines<_TweetConversationItem>
         }
     }
 }
@@ -358,9 +358,15 @@ export interface _BirdwatchContributorWrapper {
     birdwatch_profile_by_alias: _BirdwatchContributor
 }
 
+export interface _BirdwatchAuthenticatedUserWrapper {
+    authenticated_user_birdwatch_profile: _BirdwatchAuthenticatedUser
+}
+
 export interface _BirdwatchNotesWrapper {
     tweet_result_by_rest_id: {
-        result: _BirdwatchTweet
+        result: _BirdwatchTweet | {
+            tweet: _BirdwatchTweet
+        }
     }
 }
 

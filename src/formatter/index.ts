@@ -4,6 +4,7 @@ import type { _Cursor } from '../types/raw/index.js';
 export * from './birdwatch.js';
 export * from './community.js';
 export * from './explore.js';
+export * from './generic.js';
 export * from './search.js';
 export * from './list.js';
 export * from './notifications.js';

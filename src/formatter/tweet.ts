@@ -14,7 +14,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         blurImages: !!input.mediaVisibilityResults?.blurred_image_interstitial.text.text,
         warningText: input.softInterventionPivot?.text.text,
         limitedText: input.tweetInterstitial?.text
-    } : undefined
+    } : undefined;
 
     if (tweet.__typename === 'TweetUnavailable') {
         return {
@@ -42,9 +42,11 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         __type: 'Tweet',
         id: tweet.rest_id,
         author: formatUser(tweet.core.user_results.result) as User,
-        birdwatchNote: tweet.has_birdwatch_notes && tweet.birdwatch_pivot ? {
+        birdwatchNote: tweet.birdwatch_pivot?.note?.rest_id ? {
             id: tweet.birdwatch_pivot.note.rest_id,
             text: tweet.birdwatch_pivot.subtitle.text,
+            language: tweet.birdwatch_pivot.note.language || 'zxx',
+            translatable: !!tweet.birdwatch_pivot.note.is_community_note_translatable,
             public: tweet.birdwatch_pivot.visualStyle === 'Default',
             url: tweet.birdwatch_pivot.destinationUrl
         } : undefined,
@@ -59,10 +61,11 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
             remainingCount: Number(tweet.edit_control.edits_remaining),
             tweetIds: tweet.edit_control.edit_tweet_ids
         } : undefined,
-        expandable: tweet.note_tweet?.is_expandable || false,
+        expandable: !!tweet.note_tweet?.is_expandable,
+        hasBirdwatchNote: !!tweet.has_birdwatch_notes,
         hasGrokChatEmbed: !!tweet.grok_share_attachment,
-        hasHiddenReplies: options?.hasHiddenReplies || false,
-        hasQuotedTweet: tweet.legacy.is_quote_status || false,
+        hasHiddenReplies: !!options?.hasHiddenReplies,
+        hasQuotedTweet: !!tweet.legacy.is_quote_status,
         lang: tweet.legacy.lang,
         likesCount: tweet.legacy.favorite_count,
         liked: tweet.legacy.favorited,
@@ -72,7 +75,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,
-        pinned: options?.pinned || false,
+        pinned: !!options?.pinned,
         platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
         quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(

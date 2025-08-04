@@ -1,16 +1,16 @@
 import { type Endpoint, v11 } from './utils.js';
-import { entries, formatCard, formatCommunity, formatCommunityMembers, formatEntries, formatExplorePage, formatGenericTimeline, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatMutedWord, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter/index.js';
+import { entries, formatBirdwatchAuthenticatedUser, formatBirdwatchContributor, formatBirdwatchTimeline, formatBirdwatchTweet, formatCard, formatCommunity, formatCommunityMembers, formatEntries, formatExplorePage, formatHashflag, formatList, formatListEntries, formatListModuleEntries, formatMediaEntries, formatMutedWord, formatNotificationEntries, formatNotificationTweetEntries, formatSearchEntries, formatSettings, formatSidebarItem, formatTypeahead, formatUnread, formatUser, formatUserEntries, formatUserLegacy } from './formatter/index.js';
 
-import type { Result, User } from './types/index.js';
+import type { BirdwatchHelpfulTag, BirdwatchNotHelpfulTag, Result, User } from './types/index.js';
 import type { _AccountSettings, _MutedWord } from './types/raw/account.js';
 import type { _Hashflag } from './types/raw/explore.js';
 import type { _ExploreTrendItem } from './types/raw/items.js';
 import type { _Typeahead } from './types/raw/search.js';
 import type { _UnreadCount } from './types/raw/notifications.js';
-import type { _CommunityAllowCreation, _CommunityJoin, _CommunityLeave, _CommunityPin, _CommunityUnpin, _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results.js';
+import type { _BirdwatchCreateRating, _BirdwatchDeleteRating, _BirdwatchNotificationSettingsChange, _CommunityAllowCreation, _CommunityJoin, _CommunityLeave, _CommunityPin, _CommunityUnpin, _ListDelete, _ListUpdate, _TopicFollowOrNotInterested, _TweetBookmark, _TweetConversationControlChange, _TweetConversationControlDelete, _TweetCreate, _TweetDelete, _TweetHide, _TweetLike, _TweetMute, _TweetPin, _TweetRetweet, _TweetUnbookmark, _TweetUnbookmarkAll, _TweetUnhide, _TweetUnlike, _TweetUnmention, _TweetUnpin, _TweetUnretweet, _UserForceUnfollow, _UserRelationshipUpdate } from './types/raw/results.js';
 import type { _Card, _Tweet } from './types/raw/tweet.js';
 import type { _User } from './types/raw/user.js';
-import type { _AccountBlockedUsersWrapper, _AccountMutedUsersWrapper, _BookmarksWrapper, _CommunityAboutWrapper, _CommunityExploreWrapper, _CommunityMediaWrapper, _CommunityMembersWrapper, _CommunityModeratorsWrapper, _CommunitySearchWrapper, _CommunityTweetsWrapper, _CommunityWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers.js';
+import type { _AccountBlockedUsersWrapper, _AccountMutedUsersWrapper, _BirdwatchAuthenticatedUserWrapper, _BirdwatchContributorWrapper, _BirdwatchNotesWrapper, _BirdwatchTweetsWrapper, _BookmarksWrapper, _CommunityAboutWrapper, _CommunityExploreWrapper, _CommunityMediaWrapper, _CommunityMembersWrapper, _CommunityModeratorsWrapper, _CommunitySearchWrapper, _CommunityTweetsWrapper, _CommunityWrapper, _ExploreTrendingWrapper, _ExploreWrapper, _GenericTimelineWrapper, _HomeTimelineWrapper, _ListManagementWrapper, _ListSubscribersWrapper, _ListTweetsWrapper, _ListUsersWrapper, _ListWrapper, _NotificationsTweetsWrapper, _NotificationsWrapper, _SearchTimelineWrapper, _SidebarUserRecommendationsWrapper, _TweetHiddenRepliesWrapper, _TweetLikesWrapper, _TweetRetweetsWrapper, _TweetWrapper, _UserFollowersWrapper, _UserFriendsFollowingWrapper, _UserLikesWrapper, _UserListsWrapper, _UserMediaWrapper, _UsersByIdsWrapper, _UserTweetsWrapper, _UserWrapper, Data } from './types/raw/wrappers.js';
 
 export const PUBLIC_TOKEN = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
 export const OAUTH_KEY = 'Bearer AAAAAAAAAAAAAAAAAAAAAG5LOQEAAAAAbEKsIYYIhrfOQqm4H8u7xcahRkU%3Dz98HKmzbeXdKqBfUDmElcqYl0cmmKY9KdS2UoNIz3Phapgsowi';
@@ -21,6 +21,17 @@ const POST = 'post';
 const optional = <T>(value: T): T | undefined => value;
 
 export const endpoints = {
+    GenericTimelineById: {
+        url: ['LZfAdxTdNolKXw6ZkoY_kA', 'GenericTimelineById'],
+        method: GET,
+        params: { timelineId: String() },
+        variables: {"count":20,"withQuickPromoteEligibilityTweetFields":true},
+        features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_enhance_cards_enabled":false,"interactive_text_enabled":true,"responsive_web_text_conversations_enabled":true,"vibe_api_enabled":true,"tweetypie_unmention_optimization_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"blue_business_profile_image_shape_enabled":true},
+        parser: (data: Data<_GenericTimelineWrapper<any>>) => entries(data.data.timeline.timeline.instructions)
+    },
+
+
+
     // account
     BlockedAccountsAll: {
         url: ['h52d1F7dumWGE1tJAhQBpg', 'BlockedAccountsAll'],
@@ -90,7 +101,53 @@ export const endpoints = {
 
 
     // birdwatch
-    // TODO
+    BirdwatchFetchGlobalTimeline: {
+        url: ['L3LftPt6fhYqoQ5Vnxm7UQ', 'BirdwatchFetchGlobalTimeline'],
+        method: GET,
+        params: { cursor: optional(String()) },
+        features: {"graphql_timeline_v2_bookmark_timeline":true,"blue_business_profile_image_shape_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"vibe_api_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":false,"interactive_text_enabled":true,"responsive_web_text_conversations_enabled":false,"longform_notetweets_rich_text_read_enabled":true,"responsive_web_enhance_cards_enabled":false},
+        parser: (data: Data<_BirdwatchTweetsWrapper>) => formatBirdwatchTimeline(entries(data.data.viewer.birdwatch_home_page.body.initialTimeline.timeline.timeline.instructions), data.data.viewer.birdwatch_home_page.body.timelines)
+    },
+    BirdwatchFetchBirdwatchProfile: {
+        url: ['id9iGfEQF47W1kvRBHUmRQ', 'BirdwatchFetchBirdwatchProfile'],
+        method: GET,
+        params: { alias: String() },
+        features: {"responsive_web_birdwatch_top_contributor_enabled":true},
+        parser: (data: Data<_BirdwatchContributorWrapper>) => formatBirdwatchContributor(data.data.birdwatch_profile_by_alias)
+    },
+    BirdwatchFetchAuthenticatedUserProfile: {
+        url: ['kD74-qBfrdRT5rO9YOl57g', 'BirdwatchFetchAuthenticatedUserProfile'],
+        method: GET,
+        features: {"responsive_web_birdwatch_top_contributor_enabled":true,"responsive_web_birdwatch_mobile_nav_setting_enabled":false,"responsive_web_birdwatch_note_limit_enabled":true},
+        parser: (data: Data<_BirdwatchAuthenticatedUserWrapper>) => formatBirdwatchAuthenticatedUser(data.data.authenticated_user_birdwatch_profile)
+    },
+    BirdwatchFetchNotes: {
+        url: ['2YbknhtutZWw5C5h2wDooA', 'BirdwatchFetchNotes'],
+        method: GET,
+        params: { tweet_id: String() },
+        features: {"responsive_web_birdwatch_enforce_author_user_quotas":true,"responsive_web_birdwatch_media_notes_enabled":true,"responsive_web_birdwatch_url_notes_enabled":true,"responsive_web_grok_community_note_translation_is_enabled":false,"responsive_web_birdwatch_fast_notes_badge_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false},
+        // @ts-ignore
+        parser: (data: Data<_BirdwatchNotesWrapper>) => formatBirdwatchTweet(Object.hasOwn(data.data.tweet_result_by_rest_id.result, 'tweet') ? data.data.tweet_result_by_rest_id.result.tweet : data.data.tweet_result_by_rest_id.result)
+    },
+    BirdwatchEditNotificationSettings: {
+        url: ['FLgLReVIssXjB_ui3wcrRQ', 'BirdwatchEditNotificationSettings'],
+        method: POST,
+        params: { settings: String() as 'All' | 'Week' | 'Month' | 'Never' },
+        parser: (data: _BirdwatchNotificationSettingsChange): Result => ({ result: data.data.authenticated_user_birdwatch_profile_set_notification_settings_put === 'Done' })
+    },
+    BirdwatchCreateRating: {
+        url: ['e3UGQnUm1M3BSDUgUt4oHA', 'BirdwatchCreateRating'],
+        method: POST,
+        params: { data_v2: Object() as { helpfulness_level: 'Helpful' | 'NotHelpful' | 'SomewhatHelpful', helpful_tags?: BirdwatchHelpfulTag[], not_helpful_tags?: BirdwatchNotHelpfulTag[], note_match?: { all_media_note_match: boolean } }, note_id: String(), tweet_id: String() },
+        variables: {"rating_source":"BirdwatchForYouTimeline","source_platform":"BirdwatchWeb"},
+        parser: (data: _BirdwatchCreateRating): Result => ({ result: data.data.birdwatchnote_rate_v3.__typename === 'BirdwatchNoteRating' })
+    },
+    BirdwatchDeleteRating: {
+        url: ['OpvCOyOoQClUND66zDzrnA', 'BirdwatchDeleteRating'],
+        method: POST,
+        params: { note_id: String() },
+        parser: (data: _BirdwatchDeleteRating): Result => ({ result: data.data.birdwatch_rating_delete === 'Done' })
+    },
 
 
 
@@ -233,7 +290,6 @@ export const endpoints = {
         variables: {},
         parser: (data: _CommunityAllowCreation): Result => ({ result: data.data.viewer.create_community_action_result.reason !== 'NotVerified' })
     },
-    
 
 
 
@@ -249,14 +305,6 @@ export const endpoints = {
         params: { cursor: optional(String()) },
         features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_enhance_cards_enabled":false},
         parser: (data: Data<_ExploreWrapper>) => formatExplorePage(entries(data.data.explore_page.body.initialTimeline.timeline.timeline.instructions), data.data.explore_page.body.timelines)
-    },
-    GenericTimelineById: {
-        url: ['LZfAdxTdNolKXw6ZkoY_kA', 'GenericTimelineById'],
-        method: GET,
-        params: { timelineId: String() },
-        variables: {"count":20,"withQuickPromoteEligibilityTweetFields":true},
-        features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_grok_community_note_auto_translation_is_enabled":false,"responsive_web_enhance_cards_enabled":false},
-        parser: (data: Data<_GenericTimelineWrapper<_ExploreTrendItem<'Item'>>>) => formatGenericTimeline(entries(data.data.timeline.timeline.instructions))
     },
     ExploreSidebar: {
         url: ['awK5hXpuSvqOizUnq8IcuA', 'ExploreSidebar'],
@@ -660,6 +708,7 @@ export const endpoints = {
         method: GET,
         params: { userIds: Array(String()) },
         features: {"blue_business_profile_image_shape_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true},
+        useOauthKey: true,
         parser: (data: Data<_UsersByIdsWrapper>) => data.data.users.map(user => formatUser(user.result))
     },
     UserTweets: {

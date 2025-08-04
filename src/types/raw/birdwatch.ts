@@ -1,4 +1,5 @@
 import * as Birdwatch from '../birdwatch.js';
+import type { _Tweet } from './tweet.js';
 
 export interface _BirdwatchContributor {
     alias: string,
@@ -28,18 +29,18 @@ export interface _BirdwatchContributor {
     }
 }
 
-export interface _BirdwatchAuthUser {
+export interface _BirdwatchAuthenticatedUser {
     alias: string,
     is_top_writer: boolean,
     notification_settings: {
-        needs_your_help_frequency: 'Never'
+        needs_your_help_frequency: 'All' | 'Week' | 'Month' | 'Never'
     },
     user_enrollment: {
-        enrollment_state: 'EarnedOutAcknowledged',
+        enrollment_state: 'EarnedIn' | 'EarnedOutAcknowledged',
         successful_rating_needed_to_earn_in: number,
-        top_not_helpful_tags: Birdwatch.BirdwatchNotHelpfulTag[],
+        top_not_helpful_tags?: Birdwatch.BirdwatchNotHelpfulTag[],
         survey_url: string,
-        timestamp_of_last_change_state: number
+        timestamp_of_last_state_change: number
     },
     can_write_notes: boolean
 }
@@ -64,6 +65,13 @@ export interface _BirdwatchNote {
         trustworthy_sources: boolean
     },
     fully_visible_model: boolean,
+    rating: {
+        data_v2: {
+            helpfulness_level: Birdwatch.BirdwatchHelpfulness,
+            helpful_tags?: Birdwatch.BirdwatchHelpfulTag[],
+            not_helpful_tags?: Birdwatch.BirdwatchNotHelpfulTag[]
+        }
+    },
     rating_status: Birdwatch.BirdwatchRatingStatus,
     rating_survey: {
         url: string
@@ -71,9 +79,7 @@ export interface _BirdwatchNote {
     helpful_tags?: Birdwatch.BirdwatchHelpfulTag[],
     not_helpful_tags?: Birdwatch.BirdwatchNotHelpfulTag[],
     tweet_results: {
-        result: {
-            rest_id: string
-        }
+        result: _Tweet
     },
     appeal_status: 'NotAppealed',
     birdwatch_profile: _BirdwatchContributor,
@@ -83,6 +89,7 @@ export interface _BirdwatchNote {
     is_media_note: boolean,
     is_url_note: boolean,
     impression_count: number,
+    language: string,
     media_note_matches: string,
     media_note_matches_v2: {
         match_count: number,
@@ -99,5 +106,6 @@ export interface _BirdwatchTweet {
     },
     misleading_birdwatch_notes: {
         notes: _BirdwatchNote[]
-    }
+    },
+    can_user_write_notes_on_post_author: boolean
 }

@@ -8,6 +8,14 @@ import { _ExplorePageItem, _ExploreSidebarItem, _ExploreStoriesItem, _ExploreTop
 export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], segments: SegmentedTimelines['timelines']): Entry<TimelineExploreItem>[] => {
     // @ts-ignore
     return [
+        ...segments.map((segment, index) => ({
+            id: `segment-${index}`,
+            content: {
+                __type: 'Segment',
+                id: segment.timeline.id,
+                name: segment.id
+            } satisfies Segment
+        })),
         ...input.map(entry => ({
             id: entry.entryId,
             content: entry.content.__typename === 'TimelineTimelineCursor'
@@ -29,23 +37,8 @@ export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], s
             : (entry.content as _ExploreTrendItem).itemContent.__typename === 'TimelineTrend'
                 ? formatTrend((entry.content as _ExploreTrendItem).itemContent as _Trend)
                 : formatEventSummary((entry.content as _ExploreTrendItem).itemContent as _EventSummary)
-        })),
-        ...segments.map(segment => ({
-            id: 'segment',
-            content: {
-                __type: 'Segment',
-                id: segment.timeline.id,
-                name: segment.id
-            } satisfies Segment
         }))
     ]
-};
-
-export const formatGenericTimeline = (input: _Entry<_ExploreTrendItem<'Item'>>[]): Entry<Trend>[] => {
-    return input.map(entry => entry.content.itemContent.__typename === 'TimelineTrend' ? {
-        id: entry.entryId,
-        content: formatTrend(entry.content.itemContent)
-    } : null).filter(x => !!x);
 };
 
 

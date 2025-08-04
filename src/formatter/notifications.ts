@@ -54,6 +54,7 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             bookmarked: tweet.bookmarked,
             createdAt: new Date(tweet.created_at).toISOString(),
             expandable: false,
+            hasBirdwatchNote: false,
             hasGrokChatEmbed: false,
             hasHiddenReplies: false,
             hasQuotedTweet: tweet.is_quote_status,

@@ -70,10 +70,12 @@ export interface _Tweet {
     __typename: 'Tweet',
     rest_id: string,
     has_birdwatch_notes: boolean,
-    birdwatch_pivot: {
+    birdwatch_pivot?: {
         destinationUrl: string,
-        note: {
-            rest_id: string
+        note?: {
+            rest_id: string,
+            language?: string,
+            is_community_note_translatable?: boolean
         },
         subtitle: {
             text: string,
