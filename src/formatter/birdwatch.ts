@@ -113,8 +113,9 @@ export const formatBirdwatchTimeline = (input: _Entry<_TweetConversationItem>[],
                 name: segment.id
             } satisfies Segment
         })),
-        ...input.map(entry => entry.content.__typename === 'TimelineTimelineModule' && !!(entry.content.items || []).at(0)?.item.itemContent.tweet_results.result ? {
+        ...input.map(entry => entry.content.__typename === 'TimelineTimelineModule' && (entry.content.items || []).at(0)?.item.itemContent.__typename === 'TimelineTweet' ? {
             id: entry.entryId,
+            // @ts-ignore
             content: formatTweet(entry.content.items.at(0)?.item.itemContent.tweet_results.result as _Tweet)
         } : null).filter(x => !!x)
     ];

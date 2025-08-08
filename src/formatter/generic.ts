@@ -16,8 +16,10 @@ export const formatGenericTimeline = <T extends { __typename: string }, U extend
 };
 
 const formatGenericTimelineAsBirdwatch = (input: _Entry<_TweetConversationItem>[]): Entry<TimelineTweet>[] => {
+    // @ts-ignore
     return input.map(entry => entry.content.__typename === 'TimelineTimelineModule' && !!(entry.content.items || []).at(0)?.item.itemContent.tweet_results.result ? {
         id: entry.entryId,
+        // @ts-ignore
         content: formatTweet(entry.content.items.at(0)?.item.itemContent.tweet_results.result as _Tweet)
     } : null).filter(x => !!x);
 };

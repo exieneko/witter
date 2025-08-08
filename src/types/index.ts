@@ -20,15 +20,9 @@ export interface Entry<T extends { __type: string }> {
 
 
 
-export type CursorDirection = 'top' | 'bottom';
+export type CursorDirection = 'top' | 'bottom' | 'show_more';
 export interface Cursor {
     __type: 'Cursor',
     direction: CursorDirection,
-    value: string
-}
-
-export interface ShowMoreCursor {
-    __type: 'ShowMoreCursor',
-    direction: CursorDirection | 'show_more',
     value: string
 }

@@ -138,6 +138,7 @@ export interface _UserV3 extends _User {
     },
     verification: {
         verified: boolean
+        verified_type?: 'Business' | 'Government'
     }
 }
 

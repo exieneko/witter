@@ -19,7 +19,7 @@ export type Instructions<T extends { __typename: string } = _TimelineTweetItem, 
         entries: _Entry<T>[]
     }];
 
-export type _CursorDirection = 'Top' | 'Bottom';
+export type _CursorDirection = 'Top' | 'Bottom' | 'ShowMore';
 export interface _Cursor {
     __typename: 'TimelineTimelineCursor',
     cursorType: _CursorDirection,

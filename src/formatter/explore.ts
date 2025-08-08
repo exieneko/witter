@@ -23,6 +23,7 @@ export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], s
             : /^tweet/.test(entry.entryId) && Object.hasOwn(entry.content, 'items')
                 ? {
                     __type: 'TweetList',
+                    // @ts-ignore
                     items: (entry.content as _ExploreTopicItem).items.map(item => formatTweet(item.item.itemContent.tweet_results.result, { hasHiddenReplies: item.item.itemContent.hasModeratedReplies }) as Tweet)
                 }
             : /^tweet/.test(entry.entryId)

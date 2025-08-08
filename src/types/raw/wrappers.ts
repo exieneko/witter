@@ -419,8 +419,8 @@ export interface _TweetLikesWrapper {
 }
 
 export interface _UserWrapper {
-    user: {
-        result: _User
+    user?: {
+        result?: _User
     }
 }
 

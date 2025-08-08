@@ -447,6 +447,7 @@ export const endpoints = {
     badge_count: {
         url: 'https://twitter.com/i/api/2/badge_count/badge_count.json?supports_ntab_urt=1',
         method: GET,
+        useOauthKey: true,
         parser: (data: _UnreadCount) => formatUnread(data)
     },
     notifications_device_follow: {
@@ -694,14 +695,14 @@ export const endpoints = {
         method: GET,
         params: { screen_name: String() },
         features: {"blue_business_profile_image_shape_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true},
-        parser: (data: Data<_UserWrapper>) => formatUser(data.data.user.result)
+        parser: (data: Data<_UserWrapper>) => formatUser(data.data?.user?.result)
     },
     UserByRestId: {
         url: ['GazOglcBvgLigl3ywt6b3Q', 'UserByRestId'],
         method: GET,
         params: { userId: String() },
         features: {"blue_business_profile_image_shape_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true},
-        parser: (data: Data<_UserWrapper>) => formatUser(data.data.user.result)
+        parser: (data: Data<_UserWrapper>) => formatUser(data.data?.user?.result)
     },
     UsersByRestIds: {
         url: ['OJBgJQIrij6e3cjqQ3Zu1Q', 'UsersByRestIds'],

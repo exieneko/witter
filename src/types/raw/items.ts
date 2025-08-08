@@ -205,7 +205,7 @@ export interface _TweetConversationItem {
     items: {
         entryId: string,
         item: {
-            itemContent: _TweetItem['itemContent']
+            itemContent: _TweetItem['itemContent'] | _Cursor
         }
     }[],
     metadata?: {

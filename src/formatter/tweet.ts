@@ -81,6 +81,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
             tweet.quoted_status_result.result.__typename === 'TweetWithVisibilityResults' ? tweet.quoted_status_result.result.tweet : tweet.quoted_status_result!.result
         ) as Tweet : undefined,
+        quotedTweetId: tweet.legacy.quoted_status_id_str,
         quotedTweetFallback: tweet.legacy.quoted_status_id_str ? {
             hasQuotedTweet: tweet.legacy.is_quote_status,
             tweetId: tweet.legacy.quoted_status_id_str
@@ -95,11 +96,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         text: tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '',
         textHighlights: options?.highlights || [],
         translatable: tweet.is_translatable,
-        urls: tweet.legacy.entities.urls.map(url => ({
-            url: url.url,
-            displayUrl: url.display_url,
-            expandedUrl: url.expanded_url
-        })) || [],
+        urls: tweet.legacy.entities.urls.map(url => url.expanded_url),
         userMentions: tweet.legacy.entities.user_mentions?.map(mention => ({
             id: mention.id_str,
             name: mention.name,
@@ -113,11 +110,7 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
     if (input.content.__typename === 'TimelineTimelineCursor') {
         return {
             id: input.entryId,
-            content: {
-                __type: 'Cursor',
-                direction: input.content.cursorType === 'Top' ? 'top' : 'bottom',
-                value: input.content.value
-            }
+            content: formatCursor(input.content)
         };
     }
 
@@ -137,8 +130,12 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
             id: input.entryId,
             content: {
                 __type: 'Conversation',
-                // @ts-ignore
-                items: input.content.items.map(item => formatTweet(item.item.itemContent.tweet_results.result, item.item.itemContent.hasModeratedReplies, item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])))
+                items: input.content.items.map(item => item.item.itemContent.__typename === 'TimelineTimelineCursor'
+                    ? formatCursor(item.item.itemContent)
+                    : (formatTweet(item.item.itemContent.tweet_results.result, {
+                        hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
+                        highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
+                    })) as Tweet)
             }
         };
     }
@@ -159,10 +156,12 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
         })),
         ...(grid ? grid.items.map(item => ({
             id: item.entryId,
-            content: formatTweet(item.item.itemContent.tweet_results.result, {
-                hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
-                highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
-            })
+            content: item.item.itemContent.__typename === 'TimelineTimelineCursor'
+                ? formatCursor(item.item.itemContent)
+                : formatTweet(item.item.itemContent.tweet_results.result, {
+                    hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
+                    highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
+                })
         })) : [])
     ];
 };
@@ -188,6 +187,7 @@ export const formatMedia = (input: _TweetMedia): TweetMedia => {
         ? {
             __type: 'MediaGif',
             id: input.id_str,
+            alt_text: input.ext_alt_text || undefined,
             url: input.video_info!.variants.at(-1)!.url,
             video: {
                 aspectRatio: input.video_info!.aspect_ratio,

@@ -1,4 +1,4 @@
-import type { Cursor, ShowMoreCursor } from './index.js';
+import type { Cursor } from './index.js';
 import type { Community } from './community.js';
 import type { User } from './user.js';
 import { _LimitedActionType } from './raw/tweet.js';
@@ -113,8 +113,9 @@ export interface Tweet {
     pinned: boolean,
     platform?: string,
     quoteTweetsCount: number,
-    quotedTweet?: Tweet,
-    /** @deprecated */
+    quotedTweet?: Tweet | TweetTombstone,
+    quotedTweetId?: string,
+    /** @deprecated use `hasQuotedTweet` and `quotedTweetId` */
     quotedTweetFallback?: {
         hasQuotedTweet: boolean,
         tweetId: string
@@ -130,11 +131,7 @@ export interface Tweet {
     /** `[start_index, end_index]` */
     textHighlights: [number, number][],
     translatable: boolean,
-    urls: {
-        url: string,
-        displayUrl: string,
-        expandedUrl: string
-    }[],
+    urls: string[],
     userMentions: {
         id: string,
         name: string,
@@ -152,7 +149,7 @@ export interface Retweet {
 
 export interface TweetConversation {
     __type: 'Conversation',
-    items: (Tweet | TweetTombstone | ShowMoreCursor)[]
+    items: (Tweet | TweetTombstone | Cursor)[]
 }
 
 export interface TweetTombstone {

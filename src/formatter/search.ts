@@ -13,6 +13,7 @@ export const formatSearchEntries = (input: _Entry<_TimelineTweetItem | _SearchUs
         content: entry.content.__typename === 'TimelineTimelineModule' && entry.content.items.at(0)?.item.itemContent.__typename === 'TimelineUser'
             ? {
                 __type: 'UserList',
+                // @ts-ignore
                 items: entry.content.items.map(item => item.item.itemContent.__typename === 'TimelineTweet' ? undefined : formatUser(item.item.itemContent.user_results.result)).filter(x => !!x)
             }
             : formatEntry(entry as _Entry<_TimelineTweetItem>)

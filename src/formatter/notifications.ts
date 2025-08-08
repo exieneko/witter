@@ -82,11 +82,7 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             text: tweet.full_text || '',
             textHighlights: [],
             translatable: false,
-            urls: tweet.entities.urls.map(url => ({
-                url: url.url,
-                displayUrl: url.display_url,
-                expandedUrl: url.expanded_url
-            })),
+            urls: tweet.entities.urls.map(url => url.expanded_url),
             userMentions: tweet.entities.user_mentions?.map(mention => ({
                 id: mention.id_str,
                 name: mention.name,

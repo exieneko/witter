@@ -6,7 +6,7 @@ import type { _AccountSettings, _MutedWord } from '../types/raw/account.js';
 import type { _UserItem } from '../types/raw/items.js';
 import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user.js';
 
-export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUser => {
+export const formatUser = (input: _User | _SuspendedUser | _UserV3 | undefined): TimelineUser => {
     if (!input) {
         return {
             __type: 'UnavailableUser',
@@ -59,7 +59,7 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3): TimelineUse
             username: user.legacy.screen_name,
             url: user.legacy.entities?.url?.urls?.at(0)?.extended_url,
             verified: user.legacy.verified,
-            verifiedType: user.legacy.verified ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+            verifiedType: user.legacy.verified_type ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
             wantRetweets: user.legacy.want_retweets || true,
             wantNotifications: !!user.legacy.notifications
         };
@@ -99,9 +99,9 @@ export const formatUserLegacy = (input: _User['legacy']): User => {
         likesCount: input.favourites_count,
         listedCount: input.listed_count,
         username: input.screen_name,
-        url: input.url || undefined,
+        url: input.entities.url?.urls?.at(0)?.extended_url || input.url || undefined,
         verified: input.verified,
-        verifiedType: input.verified ? input.verified_type === 'Business' ? 'gold' : input.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+        verifiedType: input.verified_type ? input.verified_type === 'Business' ? 'gold' : input.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
         wantRetweets: input.want_retweets || true,
         wantNotifications: input.notifications || false
     };
@@ -131,8 +131,9 @@ const normalizeUserV3 = (input: _UserV3): _User => {
         location: input.location?.location,
         profile_image_url_https: input.avatar.image_url,
         protected: input.privacy.protected,
-        verified: input.verification.verified
-    };
+        verified: input.verification.verified,
+        verified_type: input.verification.verified_type
+    } satisfies _User['legacy'];
 
     return { ...input, legacy: legacy };
 };

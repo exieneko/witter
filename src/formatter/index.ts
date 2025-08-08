@@ -14,7 +14,11 @@ export * from './user.js';
 export const formatCursor = (input: _Cursor): Cursor => {
     return {
         __type: 'Cursor',
-        direction: input.cursorType === 'Top' ? 'top' : 'bottom',
+        direction: input.cursorType === 'Top'
+            ? 'top'
+        : input.cursorType === 'ShowMore'
+            ? 'show_more'
+            : 'bottom',
         value: input.value
     };
 };
