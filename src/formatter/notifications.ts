@@ -79,7 +79,7 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             } : undefined,
             retweetsCount: tweet.retweet_count,
             retweeted: tweet.retweeted,
-            text: tweet.full_text || '',
+            text: (tweet.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.entities.urls.find(x => x.url === sub)?.expanded_url || sub),
             textHighlights: [],
             translatable: false,
             urls: tweet.entities.urls.map(url => url.expanded_url),

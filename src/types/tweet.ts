@@ -131,6 +131,7 @@ export interface Tweet {
     /** `[start_index, end_index]` */
     textHighlights: [number, number][],
     translatable: boolean,
+    /** @deprecated urls are now added to `text` */
     urls: string[],
     userMentions: {
         id: string,

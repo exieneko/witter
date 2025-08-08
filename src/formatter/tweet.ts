@@ -93,7 +93,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         retweetsCount: tweet.legacy.retweet_count,
         retweeted: tweet.legacy.retweeted,
-        text: tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '',
+        text: (tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.legacy.entities.urls.find(x => x.url === sub)?.expanded_url || sub),
         textHighlights: options?.highlights || [],
         translatable: tweet.is_translatable,
         urls: tweet.legacy.entities.urls.map(url => url.expanded_url),
