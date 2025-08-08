@@ -98,7 +98,7 @@ export interface _Tweet {
     },
     card?: _Card,
     unmention_data: {},
-    edit_control: {
+    edit_control?: {
         edit_tweet_ids: string[],
         editable_until_msec: string,
         is_edit_eligible: boolean,
@@ -279,6 +279,7 @@ export interface _VisibilityLimitedTweet {
     },
     mediaVisibilityResults?: {
         blurred_image_interstitial: {
+            interstitial_action?: 'AgeVerificationPrompt',
             opacity: number,
             text: {
                 text: string,

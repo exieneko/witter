@@ -10,8 +10,8 @@ import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _TweetUnavailable, _V
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, options?: { hasHiddenReplies?: boolean, highlights?: [number, number][], pinned?: boolean }): Tweet | Retweet | TweetTombstone => {
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
     const limitations = input.__typename === 'TweetWithVisibilityResults' ? {
-        actions: input.limitedActionResults?.limited_actions,
-        blurImages: !!input.mediaVisibilityResults?.blurred_image_interstitial.text.text,
+        actions: input.limitedActionResults?.limited_actions.map(a => a.action),
+        mediaVisibility: input.mediaVisibilityResults?.blurred_image_interstitial,
         warningText: input.softInterventionPivot?.text.text,
         limitedText: input.tweetInterstitial?.text
     } : undefined;
@@ -70,8 +70,17 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         likesCount: tweet.legacy.favorite_count,
         liked: tweet.legacy.favorited,
         limited: limitations ? {
-            actions: limitations.actions?.map(({ action }) => action),
-            type: tweet.core.user_results.result.legacy.blocked_by ? 'blocked_by_author' : limitations.limitedText ? 'severe_hate_limited' : 'hate_limited'
+            actions: limitations.actions,
+            allowedActions: {
+                reply: !limitations.actions?.includes('Reply'),
+                retweet: !limitations.actions?.includes('Retweet'),
+                quoteTweet: !limitations.actions?.includes('QuoteTweet'),
+                like: !limitations.actions?.includes('Like'),
+                bookmark: !limitations.actions?.includes('AddToBookmarks'),
+                vote: !limitations.actions?.includes('VoteOnPoll')
+            },
+            mediaLimitedReason: limitations.mediaVisibility?.interstitial_action === 'AgeVerificationPrompt' ? 'nsfw_unverified' : limitations.mediaVisibility?.title.text.includes('Adult') ? 'nsfw' : limitations.mediaVisibility?.title.text.includes('Graphic') ? 'violence' : undefined,
+            type: tweet.core.user_results.result.legacy.blocked_by ? 'blocked_by_author' : limitations.mediaVisibility?.interstitial_action === 'AgeVerificationPrompt' ? 'age_restriction_limited' : limitations.limitedText ? 'severe_hate_limited' : 'hate_limited'
         } : undefined,
         media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,

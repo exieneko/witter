@@ -71,8 +71,6 @@ export interface TweetVideo {
 
 export type TweetMedia = TweetImage | TweetGif | TweetVideo;
 
-export type LimitedActionType = _LimitedActionType;
-
 export interface Tweet {
     __type: 'Tweet',
     id: string,
@@ -105,8 +103,18 @@ export interface Tweet {
     likesCount: number,
     liked: boolean,
     limited?: {
-        actions?: LimitedActionType[],
-        type: 'hate_limited' | 'severe_hate_limited' | 'blocked_by_author'
+        /** @deprecated use `limited.allowedActions` instead */
+        actions?: _LimitedActionType[],
+        allowedActions: {
+            reply: boolean,
+            retweet: boolean,
+            quoteTweet: boolean,
+            like: boolean,
+            bookmark: boolean,
+            vote: boolean
+        },
+        mediaLimitedReason?: 'nsfw_unverified' /* europe only */ | 'nsfw' | 'violence',
+        type: 'hate_limited' | 'severe_hate_limited' | 'age_restriction_limited' /* europe only */ | 'blocked_by_author'
     },
     media: TweetMedia[],
     muted: boolean,
