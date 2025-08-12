@@ -9,7 +9,7 @@ a basic twitter api client for javascript & typescript because i love reinventin
 3. initialize the twitter client
 
     ```typescript
-    const twitter = new TwitterClient('en', {
+    const twitter = new TwitterClient({
         authToken: 'auth_token cookie value',
         authMulti: 'auth_multi cookie value (optional)',
         csrf: 'ct0 cookie value'
@@ -32,7 +32,7 @@ import { TwitterClient } from 'twitter-api-unofficial';
 
 const global = globalThis as unknown as { twitterClient: TwitterClient };
 
-const twitter = global.twitterClient || new TwitterClient('en', {
+const twitter = global.twitterClient || new TwitterClient({
     authToken: process.env.AUTH_TOKEN!,
     csrf: process.env.CSRF!
 });
@@ -41,7 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
     global.twitterClient = twitter;
 }
 
-export default twitter;
+export { twitter };
 ```
 
 ### sveltekit
@@ -64,7 +64,7 @@ export {};
 import { TwitterClient } from 'twitter-api-unofficial';
 import { AUTH_TOKEN, CSRF } from '$env/static/private';
 
-const twitter = global.twitterClient || new TwitterClient('en', {
+const twitter = global.twitterClient || new TwitterClient({
     authToken: AUTH_TOKEN,
     csrf: CSRF
 });
@@ -73,5 +73,5 @@ if (process.env.NODE_ENV !== 'production') {
     global.twitterClient = twitter;
 }
 
-export default twitter;
+export { twitter };
 ```
