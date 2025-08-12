@@ -100,7 +100,7 @@ export interface _Tweet {
     unmention_data: {},
     edit_control?: {
         edit_tweet_ids: string[],
-        editable_until_msec: string,
+        editable_until_msecs: string,
         is_edit_eligible: boolean,
         edits_remaining: string
     },

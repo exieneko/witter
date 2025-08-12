@@ -55,8 +55,8 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         card: tweet.card ? formatCard(tweet.card?.legacy) : undefined,
         community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
         createdAt: new Date(tweet.legacy.created_at).toISOString(),
-        editing: tweet.edit_control && tweet.edit_control.editable_until_msec ? {
-            allowedUntil: tweet.edit_control.editable_until_msec.toString(),
+        editing: tweet.edit_control && tweet.edit_control.editable_until_msecs ? {
+            allowedUntil: new Date(Number(tweet.edit_control.editable_until_msecs)).toISOString(),
             eligible: tweet.edit_control.is_edit_eligible,
             remainingCount: Number(tweet.edit_control.edits_remaining),
             tweetIds: tweet.edit_control.edit_tweet_ids
