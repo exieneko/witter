@@ -13,16 +13,16 @@ interface CursorOnly {
 export class TwitterClient {
     private headers;
 
-    constructor(lang: string, login: { authToken: string, authMulti?: string, csrf: string }) {
+    constructor(login: { authToken: string, authMulti?: string, csrf: string }) {
         this.headers = {
             authorization: PUBLIC_TOKEN,
             'content-type': 'application/json',
             'x-csrf-token': login.csrf,
             'x-twitter-active-user': 'yes',
             'x-twitter-auth-type': 'OAuth2Session',
-            'x-twitter-client-language': lang || 'en',
+            'x-twitter-client-language': 'en',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-            cookie: login.authMulti ? `auth_token=${login.authToken}; ct0=${login.csrf}` : `auth_token=${login.authToken}; auth_multi="${login.authMulti}"; ct0=${login.csrf}`
+            cookie: login.authMulti ? `auth_token=${login.authToken}; auth_multi="${login.authMulti}"; ct0=${login.csrf}` : `auth_token=${login.authToken}; ct0=${login.csrf}`
         };
     }
 
