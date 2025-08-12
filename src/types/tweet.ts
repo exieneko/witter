@@ -161,8 +161,12 @@ export interface TweetConversation {
     items: (Tweet | TweetTombstone | Cursor)[]
 }
 
+export type TweetTombstoneReason = 'deleted' | 'private_account' | 'withheld' | 'unavailable';
+
 export interface TweetTombstone {
     __type: 'TweetTombstone',
+    reason: TweetTombstoneReason,
+    /** @deprecated use `reason` */
     text?: string
 }
 

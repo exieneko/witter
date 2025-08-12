@@ -18,13 +18,19 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
 
     if (tweet.__typename === 'TweetUnavailable') {
         return {
-            __type: 'TweetTombstone'
+            __type: 'TweetTombstone',
+            reason: 'unavailable'
         }
     }
 
     if (tweet.__typename === 'TweetTombstone') {
         return {
             __type: 'TweetTombstone',
+            reason: tweet.tombstone.text.text.includes('limits who can view')
+                ? 'private_account'
+            : tweet.tombstone.text.text.includes('withheld')
+                ? 'withheld'
+                : 'deleted',
             text: tweet.tombstone.text.text
         };
     }
