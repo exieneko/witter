@@ -39,7 +39,7 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3 | undefined):
             canDm: !!user.legacy.can_dm,
             canMediaTag: !!user.legacy.can_media_tag,
             createdAt: new Date(user.legacy.created_at).toISOString(),
-            description: user.legacy.description || undefined,
+            description: user.legacy.description.replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => user.legacy.entities.description?.urls?.find(x => x.url === sub)?.expanded_url || sub).replace(/\/$/, '') || undefined,
             followersCount: user.legacy.followers_count,
             followingCount: user.legacy.friends_count,
             followed: !!user.legacy.following,
@@ -57,10 +57,10 @@ export const formatUser = (input: _User | _SuspendedUser | _UserV3 | undefined):
             likesCount: user.legacy.favourites_count,
             listedCount: user.legacy.listed_count,
             username: user.legacy.screen_name,
-            url: user.legacy.entities?.url?.urls?.at(0)?.extended_url,
-            verified: user.legacy.verified,
-            verifiedType: user.legacy.verified_type ? user.legacy.verified_type === 'Business' ? 'gold' : user.legacy.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
-            wantRetweets: user.legacy.want_retweets || true,
+            url: user.legacy.entities?.url?.urls?.at(0)?.expanded_url.replace(/\/$/, ''),
+            verified: user.legacy.verified || user.is_blue_verified || !!user.legacy.verified_type,
+            verificationType: user.legacy.verified_type === 'Government' ? 'government' : user.legacy.verified_type === 'Business' ? 'organization' : user.legacy.verified || user.is_blue_verified ? 'individual' : undefined,
+            wantRetweets: !!user.legacy.want_retweets,
             wantNotifications: !!user.legacy.notifications
         };
     }
@@ -99,9 +99,9 @@ export const formatUserLegacy = (input: _User['legacy']): User => {
         likesCount: input.favourites_count,
         listedCount: input.listed_count,
         username: input.screen_name,
-        url: input.entities.url?.urls?.at(0)?.extended_url || input.url || undefined,
+        url: input.entities.url?.urls?.at(0)?.expanded_url || input.url || undefined,
         verified: input.verified,
-        verifiedType: input.verified_type ? input.verified_type === 'Business' ? 'gold' : input.verified_type === 'Government' ? 'gray' : 'blue' : undefined,
+        verificationType: input.verified_type === 'Government' ? 'government' : input.verified_type === 'Business' ? 'organization' : input.verified ? 'individual' : undefined,
         wantRetweets: input.want_retweets || true,
         wantNotifications: input.notifications || false
     };

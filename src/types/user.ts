@@ -41,7 +41,7 @@ export interface User {
     username: string,
     url?: string,
     verified: boolean,
-    verifiedType?: 'blue' | 'gold' | 'gray';
+    verificationType?: 'individual' | 'organization' | 'government',
     wantRetweets?: boolean,
     wantNotifications?: boolean
 }

@@ -78,10 +78,9 @@ export interface Tweet {
     birdwatchNote?: {
         id: string,
         text: string,
-        language: string,
+        lang: string,
         translatable: boolean,
-        public: boolean,
-        url: string
+        public: boolean
     },
     bookmarksCount: number,
     bookmarked: boolean,
@@ -89,8 +88,8 @@ export interface Tweet {
     community?: Community,
     createdAt: string,
     editing?: {
+        allowed: boolean,
         allowedUntil: string,
-        eligible: boolean,
         remainingCount: number,
         tweetIds: string[]
     },
@@ -103,8 +102,6 @@ export interface Tweet {
     likesCount: number,
     liked: boolean,
     limited?: {
-        /** @deprecated use `limited.allowedActions` instead */
-        actions?: _LimitedActionType[],
         allowedActions: {
             reply: boolean,
             retweet: boolean,
@@ -123,11 +120,6 @@ export interface Tweet {
     quoteTweetsCount: number,
     quotedTweet?: Tweet | TweetTombstone,
     quotedTweetId?: string,
-    /** @deprecated use `hasQuotedTweet` and `quotedTweetId` */
-    quotedTweetFallback?: {
-        hasQuotedTweet: boolean,
-        tweetId: string
-    },
     repliesCount: number,
     replyingTo?: {
         tweetId: string,
@@ -138,9 +130,7 @@ export interface Tweet {
     text: string,
     /** `[start_index, end_index]` */
     textHighlights: [number, number][],
-    translatable: boolean,
-    /** @deprecated urls are now added to `text` */
-    urls: string[],
+    translatable: boolean
     userMentions: {
         id: string,
         name: string,
@@ -165,9 +155,7 @@ export type TweetTombstoneReason = 'deleted' | 'private_account' | 'withheld' | 
 
 export interface TweetTombstone {
     __type: 'TweetTombstone',
-    reason: TweetTombstoneReason,
-    /** @deprecated use `reason` */
-    text?: string
+    reason: TweetTombstoneReason
 }
 
 

@@ -77,6 +77,7 @@ export interface _Tweet {
             language?: string,
             is_community_note_translatable?: boolean
         },
+        title: string,
         subtitle: {
             text: string,
             entities: {
@@ -89,7 +90,7 @@ export interface _Tweet {
             }[]
         },
         /** Default means note is visible to everyone */
-        visualStyle: 'Default' | 'Tentative'
+        visualStyle?: 'Default' | 'Tentative'
     },
     core: {
         user_results: {
@@ -147,6 +148,7 @@ export interface _Tweet {
             expanded: string,
             display: string
         },
+        source?: string,
         lang: string,
         quote_count: number,
         reply_count: number,

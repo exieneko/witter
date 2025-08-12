@@ -8,6 +8,10 @@ import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/it
 import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _TweetUnavailable, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
 
 export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, options?: { hasHiddenReplies?: boolean, highlights?: [number, number][], pinned?: boolean }): Tweet | Retweet | TweetTombstone => {
+    const text = (tweet: _Tweet) => {
+        return (tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.legacy.entities.urls.find(x => x.url === sub)?.expanded_url || sub);
+    };
+
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
     const limitations = input.__typename === 'TweetWithVisibilityResults' ? {
         actions: input.limitedActionResults?.limited_actions.map(a => a.action),
@@ -30,8 +34,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
                 ? 'private_account'
             : tweet.tombstone.text.text.includes('withheld')
                 ? 'withheld'
-                : 'deleted',
-            text: tweet.tombstone.text.text
+                : 'deleted'
         };
     }
 
@@ -51,10 +54,9 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         birdwatchNote: tweet.birdwatch_pivot?.note?.rest_id ? {
             id: tweet.birdwatch_pivot.note.rest_id,
             text: tweet.birdwatch_pivot.subtitle.text,
-            language: tweet.birdwatch_pivot.note.language || 'zxx',
+            lang: tweet.birdwatch_pivot.note.language || 'en',
             translatable: !!tweet.birdwatch_pivot.note.is_community_note_translatable,
-            public: tweet.birdwatch_pivot.visualStyle === 'Default',
-            url: tweet.birdwatch_pivot.destinationUrl
+            public: tweet.birdwatch_pivot.visualStyle === 'Default' || tweet.birdwatch_pivot.title.includes('added context')
         } : undefined,
         bookmarksCount: tweet.legacy.bookmark_count,
         bookmarked: tweet.legacy.bookmarked,
@@ -62,8 +64,8 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
         createdAt: new Date(tweet.legacy.created_at).toISOString(),
         editing: tweet.edit_control && tweet.edit_control.editable_until_msecs ? {
+            allowed: tweet.edit_control.is_edit_eligible,
             allowedUntil: new Date(Number(tweet.edit_control.editable_until_msecs)).toISOString(),
-            eligible: tweet.edit_control.is_edit_eligible,
             remainingCount: Number(tweet.edit_control.edits_remaining),
             tweetIds: tweet.edit_control.edit_tweet_ids
         } : undefined,
@@ -76,7 +78,6 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         likesCount: tweet.legacy.favorite_count,
         liked: tweet.legacy.favorited,
         limited: limitations ? {
-            actions: limitations.actions,
             allowedActions: {
                 reply: !limitations.actions?.includes('Reply'),
                 retweet: !limitations.actions?.includes('Retweet'),
@@ -91,16 +92,12 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,
         pinned: !!options?.pinned,
-        platform: tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
+        platform: tweet.source === 'Twitter Web App' ? 'Web app' : tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
         quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
             tweet.quoted_status_result.result.__typename === 'TweetWithVisibilityResults' ? tweet.quoted_status_result.result.tweet : tweet.quoted_status_result!.result
         ) as Tweet : undefined,
         quotedTweetId: tweet.legacy.quoted_status_id_str,
-        quotedTweetFallback: tweet.legacy.quoted_status_id_str ? {
-            hasQuotedTweet: tweet.legacy.is_quote_status,
-            tweetId: tweet.legacy.quoted_status_id_str
-        } : undefined,
         repliesCount: tweet.legacy.reply_count,
         replyingTo: tweet.legacy.in_reply_to_status_id_str ? {
             tweetId: tweet.legacy.in_reply_to_status_id_str,
@@ -108,10 +105,9 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         } : undefined,
         retweetsCount: tweet.legacy.retweet_count,
         retweeted: tweet.legacy.retweeted,
-        text: (tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.legacy.entities.urls.find(x => x.url === sub)?.expanded_url || sub),
+        text: !!tweet.legacy.entities.media?.length ? text(tweet).replace(/https:\/\/t\.co\/.+$/, '').trimEnd() : text(tweet),
         textHighlights: options?.highlights || [],
         translatable: tweet.is_translatable,
-        urls: tweet.legacy.entities.urls.map(url => url.expanded_url),
         userMentions: tweet.legacy.entities.user_mentions?.map(mention => ({
             id: mention.id_str,
             name: mention.name,

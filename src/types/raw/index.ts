@@ -68,7 +68,7 @@ export interface SegmentedTimelines<T extends { __typename: string } = _Timeline
 
 export interface _Url {
     display_url: string,
-    extended_url: string,
+    expanded_url: string,
     url: string,
     indices: [number, number]
 }

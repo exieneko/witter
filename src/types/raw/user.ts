@@ -26,8 +26,8 @@ export interface _User {
         description: string,
         url: string | null,
         entities: {
-            description: {
-                urls: _Url[]
+            description?: {
+                urls?: _Url[]
             },
             url?: {
                 urls?: [_Url]

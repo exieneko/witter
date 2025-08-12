@@ -64,14 +64,9 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             media: tweet.entities.media?.map(formatMedia) || [],
             muted: false,
             pinned: false,
-            // @ts-ignore
-            platform: tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
+            platform: tweet.source === 'Twitter Web App' ? 'Web app' : tweet.source?.match(/>Twitter\sfor\s(.*?)</)?.at(1),
             quoteTweetsCount: tweet.quote_count,
             quotedTweet: quotedTweet && quotedTweetAuthor ? getFromId(quotedTweet.id_str) as Tweet : undefined,
-            quotedTweetFallback: tweet.quoted_status_id_str ? {
-                hasQuotedTweet: tweet.is_quote_status,
-                tweetId: tweet.quoted_status_id_str
-            } : undefined,
             repliesCount: tweet.reply_count,
             replyingTo: tweet.in_reply_to_status_id_str ? {
                 tweetId: tweet.in_reply_to_status_id_str,
@@ -82,7 +77,6 @@ export const formatNotificationTweetEntries = (input: _Entry<_NotificationTweetI
             text: (tweet.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.entities.urls.find(x => x.url === sub)?.expanded_url || sub),
             textHighlights: [],
             translatable: false,
-            urls: tweet.entities.urls.map(url => url.expanded_url),
             userMentions: tweet.entities.user_mentions?.map(mention => ({
                 id: mention.id_str,
                 name: mention.name,
