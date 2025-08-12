@@ -53,7 +53,8 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         author: formatUser(tweet.core.user_results.result) as User,
         birdwatchNote: tweet.birdwatch_pivot?.note?.rest_id ? {
             id: tweet.birdwatch_pivot.note.rest_id,
-            text: tweet.birdwatch_pivot.subtitle.text,
+            // TODO: make this use the actual urls instead of the t.co redirects
+            text: tweet.birdwatch_pivot.subtitle.entities.toSorted((a, b) => b.fromIndex - a.fromIndex).reduce((acc, { fromIndex, toIndex, ref }) => acc.slice(0, fromIndex) + ref.url + acc.slice(toIndex), tweet.birdwatch_pivot.subtitle.text),
             lang: tweet.birdwatch_pivot.note.language || 'en',
             translatable: !!tweet.birdwatch_pivot.note.is_community_note_translatable,
             public: tweet.birdwatch_pivot.visualStyle === 'Default' || tweet.birdwatch_pivot.title.includes('added context')
