@@ -52,6 +52,7 @@ export const endpoints = {
     account_verify_credentials: {
         url: v11('account/verify_credentials.json'),
         method: GET,
+        useOauthKey: true,
         parser: (data: _User['legacy']) => formatUserLegacy(data)
     },
     account_multi_switch: {
@@ -59,11 +60,13 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: '{user_id}',
+        useOauthKey: true,
         parser: (data: _User['legacy']) => formatUserLegacy(data)
     },
     account_multi_list: {
         url: v11('account/multi/list.json'),
         method: GET,
+        useOauthKey: true,
         parser: (data: _UserFriendsFollowingWrapper) => data.users.map(formatUserLegacy)
     },
     account_update_profile: {
@@ -71,16 +74,19 @@ export const endpoints = {
         method: POST,
         params: { birthdate_day: Number(), birthdate_month: Number(), birthdate_year: Number(), birthdate_visibility: String() as 'self', birthdate_year_visibility: String() as 'self', name: String(), description: String(), location: String() },
         body: 'birthdate_day={}&birthdate_month={}&birthdate_year={}&birthdate_visibility={}&birthdate_year_visibility={}&displayNameMaxLength=50&name={}&description={}&location={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     account_settings: {
         url: v11('account/settings.json'),
         method: GET,
+        useOauthKey: true,
         parser: (data: _AccountSettings) => formatSettings(data)
     },
     mutes_keywords_list: {
         url: v11('mutes/keywords/list.json'),
         method: GET,
+        useOauthKey: true,
         parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
     },
     mutes_keywords_create: {
@@ -88,6 +94,7 @@ export const endpoints = {
         method: POST,
         params: { keyword: String(), mute_surfaces: String(), mute_options: String(), duration: String() },
         body: 'keyword={}&mute_surfaces={}&mute_options={}&duration={}',
+        useOauthKey: true,
         parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
     },
     mutes_keywords_destroy: {
@@ -95,6 +102,7 @@ export const endpoints = {
         method: POST,
         params: { ids: String() },
         body: 'ids={}',
+        useOauthKey: true,
         parser: (data: { muted_keywords: _MutedWord[] }) => data.muted_keywords.map(formatMutedWord)
     },
 
@@ -445,9 +453,9 @@ export const endpoints = {
         parser: (data: Data<_NotificationsWrapper>) => formatNotificationEntries(entries(data.data.viewer_v2.user_results.result.notification_timeline.timeline.instructions))
     },
     badge_count: {
-        url: 'https://twitter.com/i/api/2/badge_count/badge_count.json?supports_ntab_urt=1',
+        url: 'https://twitter.com/i/api/2/badge_count/badge_count.json',
         method: GET,
-        useOauthKey: true,
+        body: 'supports_ntab_urt=1',
         parser: (data: _UnreadCount) => formatUnread(data)
     },
     notifications_device_follow: {
@@ -455,6 +463,7 @@ export const endpoints = {
         method: GET,
         params: { cursor: optional(String()) },
         body: 'cursor={}&include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=true&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_views=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&count=20&requestContext=launch&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2CbirdwatchPivot%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl',
+        useOauthKey: true,
         parser: (data: _NotificationsTweetsWrapper) => formatNotificationTweetEntries(entries(data.timeline.instructions), data.globalObjects)
     },
 
@@ -475,6 +484,7 @@ export const endpoints = {
         method: GET,
         params: { q: String() },
         body: 'q={}&include_can_dm=1&count=10&prefetch=false&cards_platform=Web-13&include_entities=1&include_user_entities=1&include_cards=1&send_error_codes=1&tweet_mode=extended&include_ext_alt_text=true&include_reply_count=true&ext=views%2CmediaStats%2CverifiedType%2CisBlueVerified',
+        useOauthKey: true,
         parser: (data: _Typeahead) => formatTypeahead(data)
     },
 
@@ -663,6 +673,7 @@ export const endpoints = {
     cards_create: {
         url: 'https://caps.twitter.com/v2/cards/create.json',
         method: POST,
+        useOauthKey: true,
         parser: (data: any) => data // TODO
     },
     passthrough: {
@@ -670,6 +681,7 @@ export const endpoints = {
         method: POST,
         params: { card_uri: String(), original_tweet_id: String(), response_card_name: String(), selected_choice: Number() },
         body: 'twitter%3Astring%3Acard_uri={}&twitter%3Along%3Aoriginal_tweet_id={}&twitter%3Astring%3Aresponse_card_name={}&twitter%3Astring%3Acards_platform=Web-12&twitter%3Astring%3Aselected_choice={}',
+        useOauthKey: true,
         parser: (data: { card: _Card['legacy'] }) => formatCard(data.card)
     },
     mutes_conversations_create: {
@@ -677,6 +689,7 @@ export const endpoints = {
         method: POST,
         params: { tweet_id: String() },
         body: 'tweet_id={}',
+        useOauthKey: true,
         parser: (data: _TweetMute): Result => ({ result: !!data.id_str })
     },
     mutes_conversations_destroy: {
@@ -684,6 +697,7 @@ export const endpoints = {
         method: POST,
         params: { tweet_id: String() },
         body: 'tweet_id={}',
+        useOauthKey: true,
         parser: (data: _TweetMute): Result => ({ result: !!data.id_str })
     },
 
@@ -787,6 +801,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     friendships_destroy: {
@@ -794,6 +809,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     friendships_update_device: {
@@ -801,6 +817,7 @@ export const endpoints = {
         method: POST,
         params: { id: String(), device: Boolean() },
         body: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cursor=-1&id={}&device={}',
+        useOauthKey: true,
         parser: (data: _UserRelationshipUpdate): Result => ({ result: !!data.relationship.target.id_str })
     },
     friendships_update_retweets: {
@@ -808,6 +825,7 @@ export const endpoints = {
         method: POST,
         params: { id: String(), retweets: Boolean() },
         body: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cursor=-1&id={}&retweets={}',
+        useOauthKey: true,
         parser: (data: _UserRelationshipUpdate): Result => ({ result: !!data.relationship.target.id_str })
     },
     friendships_cancel: {
@@ -815,6 +833,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     friendships_incoming: {
@@ -822,6 +841,7 @@ export const endpoints = {
         method: GET,
         params: { user_id: String(), cursor: Number() },
         body: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cursor={}&stringify_ids=true&count=100',
+        useOauthKey: true,
         parser: (data: _UserFriendsFollowingWrapper) => data.users.map(formatUserLegacy)
     },
     friendships_accept: {
@@ -829,6 +849,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     friendships_deny: {
@@ -836,6 +857,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     blocks_create: {
@@ -843,6 +865,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     blocks_destroy: {
@@ -850,6 +873,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     mutes_users_create: {
@@ -857,6 +881,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     mutes_users_destroy: {
@@ -864,6 +889,7 @@ export const endpoints = {
         method: POST,
         params: { user_id: String() },
         body: 'user_id={}',
+        useOauthKey: true,
         parser: (data: _User['legacy']): Result => ({ result: !!data.id_str })
     },
     friends_following_list: {
@@ -871,6 +897,7 @@ export const endpoints = {
         method: GET,
         params: { user_id: String() },
         body: 'include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cursor=-1&user_id={}&count=10&with_total_count=true',
+        useOauthKey: true,
         parser: (data: _UserFriendsFollowingWrapper) => data.users.map(formatUserLegacy)
     }
 } satisfies Record<string, Endpoint>;

@@ -17,6 +17,7 @@ export interface V11Endpoint<Params extends object = {}, Body extends string = a
     method: 'get' | 'post',
     params?: Params,
     body?: Body,
+    useOauthKey?: boolean,
     parser: (data: RawData) => Data
 }
 
@@ -48,16 +49,16 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<s
 
     const url = `https://twitter.com/i/api/graphql/${endpoint.url.join('/')}`;
 
-    const headers2 = endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers;
+    const headers_ = endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers;
 
     const response = await (endpoint.method === 'get'
         ? fetch(url + toSearchParams({ variables: { ...endpoint.variables, ...params }, features: endpoint.features }), {
             method: endpoint.method,
-            headers: headers2
+            headers: headers_
         })
         : fetch(url, {
             method: endpoint.method,
-            headers: headers2,
+            headers: headers_,
             body: JSON.stringify({
                 variables: { ...endpoint.variables, ...params },
                 features: endpoint.features,
@@ -80,9 +81,11 @@ const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<s
 
     const urlencoded = encode(endpoint.body, params);
 
+    const headers_ = { ...(endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers), 'content-type': 'application/x-www-form-urlencoded' };
+
     const response = await fetch(endpoint.method === 'get' ? `${endpoint.url}?${urlencoded}` : endpoint.url, {
         method: endpoint.method,
-        headers: { ...headers, authorization: OAUTH_KEY, 'content-type': 'application/x-www-form-urlencoded' },
+        headers: headers_,
         body: endpoint.method === 'post' && endpoint.body ? urlencoded : undefined
     });
 
