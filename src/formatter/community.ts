@@ -8,9 +8,9 @@ import { _UserV3 } from '../types/raw/user.js';
 export const formatCommunity = (input: _Community): Community => {
     return {
         __type: 'Community',
-        id: input.rest_id,
+        id: input.rest_id || input.id_str || '1',
         createdAt: new Date(input.created_at).toISOString(),
-        creatorUsername: input.creator_results?.result.legacy.screen_name,
+        creatorUsername: input.creator_results?.result?.legacy?.screen_name,
         description: input.description || undefined,
         highlightedAvatarUsers: input.members_facepile_results.map(user => formatUser(user.result) as User),
         joinable: input.join_policy === 'Open',
@@ -19,8 +19,8 @@ export const formatCommunity = (input: _Community): Community => {
         moderator: input.role === 'Moderator',
         moderatorsCount: input.moderator_count,
         name: input.name,
-        nsfw: input.is_nsfw || false,
-        pinned: input.is_pinned || false,
+        nsfw: !!input.is_nsfw,
+        pinned: !!input.is_pinned,
         rules: input.rules.map(rule => ({
             id: rule.rest_id,
             description: rule.description,

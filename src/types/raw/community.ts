@@ -2,7 +2,8 @@ import type { _User } from './user.js';
 
 export interface _Community {
     __typename: 'Community',
-    rest_id: string,
+    rest_id?: string,
+    id_str?: string,
     name: string,
     description: string,
     created_at: number,

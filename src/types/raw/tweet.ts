@@ -161,18 +161,7 @@ export interface _Tweet {
         id_str: string
     },
     community_results?: {
-        result: {
-            __typename: 'Community',
-            id_str: string,
-            viewer_relationship: {
-                moderation_state: {}
-            }
-        }
-    },
-    community_relationship?: {
-        rest_id: string,
-        moderation_state: {},
-        actions: {}
+        result: _Community
     },
     author_community_relationship?: {
         community_results: {

@@ -62,7 +62,11 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         bookmarksCount: tweet.legacy.bookmark_count,
         bookmarked: tweet.legacy.bookmarked,
         card: tweet.card ? formatCard(tweet.card?.legacy) : undefined,
-        community: tweet.author_community_relationship?.community_results.result ? formatCommunity(tweet.author_community_relationship.community_results.result) : undefined,
+        community: tweet.community_results?.result.__typename === 'Community'
+            ? formatCommunity(tweet.community_results.result)
+        : tweet.author_community_relationship?.community_results.result.__typename === 'Community'
+            ? formatCommunity(tweet.author_community_relationship.community_results.result)
+            : undefined,
         createdAt: new Date(tweet.legacy.created_at).toISOString(),
         editing: tweet.edit_control && tweet.edit_control.editable_until_msecs ? {
             allowed: tweet.edit_control.is_edit_eligible,
