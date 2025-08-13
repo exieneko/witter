@@ -37,9 +37,7 @@ export interface _ExploreWhoToFollowItem {
     __typename: 'TimelineTimelineModule',
     items: {
         entryId: string,
-        item: {
-            itemContent: _UserItem
-        }
+        item: _UserItem
     }[]
 }
 
@@ -221,8 +219,11 @@ export type _TimelineTweetItem = _TweetItem | _TweetConversationItem | _Cursor;
 
 
 export interface _UserItem {
-    __typename: 'TimelineUser',
-    user_result: {
-        result: _User
+    __typename: 'TimelineTimelineItem',
+    itemContent: {
+        __typename: 'TimelineUser',
+        user_results: {
+            result: _User
+        }
     }
 }

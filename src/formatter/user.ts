@@ -112,7 +112,7 @@ export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<T
         id: entry.entryId,
         content: entry.content.__typename === 'TimelineTimelineCursor'
             ? formatCursor(entry.content)
-            : formatUser(entry.content.user_result.result) as User
+            : formatUser(entry.content.itemContent.user_results.result)
     }));
 };
 

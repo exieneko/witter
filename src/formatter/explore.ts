@@ -31,7 +31,7 @@ export const formatExplorePage = (input: _Entry<_ExplorePageItem | _Cursor>[], s
             : /^who-to-follow/.test(entry.entryId)
                 ? {
                     __type: 'UserList',
-                    items: (entry.content as _ExploreWhoToFollowItem).items.map(item => formatUser(item.item.itemContent.user_result.result) as User)
+                    items: (entry.content as _ExploreWhoToFollowItem).items.map(item => formatUser(item.item.itemContent.user_results.result))
                 }
             : /^stories/.test(entry.entryId)
                 ? formatStories(entry.content as _ExploreStoriesItem)
