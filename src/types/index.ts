@@ -20,7 +20,7 @@ export interface Entry<T extends { __type: string }> {
 
 
 
-export type CursorDirection = 'top' | 'bottom' | 'show_more';
+export type CursorDirection = 'top' | 'bottom' | 'show_more' | 'show_spam';
 export interface Cursor {
     __type: 'Cursor',
     direction: CursorDirection,

@@ -18,6 +18,8 @@ export const formatCursor = (input: _Cursor): Cursor => {
             ? 'top'
         : input.cursorType === 'ShowMore'
             ? 'show_more'
+        : input.cursorType === 'ShowMoreThreads'
+            ? 'show_spam'
             : 'bottom',
         value: input.value
     };

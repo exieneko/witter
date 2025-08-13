@@ -130,10 +130,10 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
         };
     }
 
-    if (input.content.__typename === 'TimelineTimelineItem' && !input.entryId.startsWith('promoted-tweet')) {
+    if (input.content.__typename === 'TimelineTimelineItem' && !input.entryId.startsWith('promoted-tweet') && input.entryId.includes('tweet')) {
         return {
             id: input.entryId,
-            content: formatTweet(input.content.itemContent.tweet_results.result, {
+            content: formatTweet(input.content.itemContent.tweet_results?.result, {
                 hasHiddenReplies: input.content.itemContent.hasModeratedReplies,
                 highlights: input.content.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex]),
                 pinned: input.entryId.endsWith('-pin')
@@ -148,7 +148,7 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
                 __type: 'Conversation',
                 items: input.content.items.map(item => item.item.itemContent.__typename === 'TimelineTimelineCursor'
                     ? formatCursor(item.item.itemContent)
-                    : (formatTweet(item.item.itemContent.tweet_results.result, {
+                    : (formatTweet(item.item.itemContent.tweet_results?.result, {
                         hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
                         highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
                     })) as Tweet)
@@ -174,7 +174,7 @@ export const formatMediaEntries = (input: _Entry<_TweetConversationItem | _Curso
             id: item.entryId,
             content: item.item.itemContent.__typename === 'TimelineTimelineCursor'
                 ? formatCursor(item.item.itemContent)
-                : formatTweet(item.item.itemContent.tweet_results.result, {
+                : formatTweet(item.item.itemContent.tweet_results?.result, {
                     hasHiddenReplies: item.item.itemContent.hasModeratedReplies,
                     highlights: item.item.itemContent.highlights?.textHighlights.map(x => [x.startIndex, x.endIndex])
                 })
