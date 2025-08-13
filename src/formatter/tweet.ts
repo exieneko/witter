@@ -7,10 +7,17 @@ import type { _Cursor, _Entry } from '../types/raw/index.js';
 import type { _TimelineTweetItem, _TweetConversationItem } from '../types/raw/items.js';
 import type { _Card, _Tweet, _TweetMedia, _TweetTombstone, _TweetUnavailable, _VisibilityLimitedTweet } from '../types/raw/tweet.js';
 
-export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable, options?: { hasHiddenReplies?: boolean, highlights?: [number, number][], pinned?: boolean }): Tweet | Retweet | TweetTombstone => {
+export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTombstone | _TweetUnavailable | undefined, options?: { hasHiddenReplies?: boolean, highlights?: [number, number][], pinned?: boolean }): Tweet | Retweet | TweetTombstone => {
     const text = (tweet: _Tweet) => {
         return (tweet.note_tweet?.note_tweet_results.result.text || tweet.legacy.full_text || '').replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => tweet.legacy.entities.urls.find(x => x.url === sub)?.expanded_url || sub);
     };
+
+    if (!input) {
+        return {
+            __type: 'TweetTombstone',
+            reason: 'unavailable'
+        };
+    }
 
     const tweet = input.__typename === 'TweetWithVisibilityResults' ? input.tweet : input;
     const limitations = input.__typename === 'TweetWithVisibilityResults' ? {
@@ -24,7 +31,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         return {
             __type: 'TweetTombstone',
             reason: 'unavailable'
-        }
+        };
     }
 
     if (tweet.__typename === 'TweetTombstone') {

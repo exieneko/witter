@@ -306,7 +306,7 @@ export interface _UserMediaWrapper {
 export interface _UserLikesWrapper {
     user: {
         result: {
-            timeline_v2: {
+            timeline: {
                 timeline?: {
                     instructions: Instructions
                 }
