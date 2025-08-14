@@ -18,9 +18,7 @@ export const formatList = (input: _List): List => {
         private: input.mode === 'Private',
         subscribed: input.following,
         subscribersCount: input.subscriber_count,
-        highlightedAvatarUrls: input.facepile_urls,
-        highlightedMemberUsername: undefined, // TODO
-        highlightedSubscriberUsername: undefined,
+        highlightedAvatarUrls: [],
         member: !!input.is_member,
         membersCount: input.member_count,
         muted: !!input.muting,

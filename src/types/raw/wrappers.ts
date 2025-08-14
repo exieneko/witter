@@ -1,7 +1,7 @@
 import type { _Cursor, _GenericGetUserCursors, _ShittyAssCursor, Instructions, SegmentedTimelines } from './index.js';
 import type { _BirdwatchAuthenticatedUser, _BirdwatchContributor, _BirdwatchTweet } from './birdwatch.js';
 import type { _Community, _CommunityTopic } from './community.js';
-import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _UserItem } from './items.js';
+import type { _ExplorePageItem, _ExplorePageSportsItem, _ExploreSidebarItem, _ExploreTrendItem, _ExploreWhoToFollowItem, _ListItem, _ListModuleItem, _ListsItem, _NotificationItem, _NotificationTweetItem, _TimelineTweetItem, _TopicItem, _TopicModuleItem, _TweetConversationItem, _TweetItem, _UserItem } from './items.js';
 import type { _List } from './list.js';
 import type { _NotificationGlobalObjects } from './notifications.js';
 import type { _SearchUserModulesItem } from './search.js';
@@ -256,7 +256,7 @@ export interface _NotificationsWrapper {
             result: {
                 notification_timeline: {
                     timeline: {
-                        instructions: Instructions<_NotificationItem | _Cursor>
+                        instructions: Instructions<_NotificationItem | _TweetItem | _Cursor>
                     }
                 }
             }

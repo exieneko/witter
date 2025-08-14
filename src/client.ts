@@ -10,6 +10,10 @@ interface CursorOnly {
     cursor?: string
 }
 
+interface ByUsername {
+    byUsername?: boolean
+}
+
 export class TwitterClient {
     private headers;
 
@@ -337,7 +341,7 @@ export class TwitterClient {
     }
     /** `choice` should be a number from 0 to 3 */
     async vote(choice: number, args: { cardUri: string, tweetId: string, cardName: string }) {
-        return await request(endpoints.passthrough, this.headers, { card_uri: args.cardUri, original_tweet_id: args.tweetId, response_card_name: args.cardName, selected_choice: choice - 1 });
+        return await request(endpoints.passthrough, this.headers, { card_uri: args.cardUri, original_tweet_id: args.tweetId, response_card_name: args.cardName, selected_choice: choice + 1 });
     }
     async muteConversation(id: string) {
         return await request(endpoints.mutes_conversations_create, this.headers, { tweet_id: id });
@@ -348,8 +352,8 @@ export class TwitterClient {
 
 
 
-    async getUser(id: string, args?: { byUsername?: boolean }) {
-        return await (args?.byUsername || !/^\d+$/.test(id)
+    async getUser(id: string, args?: ByUsername) {
+        return await (args?.byUsername
             ? request(endpoints.UserByScreenName, this.headers, { screen_name: id })
             : request(endpoints.UserByRestId, this.headers, { userId: id }));
     }
@@ -380,18 +384,18 @@ export class TwitterClient {
     async getUserLists(id: string, args?: CursorOnly) {
         return await request(endpoints.CombinedLists, this.headers, { userId: id, cursor: args?.cursor });
     }
-    async getFollowRequests(id: string, args?: { cursor?: number }) {
-        return await request(endpoints.friendships_incoming, this.headers, { user_id: id, cursor: args?.cursor || -1 });
+    async getFollowRequestIds(args?: { cursor?: number }) {
+        return await request(endpoints.friendships_incoming, this.headers, { cursor: args?.cursor || -1 });
     }
-    async getFriendsFollowing(id: string) {
-        return await request(endpoints.friends_following_list, this.headers, { user_id: id });
+    async getFriendsFollowing(id: string, args?: ByUsername) {
+        return await request(endpoints.friends_following_list, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
 
-    async followUser(id: string) {
-        return await request(endpoints.friendships_create, this.headers, { user_id: id });
+    async followUser(id: string, args?: ByUsername) {
+        return await request(endpoints.friendships_create, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async unfollowUser(id: string) {
-        return await request(endpoints.friendships_destroy, this.headers, { user_id: id });
+    async unfollowUser(id: string, args?: ByUsername) {
+        return await request(endpoints.friendships_destroy, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
     async toggleUserNotifications(id: string, args: { enable: boolean }) {
         return await request(endpoints.friendships_update_device, this.headers, { id, device: args.enable });
@@ -399,28 +403,28 @@ export class TwitterClient {
     async toggleUserRetweets(id: string, args: { enable: boolean }) {
         return await request(endpoints.friendships_update_retweets, this.headers, { id, retweets: args.enable });
     }
-    async cancelFollowRequest(id: string) {
-        return await request(endpoints.friendships_cancel, this.headers, { user_id: id });
-    }
     async removeFollower(id: string) {
         return await request(endpoints.RemoveFollower, this.headers, { target_user_id: id });
     }
-    async acceptFollowRequest(id: string) {
-        return await request(endpoints.friendships_accept, this.headers, { user_id: id });
+    async cancelFollowRequest(id: string, args?: ByUsername) {
+        return await request(endpoints.friendships_cancel, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async declineFollowRequest(id: string) {
-        return await request(endpoints.friendships_deny, this.headers, { user_id: id });
+    async acceptFollowRequest(id: string, args?: ByUsername) {
+        return await request(endpoints.friendships_accept, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async blockUser(id: string) {
-        return await request(endpoints.blocks_create, this.headers, { user_id: id });
+    async declineFollowRequest(id: string, args?: ByUsername) {
+        return await request(endpoints.friendships_deny, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async unblockUser(id: string) {
-        return await request(endpoints.blocks_destroy, this.headers, { user_id: id });
+    async blockUser(id: string, args?: ByUsername) {
+        return await request(endpoints.blocks_create, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async muteUser(id: string) {
-        return await request(endpoints.mutes_users_create, this.headers, { user_id: id });
+    async unblockUser(id: string, args?: ByUsername) {
+        return await request(endpoints.blocks_destroy, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
-    async unmuteUser(id: string) {
-        return await request(endpoints.mutes_users_destroy, this.headers, { user_id: id });
+    async muteUser(id: string, args?: ByUsername) {
+        return await request(endpoints.mutes_users_create, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
+    }
+    async unmuteUser(id: string, args?: ByUsername) {
+        return await request(endpoints.mutes_users_destroy, this.headers, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
 }

@@ -122,7 +122,16 @@ export interface _NotificationItem {
         },
         template: {
             __typename: 'TimelineNotificationAggregateUserActions',
-            target_objects: any[],
+            additional_context?: {
+                __typename: 'TimelineRichText',
+                text: string
+            },
+            target_objects: {
+                __typename: 'TimelineNotificationTweetRef',
+                tweet_results: {
+                    result: _Tweet | _TweetTombstone
+                }
+            }[],
             from_users: {
                 __typename: 'TimelineNotificationUserRef',
                 user_results: {
@@ -134,7 +143,12 @@ export interface _NotificationItem {
     },
     clientEventInfo: {
         component: string,
-        element: 'device_follow_tweet_notification_entry' | 'users_liked_your_tweet' | 'users_liked_your_retweet' | 'users_followed_you' | 'user_mentioned_you' | 'generic_report_received' | `generic_birdwatch${'_not_' | '_'}helpful_valid_rater` | 'users_subscribed_to_your_list' | 'generic_login_notification'
+        element: 'device_follow_tweet_notification_entry' | 'generic_magic_rec_pyle_recommended' |
+            'users_liked_your_tweet' | 'users_liked_your_retweet' | 'users_followed_you' | 'user_mentioned_you' | 'users_subscribed_to_your_list' |
+            'generic_poll_voter_summary' |
+            'generic_birdwatch_needs_your_help' | `generic_birdwatch${'_not_' | '_'}helpful_valid_rater` | 'generic_birdwatch_delete_post_rater' |
+            'generic_report_received' | 'generic_login_notification' |
+            'generic_subscription_promotion_premium'
     }
 }
 

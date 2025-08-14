@@ -12,7 +12,7 @@ export interface _TweetMedia {
     media_url_https: string,
     type: 'animated_gif' | 'photo' | 'video',
     url: string,
-    ext_media_availability: {
+    ext_media_availability?: {
         status: 'Available' | 'Unavailable'
     },
     sizes: {

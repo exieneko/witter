@@ -37,6 +37,7 @@ export interface TweetImage {
     __type: 'MediaPhoto',
     id: string,
     alt_text?: string,
+    available: boolean,
     url: string
 }
 
@@ -44,6 +45,7 @@ export interface TweetGif {
     __type: 'MediaGif',
     id: string,
     alt_text?: string,
+    available: boolean,
     url: string,
     video: {
         aspectRatio: [number, number],
@@ -58,6 +60,7 @@ export interface TweetGif {
 export interface TweetVideo {
     __type: 'MediaVideo'
     id: string,
+    available: boolean,
     url: string,
     video: {
         aspectRatio: [number, number],
@@ -151,7 +154,7 @@ export interface TweetConversation {
     items: (Tweet | TweetTombstone | Cursor)[]
 }
 
-export type TweetTombstoneReason = 'deleted' | 'private_account' | 'withheld' | 'unavailable';
+export type TweetTombstoneReason = 'deleted' | 'rules_violated' | 'private_account' | 'suspended_account' | 'deleted_account' | 'withheld' | 'unavailable';
 
 export interface TweetTombstone {
     __type: 'TweetTombstone',

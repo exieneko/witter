@@ -1,8 +1,6 @@
-import type { User } from './user.js';
-
 export interface Typeahead {
     resultsCount: number,
     topics: string[],
-    users: User[],
+    users: string[],
     query: string
 }

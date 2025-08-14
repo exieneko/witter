@@ -11,8 +11,11 @@ export interface List {
     private: boolean,
     subscribed: boolean,
     subscribersCount: number,
+    /** @deprecated */
     highlightedAvatarUrls: string[],
+    /** @deprecated */
     highlightedMemberUsername?: string,
+    /** @deprecated */
     highlightedSubscriberUsername?: string,
     member: boolean,
     membersCount: number,

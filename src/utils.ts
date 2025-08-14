@@ -74,9 +74,13 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<s
 
 const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
     const encode = (data: string | undefined, params?: Params<T>) => {
-        return data
-            ? Object.entries(params || {}).reduce((acc, [key, value]) => acc.replace(new RegExp(`${key}=\\{\\}`), `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`), data)
-            : '';
+        return Object
+            .entries(params || {})
+            .reduce((acc, [key, value]) => acc.replace(new RegExp(`${key}=\\{\\}`), `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`), data || '')
+            .replace(/([a-z0-9_]+?)=\{\}/gi, '')
+            .replace(/&{2,12}/g, '&')
+            .replace(/^&+/, '')
+            .replace(/&+$/, '');
     };
 
     const urlencoded = encode(endpoint.body, params);

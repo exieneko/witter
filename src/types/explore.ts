@@ -15,9 +15,11 @@ export interface Trend {
     location?: string,
     topic?: string,
     tweetsCount?: number,
+    /** @deprecated this is useless and will be removed */
     url: string,
     groupedTrends?: {
         name: string,
+        /** @deprecated also useless, so `groupedTrends` might make more sense as a `string[]` */
         url: string
     }[]
 }

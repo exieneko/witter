@@ -56,11 +56,13 @@ export const formatEventSummary = (input: _EventSummary): TrendEvent => {
 };
 
 export const formatTrend = (input: _Trend): Trend => {
+    const domainContext = input.trend_metadata.domain_context.match(/^(.+?)\s·\sTrending$/)?.at(1);
+
     return {
         __type: 'ExploreTrend',
         name: input.name,
         location: input.trend_metadata.domain_context.match(/^Trending\sin\s(.+?)$/)?.at(1),
-        topic: input.trend_metadata.domain_context.match(/^(.+?)\s·\sTrending$/)?.at(1),
+        topic: domainContext?.toLowerCase().includes('only on x') ? undefined : domainContext,
         tweetsCount: input.trend_metadata.meta_description
             ? Number(input.trend_metadata.meta_description.match(/^([0-9,]+?)\s.*$/)?.at(1)?.replace(/\D/g, '')) || Number(input.trend_metadata.meta_description.match(/^([0-9\.]+?)K\s.*$/)?.at(1)) * 1000 || Number(input.trend_metadata.meta_description.match(/^([0-9\.]+?)M\s.*$/)?.at(1)) * 1000000
             : undefined,

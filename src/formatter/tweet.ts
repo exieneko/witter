@@ -37,9 +37,15 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
     if (tweet.__typename === 'TweetTombstone') {
         return {
             __type: 'TweetTombstone',
-            reason: tweet.tombstone.text.text.includes('limits who can view')
+            reason: tweet.tombstone.text.text.toLowerCase().includes('this post violated')
+                ? 'rules_violated'
+            : tweet.tombstone.text.text.toLowerCase().includes('limits who can view their posts')
                 ? 'private_account'
-            : tweet.tombstone.text.text.includes('withheld')
+            : tweet.tombstone.text.text.toLowerCase().includes('suspended')
+                ? 'suspended_account'
+            : tweet.tombstone.text.text.toLowerCase().includes('no longer exists')
+                ? 'deleted_account'
+            : tweet.tombstone.text.text.toLowerCase().includes('withheld')
                 ? 'withheld'
                 : 'deleted'
         };
@@ -104,7 +110,7 @@ export const formatTweet = (input: _Tweet | _VisibilityLimitedTweet | _TweetTomb
         media: tweet.legacy.entities.media?.map(formatMedia) || [],
         muted: false,
         pinned: !!options?.pinned,
-        platform: tweet.source === 'Twitter Web App' ? 'Web app' : tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
+        platform: />Twitter Web App</.test(tweet.source) ? 'Web app' : tweet.source.match(/>Twitter\sfor\s(.*?)</)?.at(1),
         quoteTweetsCount: tweet.legacy.quote_count,
         quotedTweet: tweet.quoted_status_result?.result && tweet.quoted_status_result.result.__typename !== 'TweetTombstone' ? formatTweet(
             tweet.quoted_status_result.result.__typename === 'TweetWithVisibilityResults' ? tweet.quoted_status_result.result.tweet : tweet.quoted_status_result!.result
@@ -196,6 +202,7 @@ export const formatMedia = (input: _TweetMedia): TweetMedia => {
         ? {
             __type: 'MediaVideo',
             id: input.id_str,
+            available: input.ext_media_availability?.status === 'Available',
             url: input.media_url_https,
             video: {
                 aspectRatio: input.video_info!.aspect_ratio,
@@ -211,6 +218,7 @@ export const formatMedia = (input: _TweetMedia): TweetMedia => {
             __type: 'MediaGif',
             id: input.id_str,
             alt_text: input.ext_alt_text || undefined,
+            available: input.ext_media_availability?.status === 'Available',
             url: input.video_info!.variants.at(-1)!.url,
             video: {
                 aspectRatio: input.video_info!.aspect_ratio,
@@ -225,6 +233,7 @@ export const formatMedia = (input: _TweetMedia): TweetMedia => {
             __type: 'MediaPhoto',
             id: input.id_str,
             alt_text: input.ext_alt_text || undefined,
+            available: input.ext_media_availability?.status === 'Available',
             url: input.media_url_https
         };
 };
