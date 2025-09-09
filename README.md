@@ -9,69 +9,21 @@ a basic twitter api client for javascript & typescript because i love reinventin
 3. initialize the twitter client
 
     ```typescript
-    const twitter = new TwitterClient({
+    const twitterClient = twitter({
         authToken: 'auth_token cookie value',
         authMulti: 'auth_multi cookie value (optional)',
         csrf: 'ct0 cookie value'
-    });
+    })
     ```
 
-## usage
-
-> [!NOTE]
-> currently only one account can be used at a time  
-> making too many requests in a short time period might cause your account to get rate limited or suspended
-
-this package is intended to be used in frameworks like nextjs or sveltekit. to do so, set up a `twitter.ts` file in your project. it should look something like this:
-
-### nextjs
-
 ```typescript
-// src/lib/twitter.ts
-import { TwitterClient } from 'twitter-api-unofficial';
+// src/routes/api/user-by-id/[id]/+server.ts
+import { twitter } from 'twitter-api-unofficial';
 
-const global = globalThis as unknown as { twitterClient: TwitterClient };
-
-const twitter = global.twitterClient || new TwitterClient({
-    authToken: process.env.AUTH_TOKEN!,
-    csrf: process.env.CSRF!
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    global.twitterClient = twitter;
-}
-
-export { twitter };
-```
-
-### sveltekit
-
-```typescript
-// src/app.d.ts
-import type { TwitterClient } from 'twitter-api-unofficial';
-
-declare global {
-    namespace App { /* ... */ }
-
-    var twitterClient: TwitterClient
-}
-
-export {};
-```
-
-```typescript
-// src/lib/server/twitter.ts
-import { TwitterClient } from 'twitter-api-unofficial';
-import { AUTH_TOKEN, CSRF } from '$env/static/private';
-
-const twitter = global.twitterClient || new TwitterClient({
-    authToken: AUTH_TOKEN,
-    csrf: CSRF
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    global.twitterClient = twitter;
-}
-
-export { twitter };
+export const GET: RequestHandler = async ({ cookies, params }) => {
+    twitter({
+        authToken: cookies.get('authToken'),
+        csrf: cookies.get('csrf')
+    }).getUser('exieneko', { byUsername: true })
+};
 ```
