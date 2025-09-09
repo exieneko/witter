@@ -155,6 +155,10 @@ export const formatEntry = (input: _Entry<_TimelineTweetItem>): Entry<TimelineTw
     }
 
     if (input.content.__typename === 'TimelineTimelineModule' && input.entryId.includes('conversation')) {
+        if (input.content.items.at(0)?.entryId.includes('promoted')) {
+            return;
+        }
+
         return {
             id: input.entryId,
             content: {
