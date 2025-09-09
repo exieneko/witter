@@ -1,4 +1,10 @@
-import { OAUTH_KEY } from './consts.js';
+import { HEADERS, OAUTH_KEY, PUBLIC_TOKEN } from './consts.js';
+
+export interface Tokens {
+    authToken: string,
+    authMulti?: string,
+    csrf: string
+}
 
 export type Endpoint = GqlEndpoint | V11Endpoint;
 
@@ -35,7 +41,12 @@ export const v11 = (route: string) => {
     return `https://api.twitter.com/1.1/${route}`;
 };
 
-const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+const getHeadersFromTokens = (tokens: Tokens) => ({
+    'x-csrf-token': tokens.csrf,
+    cookie: tokens.authMulti ? `auth_token=${tokens.authToken}; auth_multi="${tokens.authMulti}"; ct0=${tokens.csrf}` : `auth_token=${tokens.authToken}; ct0=${tokens.csrf}`
+});
+
+const requestGql = async <T extends GqlEndpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
     const toSearchParams = (obj: object) => {
         if (!obj || Object.entries(obj).every(([, value]) => value === undefined)) {
             return '';
@@ -49,16 +60,16 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<s
 
     const url = `https://twitter.com/i/api/graphql/${endpoint.url.join('/')}`;
 
-    const headers_ = endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers;
+    const headers = { ...HEADERS, authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, ...getHeadersFromTokens(tokens) };
 
     const response = await (endpoint.method === 'get'
         ? fetch(url + toSearchParams({ variables: { ...endpoint.variables, ...params }, features: endpoint.features }), {
             method: endpoint.method,
-            headers: headers_
+            headers: headers
         })
         : fetch(url, {
             method: endpoint.method,
-            headers: headers_,
+            headers: headers,
             body: JSON.stringify({
                 variables: { ...endpoint.variables, ...params },
                 features: endpoint.features,
@@ -72,7 +83,7 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, headers?: Record<s
     return endpoint.parser(data);
 };
 
-const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+const requestV11 = async <T extends V11Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
     const encode = (data: string | undefined, params?: Params<T>) => {
         return Object
             .entries(params || {})
@@ -85,11 +96,11 @@ const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<s
 
     const urlencoded = encode(endpoint.body, params);
 
-    const headers_ = { ...(endpoint.useOauthKey ? { ...headers, authorization: OAUTH_KEY } : headers), 'content-type': 'application/x-www-form-urlencoded' };
+    const headers = { ...HEADERS, authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, 'content-type': 'application/x-www-form-urlencoded', ...getHeadersFromTokens(tokens) };
 
     const response = await fetch(endpoint.method === 'get' ? `${endpoint.url}?${urlencoded}` : endpoint.url, {
         method: endpoint.method,
-        headers: headers_,
+        headers: headers,
         body: endpoint.method === 'post' && endpoint.body ? urlencoded : undefined
     });
 
@@ -98,10 +109,10 @@ const requestV11 = async <T extends V11Endpoint>(endpoint: T, headers?: Record<s
     return endpoint.parser(data);
 };
 
-export const request = <T extends Endpoint>(endpoint: T, headers?: Record<string, any>, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+export const request = <T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
     if (typeof endpoint.url === 'string') {
-        return requestV11(endpoint as V11Endpoint, headers, params);
+        return requestV11(endpoint as V11Endpoint, tokens, params);
     }
 
-    return requestGql(endpoint as GqlEndpoint, headers, params);
+    return requestGql(endpoint as GqlEndpoint, tokens, params);
 };
