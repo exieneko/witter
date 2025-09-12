@@ -415,5 +415,3 @@ export class TwitterClient {
         return await request(endpoints.mutes_users_destroy, this.tokens, args?.byUsername ? { screen_name: id } : { user_id: id });
     }
 }
-
-export const twitter = (tokens: Tokens) => new TwitterClient(tokens);
