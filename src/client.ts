@@ -1,4 +1,5 @@
-import { Tokens } from './utils.js';
+import { ENDPOINTS } from './endpoints.js';
+import { request, Tokens } from './utils.js';
 
 interface CursorOnly {
     cursor?: string
@@ -6,4 +7,8 @@ interface CursorOnly {
 
 export class TwitterClient {
     constructor(private tokens: Tokens) {}
+
+    async getUser(username: string) {
+        return await request(ENDPOINTS.UserByScreenName, this.tokens, { screen_name: username });
+    }
 }

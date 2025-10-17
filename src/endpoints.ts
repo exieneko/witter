@@ -1,4 +1,5 @@
 import * as flags from './flags.js';
+import * as format from './formatter/index.js';
 import { Endpoint } from './utils.js';
 
 const GET = 'get';
@@ -10,6 +11,6 @@ export const ENDPOINTS = {
         method: GET,
         params: {} as { screen_name: string },
         features: flags.user,
-        parser: _ => _
+        parser: data => format.user(data.data.user.result)
     }
 } satisfies Record<string, Endpoint>;
