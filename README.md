@@ -1,28 +1,31 @@
-# twitter-api
+# witter
 
 a basic twitter api client for javascript & typescript because i love reinventing the wheel ♡
 
 ## setup
 
-1. log into twitter.com and get your session tokens from the devtools
-2. install the package: `npm i twitter-api-unofficial`
+1. install the package: `npm i witter`
+2. get your account tokens
 3. initialize the twitter client
 
-    ```typescript
-    const twitterClient = new TwitterClient({
+    ```ts
+    import { TwitterClient } from 'witter';
+
+    const twitter = new TwitterClient({
         authToken: 'auth_token cookie value',
-        authMulti: 'auth_multi cookie value (optional)',
         csrf: 'ct0 cookie value'
     });
+
+    const me = await twitter.getUser('exieneko', { byUsername: true });
     ```
 
 ## example
 
 example implementation in sveltekit
 
-```typescript
+```ts
 // src/app.d.ts
-import type { TwitterClient } from 'twitter-api-unofficial';
+import type { TwitterClient } from 'witter';
 
 declare global {
     namespace App {
@@ -35,9 +38,9 @@ declare global {
 export {};
 ```
 
-```typescript
+```ts
 // src/hooks.server.ts
-import { TwitterClient } from 'twitter-api-unofficial';
+import { TwitterClient } from 'witter';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -50,9 +53,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 ```
 
-```typescript
+```ts
 // src/routes/something/+server.ts
-import { twitter } from 'twitter-api-unofficial';
 import { json } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
