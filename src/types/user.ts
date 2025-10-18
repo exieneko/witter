@@ -1,4 +1,4 @@
-import { Cursor } from '../formatter/index.js';
+import { Cursor } from './index.js';
 
 export interface User {
     __type: 'User',
