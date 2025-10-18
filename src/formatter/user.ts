@@ -1,6 +1,6 @@
-import { TimelineUser, VerificationKind } from '../types/index.js';
+import { SuspendedUser, UnavailableUser, User, VerificationKind } from '../types/index.js';
 
-export function user(value: any): TimelineUser {
+export function user(value: any): User | SuspendedUser | UnavailableUser {
     if (!value) {
         return { __type: 'UnavailableUser' };
     }

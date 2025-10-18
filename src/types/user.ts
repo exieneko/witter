@@ -1,4 +1,4 @@
-import { Cursor } from './index.js';
+import type { Cursor } from './index.js';
 
 export interface User {
     __type: 'User',
