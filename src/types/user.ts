@@ -50,10 +50,10 @@ export interface User {
 }
 
 export enum VerificationKind {
-    Unverified,
-    Blue,
-    Business,
-    Government
+    Unverified = 'Unverified',
+    Blue = 'Blue',
+    Business = 'Business',
+    Government = 'Government'
 }
 
 export interface SuspendedUser {

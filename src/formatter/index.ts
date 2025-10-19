@@ -21,3 +21,14 @@ export function cursor(value: any): Cursor {
         value: value.value
     };
 }
+
+export function getEntries<T>(instructions: Array<{ type?: string, entries?: Array<T> }>): Array<T> {
+    const pin = instructions.find(instruction => instruction.type === 'TimelinePinEntry') as { type: 'TimelinePinEntry', entry: T } | undefined;
+    const entries = instructions.find(instruction => instruction.type === 'TimelineAddEntries')?.entries || [];
+
+    if (pin) {
+        return [pin.entry, ...entries];
+    }
+
+    return entries;
+}

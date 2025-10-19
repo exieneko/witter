@@ -13,8 +13,35 @@ export interface Cursor {
 }
 
 export enum CursorDirection {
-    Top,
-    Bottom,
-    ShowMore,
-    ShowMoreThreads
+    Top = 'Top',
+    Bottom = 'Bottom',
+    ShowMore = 'ShowMore',
+    ShowMoreThreads = 'ShowMoreThreads'
+}
+
+
+
+export interface ByUsername {
+    byUsername?: boolean
+}
+
+export interface CursorOnly {
+    cursor?: string
+}
+
+export interface TweetArgs extends CursorOnly {
+    sort?: TweetSort
+}
+
+export enum TweetSort {
+    Relevant = 'Relevant',
+    Recent = 'Recent',
+    Likes = 'Likes'
+}
+
+export enum TweetReplyPermission {
+    Following = 'Following',
+    Verified = 'Verified',
+    Mentioned = 'Mentioned',
+    None = 'None'
 }

@@ -39,7 +39,7 @@ const tokenHeaders = (tokens: Tokens) => ({
     cookie: `auth_token=${tokens.authToken}; ct0=${tokens.csrf}`
 });
 
-const requestGql = async <T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+async function requestGql<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
     const toSearchParams = (obj: object) => {
         if (!obj || Object.entries(obj).every(([, value]) => value === undefined)) {
             return '';
@@ -76,14 +76,15 @@ const requestGql = async <T extends Endpoint>(endpoint: T, tokens: Tokens, param
     return endpoint.parser(data);
 };
 
-const requestV11 = async <T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+async function requestV11<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
     const body = Object.entries({ ...(endpoint.variables || {}), ...(params || {}) })
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
         .join('&');
 
     const headers = {
         ...HEADERS,
-        authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, 'content-type': 'application/x-www-form-urlencoded',
+        authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN,
+        'content-type': 'application/x-www-form-urlencoded',
         ...tokenHeaders(tokens)
     };
 
@@ -98,7 +99,7 @@ const requestV11 = async <T extends Endpoint>(endpoint: T, tokens: Tokens, param
     return endpoint.parser(data);
 };
 
-export const request = <T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+export async function request<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
     if (endpoint.url.startsWith('https://api.twitter.com')) {
         return requestV11(endpoint, tokens, params);
     }

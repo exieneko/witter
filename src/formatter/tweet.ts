@@ -1,5 +1,5 @@
 import { Entry, Retweet, TimelineTweet, Tweet, TweetMedia, TweetPlatform, TweetTombstone, TweetUnavailableReason, TweetVideo, User } from '../types/index.js';
-import { cursor, user } from './index.js';
+import { cursor, getEntries, user } from './index.js';
 
 export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Tweet | Retweet | TweetTombstone {
     if (!value) {
@@ -50,7 +50,7 @@ export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Twe
         );
     }
 
-    const tweetMedia = (t.legacy.entities.media as Array<{}>)?.map(media);
+    const tweetMedia = (t.legacy.entities.media as Array<{}>)?.map(media) ?? [];
 
     const s: string | undefined = t.source.includes('Twitter Web') ? 'web' : t.source.match(/>Twitter\s(.*?)</)?.at(1);
     const source = s?.startsWith('for ') ? s.slice(4) : s;
@@ -73,7 +73,7 @@ export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Twe
         created_at: new Date(t.legacy.created_at).toISOString(),
         editing: {
             allowed: !!t.edit_control?.is_edit_eligible,
-            allowed_until: new Date(Number(t.edit_control?.editable_until_msecs)).toISOString(),
+            allowed_until: new Date(Number(t.edit_control?.editable_until_msecs) || 0).toISOString(),
             remaining_count: t.edit_control?.edits_remaining,
             tweet_ids: t.edit_control?.edit_tweet_ids
         },
@@ -190,11 +190,13 @@ export function entry(value: any): Entry<TimelineTweet> | undefined {
     }
 }
 
-export function entries(value: Array<any>): Array<Entry<TimelineTweet>> {
-    return value.map(entry).filter(x => !!x);
+export function entries(instructions: any): Array<Entry<TimelineTweet>> {
+    return getEntries(instructions).map(entry).filter(x => !!x);
 }
 
-export function mediaEntries(value: Array<any>): Array<Entry<TimelineTweet>> {
+export function mediaEntries(instructions: any): Array<Entry<TimelineTweet>> {
+    const value: Array<any> = getEntries(instructions);
+
     const grid = value.find(entry => entry.content.__typename === 'TimelineTimelineModule')?.content;
 
     return [

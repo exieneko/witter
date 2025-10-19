@@ -1,5 +1,5 @@
 import { Entry, SuspendedUser, TimelineUser, UnavailableUser, User, VerificationKind } from '../types/index.js';
-import { cursor } from './index.js';
+import { cursor, getEntries } from './index.js';
 
 export function user(value: any): User | SuspendedUser | UnavailableUser {
     if (!value) {
@@ -80,7 +80,9 @@ export function user(value: any): User | SuspendedUser | UnavailableUser {
 
 
 
-export function userEntries(value: Array<any>): Array<Entry<TimelineUser>> {
+export function userEntries(instructions: any): Array<Entry<TimelineUser>> {
+    const value: Array<any> = getEntries(instructions);
+
     return value.map(entry => ({
         id: entry.entryId,
         content: entry.content.__typename === 'TimelineTimelineCursor'

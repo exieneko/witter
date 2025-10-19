@@ -46,12 +46,14 @@ export interface Tweet {
 }
 
 export enum TweetPlatform {
-    Web,
-    Android,
-    IPhone,
-    IPad,
-    Other
+    Web = 'Web',
+    Android = 'Android',
+    IPhone = 'IPhone',
+    IPad = 'IPad',
+    Other = 'Other'
 }
+
+
 
 export interface TweetImage {
     __type: 'Image',
@@ -66,7 +68,7 @@ export interface TweetImage {
     url: string
 }
 
-export type TweetVideo = Omit<TweetImage, '__type'> & {
+export interface TweetVideo extends Omit<TweetImage, '__type'> {
     __type: 'Video',
     aspect_ratio: [number, number],
     duration: number,
@@ -76,9 +78,11 @@ export type TweetVideo = Omit<TweetImage, '__type'> & {
         content_type: string,
         url: string
     }>
-};
+}
 
-export type TweetGif = Omit<TweetVideo, '__type'> & { __type: 'Gif' };
+export interface TweetGif extends Omit<TweetVideo, '__type'> {
+    __type: 'Gif'
+}
 
 export type TweetMedia = TweetImage | TweetGif | TweetVideo;
 
@@ -106,14 +110,14 @@ export interface TweetTombstone {
 }
 
 export enum TweetUnavailableReason {
-    AgeVerificationRequired,
-    AuthorProtected,
-    AuthorSuspended,
-    AuthorUnavailable,
-    Deleted,
-    ViolatedRules,
-    Withheld,
-    Unavailable
+    AgeVerificationRequired = 'AgeVerificationRequired',
+    AuthorProtected = 'AuthorProtected',
+    AuthorSuspended = 'AuthorSuspended',
+    AuthorUnavailable = 'AuthorUnavailable',
+    Deleted = 'Deleted',
+    ViolatedRules = 'ViolatedRules',
+    Withheld = 'Withheld',
+    Unavailable = 'Unavailable'
 }
 
 export type TimelineTweet = Tweet | Retweet | Conversation | TweetTombstone | Cursor;
