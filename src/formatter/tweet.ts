@@ -1,5 +1,5 @@
-import { Retweet, Tweet, TweetMedia, TweetPlatform, TweetTombstone, TweetUnavailableReason, TweetVideo, User } from '../types/index.js';
-import { user } from './index.js';
+import { Entry, Retweet, TimelineTweet, Tweet, TweetMedia, TweetPlatform, TweetTombstone, TweetUnavailableReason, TweetVideo, User } from '../types/index.js';
+import { cursor, user } from './index.js';
 
 export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Tweet | Retweet | TweetTombstone {
     if (!value) {
@@ -52,6 +52,9 @@ export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Twe
 
     const tweetMedia = (t.legacy.entities.media as Array<{}>)?.map(media);
 
+    const s: string | undefined = t.source.includes('Twitter Web') ? 'web' : t.source.match(/>Twitter\s(.*?)</)?.at(1);
+    const source = s?.startsWith('for ') ? s.slice(4) : s;
+
     return {
         __type: 'Tweet',
         id: t.rest_id,
@@ -84,7 +87,20 @@ export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Twe
         liked: !!t.legacy.favorited,
         likes_count: t.legacy.favorite_count || 0,
         media: tweetMedia,
-        platform: TweetPlatform.Web,
+        platform: (() => {
+            switch (source) {
+                case 'web':
+                    return TweetPlatform.Web
+                case 'android':
+                    return TweetPlatform.Android
+                case 'iphone':
+                    return TweetPlatform.IPhone
+                case 'ipad':
+                    return TweetPlatform.IPad
+                default:
+                    return TweetPlatform.Other
+            }
+        })(),
         quote_tweets_count: t.legacy.quote_count || 0,
         quoted_tweet: t.quoted_status_result?.result
             ? tweet(t.quoted_status_result?.result) as Tweet
@@ -133,4 +149,70 @@ export function media(value: any): TweetMedia {
         url: value.media_url_https,
         ...common
     };
+}
+
+
+
+export function entry(value: any): Entry<TimelineTweet> | undefined {
+    if (value.content.__typename === 'TimelineTimelineCursor') {
+        return {
+            id: value.entryId,
+            content: cursor(value.content)
+        };
+    }
+
+    if (value.content.__typename === 'TimelineTimelineItem' && !value.entryId.includes('promoted') && value.entryId.includes('tweet')) {
+        return {
+            id: value.entryId,
+            content: tweet(value.content.itemContent.tweet_results?.result, {
+                hasHiddenReplies: value.content.itemContent.hasModeratedReplies
+            })
+        };
+    }
+
+    if (value.content.__typename === 'TimelineTimelineModule' && value.entryId.includes('conversation')) {
+        if (value.content.items.at(0)?.entryId.includes('promoted')) {
+            return;
+        }
+
+        return {
+            id: value.entryId,
+            content: {
+                __type: 'Conversation',
+                items: value.content.items.map((item: any) => item.item.itemContent.__typename === 'TimelineTimelineCursor'
+                    ? cursor(item.item.itemContent)
+                    : (tweet(item.item.itemContent.tweet_results?.result, {
+                        hasHiddenReplies: item.item.itemContent.hasModeratedReplies
+                    }) as Tweet | TweetTombstone)
+                )
+            }
+        };
+    }
+}
+
+export function entries(value: Array<any>): Array<Entry<TimelineTweet>> {
+    return value.map(entry).filter(x => !!x);
+}
+
+export function mediaEntries(value: Array<any>): Array<Entry<TimelineTweet>> {
+    const grid = value.find(entry => entry.content.__typename === 'TimelineTimelineModule')?.content;
+
+    return [
+        ...value.filter(entry => entry.content.__typename === 'TimelineTimelineCursor').map(entry => ({
+            id: entry.entryId,
+            content: cursor(entry.content)
+        })),
+        ...(
+            grid
+                ? grid.items.map((item: any) => ({
+                    id: item.entryId,
+                    content: item.item.itemContent.__typename === 'TimelineTimelineCursor'
+                        ? cursor(item.item.itemContent)
+                        : tweet(item.item.itemContent.tweet_results?.result, {
+                            hasHiddenReplies: item.item.itemContent.hasModeratedReplies
+                        })
+                }))
+                : []
+        )
+    ];
 }

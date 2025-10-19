@@ -95,7 +95,7 @@ export interface Retweet {
 
 export interface Conversation {
     __type: 'Conversation',
-    items: Array<Tweet>
+    items: Array<Tweet | TweetTombstone | Cursor>
 }
 
 

@@ -1,11 +1,12 @@
-import { SuspendedUser, UnavailableUser, User, VerificationKind } from '../types/index.js';
+import { Entry, SuspendedUser, TimelineUser, UnavailableUser, User, VerificationKind } from '../types/index.js';
+import { cursor } from './index.js';
 
 export function user(value: any): User | SuspendedUser | UnavailableUser {
     if (!value) {
         return { __type: 'UnavailableUser' };
     }
 
-    if (value.__typename == 'User') {
+    if (value.__typename === 'User') {
         const verified = !!value.verification?.verified || !!value.is_blue_verified;
         const verified_type = value.verification?.verified_type;
 
@@ -31,7 +32,10 @@ export function user(value: any): User | SuspendedUser | UnavailableUser {
             can_media_tag: !!value.media_permissions.can_media_tag,
             can_super_follow: !!value.super_follow_eligible,
             created_at: new Date(value.core.created_at).toISOString(),
-            description: value.legacy.description,
+            description: (value.legacy.description as string).replace(
+                /\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/,
+                sub => value.legacy.entities.description?.urls?.find((x: any) => x.url === sub)?.expanded_url.replace(/\/$/, '') || sub
+            ),
             followers_count: value.legacy.followers_count,
             following_count: value.legacy.friends_count,
             followed: !!value.relationship_perspectives.following,
@@ -67,9 +71,20 @@ export function user(value: any): User | SuspendedUser | UnavailableUser {
         };
     }
 
-    if (value.__typename == 'UnavailableUser') {
+    if (value.__typename === 'UnavailableUser') {
         return { __type: 'SuspendedUser' };
     }
 
     return { __type: 'UnavailableUser' };
+}
+
+
+
+export function userEntries(value: Array<any>): Array<Entry<TimelineUser>> {
+    return value.map(entry => ({
+        id: entry.entryId,
+        content: entry.content.__typename === 'TimelineTimelineCursor'
+            ? cursor(entry.content)
+            : user(entry.content.itemContent.user_results?.result)
+    }));
 }
