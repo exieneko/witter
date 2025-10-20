@@ -1,6 +1,6 @@
 import * as flags from './flags.js';
 import * as format from './formatter/index.js';
-import type { Tweet, TweetTombstone, User } from './types/index.js';
+import type { SuspendedUser, Tweet, TweetTombstone, UnavailableUser, User } from './types/index.js';
 import { v11, type Endpoint } from './utils.js';
 
 const GET = 'get';
@@ -198,7 +198,7 @@ export const ENDPOINTS = {
         method: GET,
         params: {} as { screen_names: Array<string> },
         features: flags.user,
-        parser: data => data.data.users.map((user: any) => format.user(user?.result)) as Array<User>
+        parser: data => data.data.users.map((user: any) => format.user(user?.result)) as Array<User | SuspendedUser | UnavailableUser>
     },
     UserByRestId: {
         url: 'q9yeu7UlEs2YVx_-Z8Ps7Q/UserByRestId',
@@ -212,7 +212,7 @@ export const ENDPOINTS = {
         method: GET,
         params: {} as { userIds: Array<string> },
         features: flags.user,
-        parser: data => data.data.users.map((user: any) => format.user(user?.result)) as Array<User>
+        parser: data => data.data.users.map((user: any) => format.user(user?.result)) as Array<User | SuspendedUser | UnavailableUser>
     },
     UserTweets: {
         url: 'Z15UW_bggbnuLrrt0-jOGA/UserTweets',
@@ -351,7 +351,7 @@ export const ENDPOINTS = {
         parser: data => !!data.relationship.target.id_str
     },
     friendships_cancel: {
-        url: v11('friendships/destroy.json'),
+        url: v11('friendships/cancel.json'),
         method: POST,
         params: {} as { user_id: string } | { screen_name: string },
         useOauthKey: true,
