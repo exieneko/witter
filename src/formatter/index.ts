@@ -7,7 +7,7 @@ export function cursor(value: any): Cursor {
     return {
         __type: 'Cursor',
         direction: (() => {
-            switch (value.direction) {
+            switch (value.cursorType) {
                 case 'Top':
                     return CursorDirection.Top;
                 case 'ShowMore':

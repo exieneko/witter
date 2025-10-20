@@ -88,7 +88,7 @@ export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Twe
         likes_count: t.legacy.favorite_count || 0,
         media: tweetMedia,
         platform: (() => {
-            switch (source) {
+            switch (source?.toLowerCase()) {
                 case 'web':
                     return TweetPlatform.Web
                 case 'android':
