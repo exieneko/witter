@@ -1,3 +1,4 @@
+export * from './list.js';
 export * from './tweet.js';
 export * from './user.js';
 
@@ -29,8 +30,25 @@ export interface CursorOnly {
     cursor?: string
 }
 
+export interface ListBySlug {
+    bySlug?: boolean
+}
+
+export interface ListCreateArgs {
+    name: string,
+    description?: string,
+    private?: boolean
+}
+
 export interface TimelineGetArgs extends CursorOnly {
     seenTweetIds?: Array<string>
+}
+
+export interface TweetCreateArgs {
+    text: string,
+    mediaIds?: Array<string>,
+    sensitive?: boolean,
+    replyPermission?: TweetReplyPermission
 }
 
 export interface TweetGetArgs extends CursorOnly {

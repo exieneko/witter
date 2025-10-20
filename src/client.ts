@@ -3,18 +3,42 @@ import type * as T from './types/index.js';
 import { TweetSort, TweetReplyPermission } from './types/index.js';
 import { request, type Tokens } from './utils.js';
 
-export interface BookmarkMethods {
+interface BookmarkMethods {
     get(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     search(query: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     clear(): Promise<boolean>
 }
 
-export interface TimelineMethods {
+interface ListMethods {
+    get(id: string, args?: T.ListBySlug): Promise<T.List | T.UnavailableList>,
+    tweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    discovery(): Promise<Array<T.Entry<T.TimelineList>>>,
+    listedOn(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineList>>>,
+    owned(id: string, otherUserId: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineList>>>,
+    members(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    subscribers(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    create(args: T.ListCreateArgs): Promise<T.List>,
+    edit(id: string, args: Required<T.ListCreateArgs>): Promise<boolean>,
+    delete(id: string): Promise<boolean>,
+    setBanner(listId: string, mediaId?: string): Promise<boolean>,
+    addUser(listId: string, userId: string): Promise<boolean>,
+    removeUser(listId: string, userId: string): Promise<boolean>,
+    subscribe(id: string): Promise<boolean>,
+    unsubscribe(id: string): Promise<boolean>,
+    pin(id: string): Promise<boolean>,
+    unpin(id: string): Promise<boolean>,
+    mute(id: string): Promise<boolean>,
+    unmute(id: string): Promise<boolean>
+}
+
+interface TimelineMethods {
     algorithmical(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
     chronological(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>
 }
 
-export interface TweetMethods {
+interface TweetMethods {
+    create(args: T.TweetCreateArgs): Promise<T.Tweet>,
+    delete(id: string): Promise<boolean>,
     get(id: string, args?: T.TweetGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
     getById(id: string, args?: T.TweetGetArgs): Promise<T.Tweet | T.TweetTombstone>,
     getByIds(id: Array<string>, args?: T.TweetGetArgs): Promise<Array<T.Tweet | T.TweetTombstone>>,
@@ -37,7 +61,7 @@ export interface TweetMethods {
     unmute(id: string): Promise<boolean>
 }
 
-export interface UserMethods {
+interface UserMethods {
     get(id: string, args?: T.ByUsername): Promise<T.User | T.SuspendedUser | T.UnavailableUser>,
     getMany(ids: Array<string>, args?: T.ByUsername): Promise<Array<T.User | T.SuspendedUser | T.UnavailableUser>>,
     tweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
@@ -51,6 +75,7 @@ export interface UserMethods {
     verifiedFollowers(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
     superFollowing(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
     affiliates(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    lists(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineList>>>,
     follow(id: string, args?: T.ByUsername): Promise<boolean>,
     unfollow(id: string, args?: T.ByUsername): Promise<boolean>,
     retweets: EnableDisable,
@@ -64,7 +89,7 @@ export interface UserMethods {
     unmute(id: string, args?: T.ByUsername): Promise<boolean>
 }
 
-export interface EnableDisable {
+interface EnableDisable {
     enable(id: string): Promise<boolean>,
     disable(id: string): Promise<boolean>
 }
@@ -73,6 +98,7 @@ export interface EnableDisable {
 
 export class TwitterClient {
     public bookmarks: BookmarkMethods;
+    public lists: ListMethods;
     public timeline: TimelineMethods;
     public tweet: TweetMethods;
     public user: UserMethods;
@@ -90,6 +116,78 @@ export class TwitterClient {
             }
         };
 
+        this.lists = {
+            async get(id, args) {
+                if (args?.bySlug) {
+                    return await request(ENDPOINTS.ListBySlug, tokens, { listId: id });
+                }
+
+                return await request(ENDPOINTS.ListByRestId, tokens, { listId: id });
+            },
+            async tweets(id, args) {
+                return await request(ENDPOINTS.ListLatestTweetsTimeline, tokens, { listId: id, ...args });
+            },
+            async discovery() {
+                return await request(ENDPOINTS.ListsDiscovery, tokens)
+            },
+            async listedOn(args) {
+                return await request(ENDPOINTS.ListMemberships, tokens, args)
+            },
+            async owned(userId, otherUserId, args) {
+                return await request(ENDPOINTS.ListOwnerships, tokens, { userId, isListMemberTargetUserId: otherUserId, ...args })
+            },
+            async members(id, args) {
+                return await request(ENDPOINTS.ListMembers, tokens, { listId: id, ...args })
+            },
+            async subscribers(id, args) {
+                return await request(ENDPOINTS.ListSubscribers, tokens, { listId: id, ...args })
+            },
+            async create(args) {
+                return await request(ENDPOINTS.CreateList, tokens, { description: args.description || '', isPrivate: !!args.private, ...args })
+            },
+            async edit(id, args) {
+                return await request(ENDPOINTS.UpdateList, tokens, { listId: id, isPrivate: args.private, ...args });
+            },
+            async delete(id) {
+                return await request(ENDPOINTS.DeleteList, tokens, { listId: id });
+            },
+            async setBanner(listId, mediaId) {
+                if (mediaId) {
+                    return await request(ENDPOINTS.EditListBanner, tokens, { listId, mediaId });
+                }
+
+                return await request(ENDPOINTS.DeleteListBanner, tokens, { listId });
+            },
+            async addUser(listId, userId) {
+                return await request(ENDPOINTS.ListAddMember, tokens, { listId, userId });
+            },
+            async removeUser(listId, userId) {
+                return await request(ENDPOINTS.ListRemoveMember, tokens, { listId, userId });
+            },
+            async subscribe(id) {
+                return await request(ENDPOINTS.ListSubscribe, tokens, { listId: id });
+            },
+            async unsubscribe(id) {
+                return await request(ENDPOINTS.ListUnsubscribe, tokens, { listId: id });
+            },
+            async pin(id) {
+                return await request(ENDPOINTS.PinTimeline, tokens, {
+                    pinnedTimelineItem: { id, pinned_timeline_type: 'List' }
+                });
+            },
+            async unpin(id) {
+                return await request(ENDPOINTS.UnpinTimeline, tokens, {
+                    pinnedTimelineItem: { id, pinned_timeline_type: 'List' }
+                });
+            },
+            async mute(id) {
+                return await request(ENDPOINTS.MuteList, tokens, { listId: id });
+            },
+            async unmute(id) {
+                return await request(ENDPOINTS.UnmuteList, tokens, { listId: id });
+            }
+        };
+
         this.timeline = {
             async algorithmical(args) {
                 const seenTweetIds = args?.seenTweetIds ?? [];
@@ -104,6 +202,31 @@ export class TwitterClient {
         };
 
         this.tweet = {
+            async create(args) {
+                const mode = args.replyPermission === TweetReplyPermission.Following
+                    ? 'Community'
+                : args.replyPermission === TweetReplyPermission.Verified
+                    ? 'Verified'
+                : args.replyPermission === TweetReplyPermission.Mentioned
+                    ? 'ByInvitation'
+                    : undefined
+
+                return await request(ENDPOINTS.CreateTweet, tokens, {
+                    conversation_control: mode ? { mode } : undefined,
+                    media: {
+                        media_entities: args.mediaIds?.map(id => ({
+                            media_id: id,
+                            tagged_users: []
+                        })) || [],
+                        possibly_sensitive: args.sensitive
+                    },
+                    semantic_annotation_ids: [],
+                    tweet_text: args.text
+                });
+            },
+            async delete(id) {
+                return await request(ENDPOINTS.DeleteTweet, tokens, { tweet_id: id })
+            },
             async get(id, args) {
                 const rankingMode = args?.sort === TweetSort.Recent
                     ? 'Recency'
@@ -229,6 +352,9 @@ export class TwitterClient {
             },
             async affiliates(id, args) {
                 return await request(ENDPOINTS.UserBusinessProfileTeamTimeline, tokens, { userId: id, teamName: 'NotAssigned', ...args });
+            },
+            async lists(id, args) {
+                return await request(ENDPOINTS.CombinedLists, tokens, { userId: id, ...args });
             },
             async follow(id, args) {
                 return await request(ENDPOINTS.friendships_create, tokens, args?.byUsername ? { screen_name: id } : { user_id: id });

@@ -1,6 +1,6 @@
 import * as flags from './flags.js';
 import * as format from './formatter/index.js';
-import type { SuspendedUser, Tweet, TweetTombstone, UnavailableUser, User } from './types/index.js';
+import type { List, SuspendedUser, Tweet, TweetTombstone, UnavailableUser, User } from './types/index.js';
 import { v11, type Endpoint } from './utils.js';
 
 const GET = 'get';
@@ -47,6 +47,190 @@ export const ENDPOINTS = {
 
 
 
+    // LIST
+    ListByRestId: {
+        url: 'r5na9hXeXVqb1XJYtx1fHQ/ListByRestId',
+        method: GET,
+        params: {} as { listId: string },
+        features: flags.list,
+        parser: data => format.list(data.data.list)
+    },
+    ListBySlug: {
+        url: '8Z9ILKNAy_d-a57m93j8TA/ListBySlug',
+        method: GET,
+        params: {} as { listId: string },
+        features: flags.list,
+        parser: data => format.list(data.data.list)
+    },
+    ListLatestTweetsTimeline: {
+        url: 'bV3FChw55I7PEquTudk3Hg/ListLatestTweetsTimeline',
+        method: GET,
+        params: {} as { listId: string, cursor?: string },
+        variables: {"count":40},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.list.tweets_timeline.timeline.instructions)
+    },
+    /** @todo */
+    ListsManagementPageTimeline: {
+        url: 'mjBb_n_f5Ci-eIysajMRWQ/ListsManagementPageTimeline',
+        method: GET,
+        variables: {"count":100},
+        features: flags.timeline,
+        parser: _ => _
+    },
+    ListsDiscovery: {
+        url: 'NgIGY7tcOPNdxsWkNYt8tA/ListsDiscovery',
+        method: GET,
+        variables: {"count":40},
+        features: flags.timeline,
+        parser: data => format.listEntries(data.data.list_discovery_list_mixer_timeline.timeline.instructions)
+    },
+    ListMemberships: {
+        url: 'hse8xYLs1zYRqzm1ZoKfDA/ListMemberships',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"count":20},
+        features: flags.timeline,
+        parser: data => format.listEntries(data.data.user.result.timeline.instructions)
+    },
+    ListOwnerships: {
+        url: '2PPrJxgM_t26Aut95OSoOg/ListOwnerships',
+        method: GET,
+        params: {} as { userId: string, isListMemberTargetUserId: string, cursor?: string },
+        variables: {"count":20},
+        features: flags.timeline,
+        parser: data => format.listEntries(data.data.user.result.timeline.instructions)
+    },
+    ListMembers: {
+        url: '8oGwd_SHm0nGs91qI4znfA/ListMembers',
+        method: GET,
+        params: {} as { listId: string, cursor?: string },
+        variables: {"count":40},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.list.members_timeline.timeline.instructions)
+    },
+    ListSubscribers: {
+        url: 'PrKJMxRZyDyRGwAYcYG-xg/ListSubscribers',
+        method: GET,
+        params: {} as { listId: string, cursor?: string },
+        variables: {"count":40},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.list.subscribers_timeline.timeline.instructions)
+    },
+    ListCreationRecommendedUsers: {
+        url: '523r-mStVzT8SWxXGIjlSA/ListCreationRecommendedUsers',
+        method: GET,
+        params: {} as { listId: string, cursor?: string },
+        variables: {"count":20},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.list.recommended_users.timeline.instructions)
+    },
+    ListEditRecommendedUsers: {
+        url: 'Xoc7RqsKbJmPQJse8C0zDA/ListEditRecommendedUsers',
+        method: GET,
+        params: {} as { listId: string, cursor?: string },
+        variables: {"count":20},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.list.recommended_users.timeline.instructions)
+    },
+    CombinedLists: {
+        url: 'xwox0wvlnPW6uXGLsRY8dA/CombinedLists',
+        method: GET,
+        params: {} as { userId: string, cursor?: string },
+        variables: {"count":100},
+        features: flags.timeline,
+        parser: data => format.listEntries(data.data.user.result.timeline.timeline.instructions)
+    },
+    CreateList: {
+        url: 'USp5yY9TOEbAdE_pftwDYQ/CreateList',
+        method: POST,
+        params: {} as { name: string, description: string, isPrivate: boolean },
+        features: flags.list,
+        parser: data => format.list(data.list) as List
+    },
+    DeleteList: {
+        url: 'UnN9Th1BDbeLjpgjGSpL3Q/DeleteList',
+        method: POST,
+        params: {} as { listId: string },
+        parser: data => data.list_delete === 'Done'
+    },
+    UpdateList: {
+        url: 'kTDznPa9ZTZeMGuIKN-cgw/UpdateList',
+        method: POST,
+        params: {} as { listId: string, name: string, description: string, isPrivate: boolean },
+        parser: data => !!data.data.list.id_str
+    },
+    EditListBanner: {
+        url: '1-JRfISKRfFjJcYtmcT06w/EditListBanner',
+        method: POST,
+        params: {} as { listId: string, mediaId: string },
+        features: flags.list,
+        parser: data => !!data.data.list.id_str
+    },
+    DeleteListBanner: {
+        url: 'AytGUXuc88pwSvgPC0iCYg/DeleteListBanner',
+        method: POST,
+        params: {} as { listId: string },
+        features: flags.list,
+        parser: data => !!data.data.list.id_str
+    },
+    ListAddMember: {
+        url: '7MH6ZeGFZlvdbY1saKRwZA/ListAddMember',
+        method: POST,
+        params: {} as { listId: string, userId: string },
+        features: flags.list,
+        parser: data => !!data.data.list.id_str
+    },
+    ListRemoveMember: {
+        url: 'Tuut-vp5KjOQ9qDOxYnzkg/ListRemoveMember',
+        method: POST,
+        params: {} as { listId: string, userId: string },
+        features: flags.list,
+        parser: data => !!data.data.list.id_str
+    },
+    ListSubscribe: {
+        url: 'rhzuIVrAX_WzruA2xj8MzA/ListSubscribe',
+        method: POST,
+        params: {} as { listId: string },
+        features: flags.list,
+        parser: data => !!data.data.list_subscribe_v3.id_str
+    },
+    ListUnsubscribe: {
+        url: 'aFJFaxitSwMMoSh_x1gQ7Q/ListUnsubscribe',
+        method: POST,
+        params: {} as { listId: string },
+        features: flags.list,
+        parser: data => !!data.data.list.id_str
+    },
+    PinTimeline: {
+        url: 'LIaEysWfV7y5vS3A7sNjOw/PinTimeline',
+        method: POST,
+        params: {} as { pinnedTimelineItem: { id: string, pinned_timeline_type: 'List' } },
+        features: flags.list,
+        parser: data => !!data.data.pin_timeline.updated_pinned_timeline.list.id_str
+    },
+    UnpinTimeline: {
+        url: 'oGxUOHovcZs7pOyBCn6arg/UnpinTimeline',
+        method: POST,
+        params: {} as { pinnedTimelineItem: { id: string, pinned_timeline_type: 'List' } },
+        features: flags.list,
+        parser: data => !!data.data.unpin_timeline.updated_pinned_timeline.list.id_str
+    },
+    MuteList: {
+        url: 'ZYyanJsskNUcltu9bliMLA/MuteList',
+        method: POST,
+        params: {} as { listId: string },
+        parser: data => data.data.list === 'Done'
+    },
+    UnmuteList: {
+        url: 'pMZrHRNsmEkXgbn3tOyr7Q/UnmuteList',
+        method: POST,
+        params: {} as { listId: string },
+        parser: data => data.data.list === 'Done'
+    },
+
+
+
     // TIMELINE
     HomeLatestTimeline: {
         url: 'rA4kQTNf-wOA063umfp08Q/HomeLatestTimeline',
@@ -72,7 +256,7 @@ export const ENDPOINTS = {
         url: 'zR1cQ4Y_-6Bmc76d4Chn5Q/CreateTweet',
         method: POST,
         params: {} as {
-            conversation_control: {
+            conversation_control?: {
                 mode: 'Community' | 'Verified' | 'ByInvitation'
             },
             media: {
@@ -87,7 +271,7 @@ export const ENDPOINTS = {
         },
         variables: {"dark_request":false,"disallowed_reply_options":null},
         features: flags.timeline,
-        parser: data => format.tweet(data.data.create_tweet?.result)
+        parser: data => format.tweet(data.data.create_tweet?.result) as Tweet
     },
     CreateScheduledTweet: {
         url: 'LCVzRQGxOaGnOnYH01NQXg/CreateScheduledTweet',
