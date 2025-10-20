@@ -47,6 +47,26 @@ export const ENDPOINTS = {
 
 
 
+    // TIMELINE
+    HomeLatestTimeline: {
+        url: 'rA4kQTNf-wOA063umfp08Q/HomeLatestTimeline',
+        method: GET,
+        params: {} as { seenTweetIds: Array<string>, requestContext?: 'launch', cursor?: string },
+        variables: {"count":20,"includePromotedContent":false,"latestControlAvailable":true,"withCommunity":true},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.home_timeline_urt.instructions)
+    },
+    HomeTimeline: {
+        url: 'wGPJhptsyASnUUJb9MPz0w/HomeTimeline',
+        method: GET,
+        params: {} as { seenTweetIds: Array<string>, requestContext?: 'launch', cursor?: string },
+        variables: {"count":20,"includePromotedContent":false,"latestControlAvailable":true,"withCommunity":true},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.home_timeline_urt.instructions)
+    },
+
+
+
     // TWEET
     CreateTweet: {
         url: 'zR1cQ4Y_-6Bmc76d4Chn5Q/CreateTweet',

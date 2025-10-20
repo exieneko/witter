@@ -1,21 +1,26 @@
 import { ENDPOINTS } from './endpoints.js';
-import type { ByUsername, CursorOnly, Entry, SuspendedUser, TimelineTweet, TimelineUser, Tweet, TweetArgs, TweetTombstone, UnavailableUser, User } from './types/index.js';
+import type * as T from './types/index.js';
 import { TweetSort, TweetReplyPermission } from './types/index.js';
 import { request, type Tokens } from './utils.js';
 
 export interface BookmarkMethods {
-    get(args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    search(query: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
+    get(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    search(query: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     clear(): Promise<boolean>
 }
 
+export interface TimelineMethods {
+    algorithmical(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    chronological(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>
+}
+
 export interface TweetMethods {
-    get(id: string, args?: TweetArgs): Promise<Array<Entry<TimelineTweet>>>,
-    getById(id: string, args?: TweetArgs): Promise<Tweet | TweetTombstone>,
-    getByIds(id: Array<string>, args?: TweetArgs): Promise<Array<Tweet | TweetTombstone>>,
-    hiddenReplies(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    likes(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    retweets(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
+    get(id: string, args?: T.TweetGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    getById(id: string, args?: T.TweetGetArgs): Promise<T.Tweet | T.TweetTombstone>,
+    getByIds(id: Array<string>, args?: T.TweetGetArgs): Promise<Array<T.Tweet | T.TweetTombstone>>,
+    hiddenReplies(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    likes(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    retweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
     bookmark(id: string): Promise<boolean>,
     unbookmark(id: string): Promise<boolean>,
     like(id: string): Promise<boolean>,
@@ -33,30 +38,30 @@ export interface TweetMethods {
 }
 
 export interface UserMethods {
-    get(id: string, args?: ByUsername): Promise<User | SuspendedUser | UnavailableUser>,
-    getMany(ids: Array<string>, args?: ByUsername): Promise<Array<User | SuspendedUser | UnavailableUser>>,
-    tweets(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    replies(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    media(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    likes(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    highlightedTweets(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineTweet>>>,
-    following(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    followers(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    followersYouKnow(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    verifiedFollowers(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    superFollowing(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    affiliates(id: string, args?: CursorOnly): Promise<Array<Entry<TimelineUser>>>,
-    follow(id: string, args?: ByUsername): Promise<boolean>,
-    unfollow(id: string, args?: ByUsername): Promise<boolean>,
+    get(id: string, args?: T.ByUsername): Promise<T.User | T.SuspendedUser | T.UnavailableUser>,
+    getMany(ids: Array<string>, args?: T.ByUsername): Promise<Array<T.User | T.SuspendedUser | T.UnavailableUser>>,
+    tweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    replies(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    media(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    likes(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    highlightedTweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    following(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    followers(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    followersYouKnow(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    verifiedFollowers(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    superFollowing(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    affiliates(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    follow(id: string, args?: T.ByUsername): Promise<boolean>,
+    unfollow(id: string, args?: T.ByUsername): Promise<boolean>,
     retweets: EnableDisable,
     notifications: EnableDisable,
-    cancelFollowRequest(id: string, args?: ByUsername): Promise<boolean>,
-    acceptFollowRequest(id: string, args?: ByUsername): Promise<boolean>,
-    declineFollowRequest(id: string, args?: ByUsername): Promise<boolean>,
-    block(id: string, args?: ByUsername): Promise<boolean>,
-    unblock(id: string, args?: ByUsername): Promise<boolean>,
-    mute(id: string, args?: ByUsername): Promise<boolean>,
-    unmute(id: string, args?: ByUsername): Promise<boolean>
+    cancelFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
+    acceptFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
+    declineFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
+    block(id: string, args?: T.ByUsername): Promise<boolean>,
+    unblock(id: string, args?: T.ByUsername): Promise<boolean>,
+    mute(id: string, args?: T.ByUsername): Promise<boolean>,
+    unmute(id: string, args?: T.ByUsername): Promise<boolean>
 }
 
 export interface EnableDisable {
@@ -68,6 +73,7 @@ export interface EnableDisable {
 
 export class TwitterClient {
     public bookmarks: BookmarkMethods;
+    public timeline: TimelineMethods;
     public tweet: TweetMethods;
     public user: UserMethods;
 
@@ -81,6 +87,19 @@ export class TwitterClient {
             },
             async clear() {
                 return await request(ENDPOINTS.BookmarksAllDelete, tokens);
+            }
+        };
+
+        this.timeline = {
+            async algorithmical(args) {
+                const seenTweetIds = args?.seenTweetIds ?? [];
+                const requestContext = args?.cursor ? undefined : 'launch';
+                return await request(ENDPOINTS.HomeTimeline, tokens, { seenTweetIds, requestContext, ...args });
+            },
+            async chronological(args) {
+                const seenTweetIds = args?.seenTweetIds ?? [];
+                const requestContext = args?.cursor ? undefined : 'launch';
+                return await request(ENDPOINTS.HomeLatestTimeline, tokens, { seenTweetIds, requestContext, ...args });
             }
         };
 

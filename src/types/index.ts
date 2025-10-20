@@ -29,7 +29,11 @@ export interface CursorOnly {
     cursor?: string
 }
 
-export interface TweetArgs extends CursorOnly {
+export interface TimelineGetArgs extends CursorOnly {
+    seenTweetIds?: Array<string>
+}
+
+export interface TweetGetArgs extends CursorOnly {
     sort?: TweetSort
 }
 
