@@ -7,6 +7,46 @@ const GET = 'get';
 const POST = 'post';
 
 export const ENDPOINTS = {
+    // BOOKMARKS
+    Bookmarks: {
+        url: 'i0PhrJu6SkFzTRBDQZb6XA/Bookmarks',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"count":50,"includePromotedContent":false},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.bookmark_timeline_v2.timeline.instructions)
+    },
+    BookmarkSearchTimeline: {
+        url: '0LGsA9ae91-DxM-oHuMLJg/BookmarkSearchTimeline',
+        method: GET,
+        params: {} as { rawQuery: string, cursor?: string },
+        variables: {"count":50},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.search_by_raw_query.bookmarks_search_timeline.timeline.instructions)
+    },
+    CreateBookmark: {
+        url: 'aoDbu3RHznuiSkQ9aNM67Q/CreateBookmark',
+        method: POST,
+        params: {} as { tweet_id: string },
+        useOauthKey: true,
+        parser: data => data.data.tweet_bookmark_put === 'Done'
+    },
+    DeleteBookmark: {
+        url: 'Wlmlj2-xzyS1GN3a6cj-mQ/DeleteBookmark',
+        method: POST,
+        params: {} as { tweet_id: string },
+        useOauthKey: true,
+        parser: data => data.data.tweet_bookmark_delete === 'Done'
+    },
+    BookmarksAllDelete: {
+        url: 'skiACZKC1GDYli-M8RzEPQ/BookmarksAllDelete',
+        method: POST,
+        useOauthKey: true,
+        parser: data => data.data.bookmark_all_delete === 'Done'
+    },
+
+
+
     // TWEET
     CreateTweet: {
         url: 'zR1cQ4Y_-6Bmc76d4Chn5Q/CreateTweet',
