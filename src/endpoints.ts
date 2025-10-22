@@ -275,6 +275,25 @@ export const ENDPOINTS = {
 
 
 
+    // SEARCH
+    SearchTimeline: {
+        url: '0TyyrdQrH9390DdGyoPYfg/SearchTimeline',
+        method: GET,
+        params: {} as { rawQuery: string, querySource: 'typed_query' | 'recent_search_click' | 'tdqt', product: 'Top' | 'Latest' | 'People' | 'Media' | 'Lists', cursor?: string },
+        variables: {"count":40},
+        features: flags.timeline,
+        parser: data => format.searchEntries(data.data.search_by_raw_query.search_timeline.timeline.instructions)
+    },
+    search_typeahead: {
+        url: v11('search/typeahead.json'),
+        method: GET,
+        params: {} as { q: string },
+        variables: {"include_ext_is_blue_verified":1,"include_ext_verified_type":1,"include_ext_profile_image_shape":1,"src":"search_box","result_type":"events,users,topics,lists"},
+        parser: format.typeahead
+    },
+
+
+
     // TIMELINE
     HomeLatestTimeline: {
         url: 'rA4kQTNf-wOA063umfp08Q/HomeLatestTimeline',

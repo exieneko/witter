@@ -1,5 +1,6 @@
 export * from './community.js';
 export * from './list.js';
+export * from './search.js';
 export * from './tweet.js';
 export * from './user.js';
 
@@ -39,6 +40,18 @@ export interface ListCreateArgs {
     name: string,
     description?: string,
     private?: boolean
+}
+
+export interface SearchArgs extends CursorOnly {
+    type?: SearchType
+}
+
+export enum SearchType {
+    Algorithmical = 'Algorithmical',
+    Chronological = 'Chronological',
+    Media = 'Media',
+    Users = 'Users',
+    Lists = 'Lists'
 }
 
 export interface TimelineGetArgs extends CursorOnly {

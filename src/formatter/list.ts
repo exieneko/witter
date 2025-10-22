@@ -34,7 +34,7 @@ export function listEntries(instructions: any): Array<Entry<TimelineList>> {
         content: entry.entryId.includes('cursor')
             ? cursor(entry.content)
             : list(entry.content.itemContent.list)
-    }))
+    }));
 }
 
 export function listDiscoveryEntries(instructions: any): Array<Entry<List>> {

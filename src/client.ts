@@ -1,6 +1,6 @@
 import { ENDPOINTS } from './endpoints.js';
 import type * as T from './types/index.js';
-import { TweetSort, TweetReplyPermission } from './types/index.js';
+import { SearchType, TweetSort, TweetReplyPermission } from './types/index.js';
 import { request, type Tokens } from './utils.js';
 
 interface BookmarkMethods {
@@ -53,6 +53,7 @@ interface TweetMethods {
     hiddenReplies(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     likes(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
     retweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    quotedTweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     bookmark(id: string): Promise<boolean>,
     unbookmark(id: string): Promise<boolean>,
     like(id: string): Promise<boolean>,
@@ -112,7 +113,25 @@ export class TwitterClient {
     public tweet: TweetMethods;
     public user: UserMethods;
 
-    constructor(tokens: Tokens) {
+    public async search(query: string, args?: T.SearchArgs) {
+        const product = args?.type === SearchType.Chronological
+            ? 'Latest'
+        : args?.type === SearchType.Users
+            ? 'People'
+        : args?.type === SearchType.Media
+            ? 'Media'
+        : args?.type === SearchType.Lists
+            ? 'Lists'
+            : 'Top'
+
+        return await request(ENDPOINTS.SearchTimeline, this.tokens, { rawQuery: query, querySource: 'typed_query', product, ...args });
+    }
+
+    public async searchTypeahead(query: string) {
+        return await request(ENDPOINTS.search_typeahead, this.tokens, { q: query });
+    }
+
+    constructor(private tokens: Tokens) {
         this.bookmarks = {
             async get(args) {
                 return await request(ENDPOINTS.Bookmarks, tokens, args);
@@ -281,6 +300,9 @@ export class TwitterClient {
             },
             async retweets(id) {
                 return await request(ENDPOINTS.Retweeters, tokens, { tweetId: id });
+            },
+            async quotedTweets(id, args) {
+                return await request(ENDPOINTS.SearchTimeline, tokens, { rawQuery: `quoted_tweet_id:${id}`, querySource: 'tdqt', product: 'Top', ...args }) as Array<T.Entry<T.TimelineTweet>>
             },
             async bookmark(id) {
                 return await request(ENDPOINTS.CreateBookmark, tokens, { tweet_id: id });
