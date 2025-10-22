@@ -194,10 +194,10 @@ export function entries(instructions: any): Array<Entry<TimelineTweet>> {
     return getEntries(instructions).map(entry).filter(x => !!x);
 }
 
-export function mediaEntries(instructions: any): Array<Entry<TimelineTweet>> {
+export function mediaEntries(instructions: any, gridModule?: { content: object, key: string }): Array<Entry<TimelineTweet>> {
     const value: Array<any> = getEntries(instructions);
 
-    const grid = value.find(entry => entry.content.__typename === 'TimelineTimelineModule')?.content;
+    const grid = gridModule?.content ?? value.find(entry => entry.content.__typename === 'TimelineTimelineModule')?.content;
 
     return [
         ...value.filter(entry => entry.content.__typename === 'TimelineTimelineCursor').map(entry => ({
@@ -206,7 +206,7 @@ export function mediaEntries(instructions: any): Array<Entry<TimelineTweet>> {
         })),
         ...(
             grid
-                ? grid.items.map((item: any) => ({
+                ? grid[gridModule?.key ?? 'items'].map((item: any) => ({
                     id: item.entryId,
                     content: item.item.itemContent.__typename === 'TimelineTimelineCursor'
                         ? cursor(item.item.itemContent)

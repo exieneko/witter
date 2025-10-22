@@ -9,6 +9,14 @@ interface BookmarkMethods {
     clear(): Promise<boolean>
 }
 
+interface CommunityMethods {
+    get(id: string): Promise<T.Community | T.UnavailableCommunity>,
+    tweets(id: string, args?: T.TweetGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    media(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    join(id: string): Promise<boolean>,
+    leave(id: string): Promise<boolean>
+}
+
 interface ListMethods {
     get(id: string, args?: T.ListBySlug): Promise<T.List | T.UnavailableList>,
     tweets(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
@@ -98,6 +106,7 @@ interface EnableDisable {
 
 export class TwitterClient {
     public bookmarks: BookmarkMethods;
+    public community: CommunityMethods;
     public lists: ListMethods;
     public timeline: TimelineMethods;
     public tweet: TweetMethods;
@@ -113,6 +122,28 @@ export class TwitterClient {
             },
             async clear() {
                 return await request(ENDPOINTS.BookmarksAllDelete, tokens);
+            }
+        };
+
+        this.community = {
+            async get(id) {
+                return await request(ENDPOINTS.CommunityByRestId, tokens, { communityId: id });
+            },
+            async tweets(id, args) {
+                const rankingMode = args?.sort === TweetSort.Recent
+                    ? 'Recency'
+                    : 'Relevance';
+
+                return await request(ENDPOINTS.CommunityTweetsTimeline, tokens, { communityId: id, rankingMode, ...args });
+            },
+            async media(id, args) {
+                return await request(ENDPOINTS.CommunityMediaTimeline, tokens, { communityId: id, ...args });
+            },
+            async join(id) {
+                return await request(ENDPOINTS.JoinCommunity, tokens, { communityId: id });
+            },
+            async leave(id) {
+                return await request(ENDPOINTS.LeaveCommunity, tokens, { communityId: id });
             }
         };
 

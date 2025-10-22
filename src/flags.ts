@@ -59,7 +59,7 @@ export type Flags = Partial<{
     responsive_web_twitter_article_notes_tab_enabled: boolean
 }>;
 
-export const list = {
+export const short = {
     payments_enabled: false,
     profile_label_improvements_pcf_label_in_post_enabled: true,
     responsive_web_profile_redirect_enabled: false,
@@ -67,7 +67,7 @@ export const list = {
     verified_phone_label_enabled: false,
     responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
     responsive_web_graphql_timeline_navigation_enabled: true
-};
+} satisfies Flags;
 
 export const timeline = {
     rweb_video_screen_enabled: false,

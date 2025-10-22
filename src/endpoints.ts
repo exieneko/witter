@@ -47,19 +47,63 @@ export const ENDPOINTS = {
 
 
 
+    // COMMUNITY
+    CommunityByRestId: {
+        url: 'Y03_m7PHdhrmtNWaGlIVxg/CommunityByRestId',
+        method: GET,
+        params: {} as { communityId: string },
+        features: flags.short,
+        parser: data => format.community(data.data.communityResults.result)
+    },
+    CommunityTweetsTimeline: {
+        url: 'wqGdeW2JAbULEtf-vR7rMQ/CommunityTweetsTimeline',
+        method: GET,
+        params: {} as { communityId: string, rankingMode: 'Relevance' | 'Recency', cursor?: string },
+        variables: {"count":20,"displayLocation":"Community","withCommunity":true},
+        features: flags.timeline,
+        parser: data => format.entries(data.data.communityResults.result.ranked_community_timeline.timeline.instructions)
+    },
+    CommunityMediaTimeline: {
+        url: 'nL37Srye08ev23ntrVoBDQ/CommunityMediaTimeline',
+        method: GET,
+        params: {} as { communityId: string, cursor?: string },
+        variables: {"count":20,"displayLocation":"Community","withCommunity":true},
+        features: flags.timeline,
+        parser: data => format.mediaEntries(data.data.communityResults.result.ranked_community_timeline.timeline.instructions, {
+            content: data.data.communityResults.result.ranked_community_timeline.timeline.instructions.find((i: any) => i.type === 'TimelineAddToModule'),
+            key: 'moduleItems'
+        })
+    },
+    JoinCommunity: {
+        url: 'zvEh7Liv9P0mstZ0U2UV3Q/JoinCommunity',
+        method: GET,
+        params: {} as { communityId: string },
+        features: flags.short,
+        parser: data => !!data.data.community_join.id_str
+    },
+    LeaveCommunity: {
+        url: 'PwtttWNOJ6pZq5Zb2QoejA/LeaveCommunity',
+        method: GET,
+        params: {} as { communityId: string },
+        features: flags.short,
+        parser: data => !!data.data.community_leave.id_str
+    },
+
+
+
     // LIST
     ListByRestId: {
         url: 'r5na9hXeXVqb1XJYtx1fHQ/ListByRestId',
         method: GET,
         params: {} as { listId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => format.list(data.data.list)
     },
     ListBySlug: {
         url: '8Z9ILKNAy_d-a57m93j8TA/ListBySlug',
         method: GET,
         params: {} as { listId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => format.list(data.data.list)
     },
     ListLatestTweetsTimeline: {
@@ -145,7 +189,7 @@ export const ENDPOINTS = {
         url: 'USp5yY9TOEbAdE_pftwDYQ/CreateList',
         method: POST,
         params: {} as { name: string, description: string, isPrivate: boolean },
-        features: flags.list,
+        features: flags.short,
         parser: data => format.list(data.list) as List
     },
     DeleteList: {
@@ -164,56 +208,56 @@ export const ENDPOINTS = {
         url: '1-JRfISKRfFjJcYtmcT06w/EditListBanner',
         method: POST,
         params: {} as { listId: string, mediaId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list.id_str
     },
     DeleteListBanner: {
         url: 'AytGUXuc88pwSvgPC0iCYg/DeleteListBanner',
         method: POST,
         params: {} as { listId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list.id_str
     },
     ListAddMember: {
         url: '7MH6ZeGFZlvdbY1saKRwZA/ListAddMember',
         method: POST,
         params: {} as { listId: string, userId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list.id_str
     },
     ListRemoveMember: {
         url: 'Tuut-vp5KjOQ9qDOxYnzkg/ListRemoveMember',
         method: POST,
         params: {} as { listId: string, userId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list.id_str
     },
     ListSubscribe: {
         url: 'rhzuIVrAX_WzruA2xj8MzA/ListSubscribe',
         method: POST,
         params: {} as { listId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list_subscribe_v3.id_str
     },
     ListUnsubscribe: {
         url: 'aFJFaxitSwMMoSh_x1gQ7Q/ListUnsubscribe',
         method: POST,
         params: {} as { listId: string },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.list.id_str
     },
     PinTimeline: {
         url: 'LIaEysWfV7y5vS3A7sNjOw/PinTimeline',
         method: POST,
         params: {} as { pinnedTimelineItem: { id: string, pinned_timeline_type: 'List' } },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.pin_timeline.updated_pinned_timeline.list.id_str
     },
     UnpinTimeline: {
         url: 'oGxUOHovcZs7pOyBCn6arg/UnpinTimeline',
         method: POST,
         params: {} as { pinnedTimelineItem: { id: string, pinned_timeline_type: 'List' } },
-        features: flags.list,
+        features: flags.short,
         parser: data => !!data.data.unpin_timeline.updated_pinned_timeline.list.id_str
     },
     MuteList: {
