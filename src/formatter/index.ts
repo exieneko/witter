@@ -2,6 +2,7 @@ import { Cursor, CursorDirection } from '../types/index.js';
 
 export * from './community.js';
 export * from './list.js';
+export * from './notifications.js';
 export * from './search.js';
 export * from './tweet.js';
 export * from './user.js';

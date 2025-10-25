@@ -1,5 +1,5 @@
 import { Entry, Retweet, TimelineTweet, Tweet, TweetMedia, TweetPlatform, TweetTombstone, TweetUnavailableReason, TweetVideo, User } from '../types/index.js';
-import { cursor, getEntries, user } from './index.js';
+import { cursor, getEntries, user, userLegacy } from './index.js';
 
 export function tweet(value: any, options?: { hasHiddenReplies?: boolean }): Tweet | Retweet | TweetTombstone {
     if (!value) {
@@ -148,6 +148,47 @@ export function media(value: any): TweetMedia {
         __type: 'Image',
         url: value.media_url_https,
         ...common
+    };
+}
+
+
+
+export function tweetLegacy(tweet: any, author: any, quotedTweet?: any, quotedTweetAuthor?: any): Tweet {
+    const tweetMedia = (tweet.extended_entities.media as Array<{}>)?.map(media) ?? [];
+
+    return {
+        __type: 'Tweet',
+        id: tweet.id_str,
+        author: userLegacy(author),
+        bookmarked: !!tweet.bookmarked,
+        bookmarks_count: tweet.bookmark_count || 0,
+        created_at: new Date(tweet.created_at).toISOString(),
+        editing: {
+            allowed: false,
+            allowed_until: new Date(0).toISOString(),
+            remaining_count: 0,
+            tweet_ids: [tweet.id_str]
+        },
+        expandable: false,
+        has_ai_generated_image: tweetMedia.some(media => media.ai_generated),
+        has_birdwatch_note: !!tweet.has_birdwatch_notes,
+        has_grok_chat_embed: false,
+        has_hidden_replies: false,
+        has_quoted_tweet: !!tweet.is_quote_status,
+        lang: tweet.lang,
+        liked: !!tweet.favorited,
+        likes_count: tweet.favorite_count || 0,
+        media: tweetMedia,
+        platform: TweetPlatform.Web,
+        quote_tweets_count: tweet.quote_count || 0,
+        quoted_tweet: quotedTweet && quotedTweetAuthor ? tweetLegacy(quotedTweet, quotedTweetAuthor) : undefined,
+        quoted_tweet_id: tweet.quoted_status_id_str || undefined,
+        replies_count: tweet.reply_count || 0,
+        replying_to_username: tweet.in_reply_to_screen_name || undefined,
+        retweeted: !!tweet.retweeted,
+        retweets_count: tweet.retweet_count || 0,
+        text: tweet.full_text,
+        translatable: !!tweet.translatable
     };
 }
 

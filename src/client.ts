@@ -39,6 +39,13 @@ interface ListMethods {
     unmute(id: string): Promise<boolean>
 }
 
+interface NotificationMethods {
+    get(args: T.NotificationGetArgs): Promise<Array<T.Entry<T.TimelineNotification>>>,
+    notifiedTweets(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    lastSeenCursor(cursor: string): Promise<string>,
+    unreadCount(): Promise<T.UnreadCount>
+}
+
 interface TimelineMethods {
     algorithmical(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
     chronological(args?: T.TimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>
@@ -87,8 +94,8 @@ interface UserMethods {
     lists(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineList>>>,
     follow(id: string, args?: T.ByUsername): Promise<boolean>,
     unfollow(id: string, args?: T.ByUsername): Promise<boolean>,
-    retweets: EnableDisable,
-    notifications: EnableDisable,
+    retweets: Toggle,
+    notifications: Toggle,
     cancelFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
     acceptFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
     declineFollowRequest(id: string, args?: T.ByUsername): Promise<boolean>,
@@ -98,7 +105,7 @@ interface UserMethods {
     unmute(id: string, args?: T.ByUsername): Promise<boolean>
 }
 
-interface EnableDisable {
+interface Toggle {
     enable(id: string): Promise<boolean>,
     disable(id: string): Promise<boolean>
 }
@@ -109,6 +116,7 @@ export class TwitterClient {
     public bookmarks: BookmarkMethods;
     public community: CommunityMethods;
     public lists: ListMethods;
+    public notifications: NotificationMethods;
     public timeline: TimelineMethods;
     public tweet: TweetMethods;
     public user: UserMethods;
@@ -127,7 +135,7 @@ export class TwitterClient {
         return await request(ENDPOINTS.SearchTimeline, this.tokens, { rawQuery: query, querySource: 'typed_query', product, ...args });
     }
 
-    public async searchTypeahead(query: string) {
+    public async searchResults(query: string) {
         return await request(ENDPOINTS.search_typeahead, this.tokens, { q: query });
     }
 
@@ -235,6 +243,21 @@ export class TwitterClient {
             },
             async unmute(id) {
                 return await request(ENDPOINTS.UnmuteList, tokens, { listId: id });
+            }
+        };
+
+        this.notifications = {
+            async get(args) {
+                return await request(ENDPOINTS.NotificationsTimeline, tokens, { timeline_type: args.type, ...args });
+            },
+            async notifiedTweets(args) {
+                return await request(ENDPOINTS.device_follow, tokens, args);
+            },
+            async lastSeenCursor(cursor) {
+                return await request(ENDPOINTS.last_seen_cursor, tokens, { cursor });
+            },
+            async unreadCount() {
+                return await request(ENDPOINTS.badge_count, tokens);
             }
         };
 

@@ -78,6 +78,45 @@ export function user(value: any): User | SuspendedUser | UnavailableUser {
     return { __type: 'UnavailableUser' };
 }
 
+export function userLegacy(value: any): User {
+    return {
+        __type: 'User',
+        id: value.id_str,
+        affiliates_count: 0,
+        avatar_url: value.profile_image_url_https.replace('normal', '400x400'),
+        banner_url: value.profile_banner_url || undefined,
+        blocked: !!value.blocking,
+        blocked_by: !!value.blocked_by,
+        can_dm: !!value.can_dm,
+        can_media_tag: !!value.can_media_tag,
+        can_super_follow: false,
+        created_at: new Date(value.created_at).toISOString(),
+        description: value.description || '',
+        followers_count: value.followers_count || 0,
+        following_count: value.friends_count || 0,
+        followed: !!value.following,
+        follow_requested: !!value.follow_request_sent,
+        followed_by: !!value.followed_by,
+        location: value.location || undefined,
+        muted: !!value.muting,
+        name: value.name,
+        protected: !!value.protected,
+        super_following_count: 0,
+        super_following_hidden: false,
+        translatable: false,
+        tweets_count: value.statuses_count || 0,
+        media_count: value.media_count || 0,
+        likes_count: value.favorite_count || 0,
+        listed_count: value.listed_count || 0,
+        username: value.screen_name,
+        url: undefined,
+        verified: value.ext_is_blue_verified,
+        verification_kind: VerificationKind.Blue,
+        want_retweets: !!value.want_retweets,
+        want_notifications: !!value.notification
+    }
+}
+
 
 
 export function userEntries(instructions: any): Array<Entry<TimelineUser>> {

@@ -275,6 +275,40 @@ export const ENDPOINTS = {
 
 
 
+    // NOTIFICATIONS
+    NotificationsTimeline: {
+        url: 'tsGNf2EtaxOV9TRXknyrag/NotificationsTimeline',
+        method: GET,
+        params: {} as { timeline_type: 'All' | 'Verified' | 'Mentions', cursor?: string },
+        variables: {"count":40},
+        features: {"rweb_video_screen_enabled":false,"payments_enabled":false,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"premium_content_api_read_enabled":false,"communities_web_enable_tweet_community_results_fetch":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"responsive_web_grok_analyze_button_fetch_trends_enabled":false,"responsive_web_grok_analyze_post_followups_enabled":true,"responsive_web_jetfuel_frame":true,"responsive_web_grok_share_attachment_enabled":true,"articles_preview_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_awards_web_tipping_enabled":false,"responsive_web_grok_show_grok_translated_post":false,"responsive_web_grok_analysis_button_from_backend":true,"creator_subscriptions_quote_tweet_preview_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_grok_image_annotation_enabled":true,"responsive_web_enhance_cards_enabled":false},
+        parser: data => format.notificationEntries(data.viewer_v2.user_results.result.notification_timeline.timeline.instructions)
+    },
+    badge_count: {
+        url: 'https://twitter.com/i/api/2/badge_count/badge_count.json',
+        method: GET,
+        variables: {"supports_ntab_urt":1},
+        parser: format.unreadCount
+    },
+    last_seen_cursor: {
+        url: 'https://twitter.com/i/api/2/notifications/all/last_seen_cursor.json',
+        method: POST,
+        params: {} as { cursor: string },
+        parser: data => data.cursor
+    },
+    device_follow: {
+        url: 'https://twitter.com/i/api/2/notifications/device_follow.json',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"include_profile_interstitial_type":1,"include_blocking":1,"include_blocked_by":1,"include_followed_by":1,"include_want_retweets":1,"include_mute_edge":1,"include_can_dm":1,"include_can_media_tag":1,"include_ext_has_nft_avatar":1,"include_ext_is_blue_verified":1,"include_ext_verified_type":1,"include_ext_profile_image_shape":1,"skip_status":1,"cards_platform":"Web-12","include_cards":1,"include_ext_alt_text":true,"include_ext_limited_action_results":true,"include_quote_count":true,"include_reply_count":1,"tweet_mode":"extended","include_ext_views":true,"include_entities":true,"include_user_entities":true,"include_ext_media_color":true,"include_ext_media_availability":true,"include_ext_sensitive_media_warning":true,"include_ext_trusted_friends_metadata":true,"send_error_codes":true,"simple_quoted_tweet":true,"count":20,"requestContext":"launch","ext":"mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2CbirdwatchPivot%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl"},
+        parser: data => format.deviceFollowEntries(
+            (Object.entries(data.timeline.instructions).find(([, v]: [any, any]) => Object.entries(v).at(0)?.at(0) === 'addEntries')?.at(1) as any)?.addEntries?.entries || [],
+            data.globalObjects
+        )
+    },
+
+
+
     // SEARCH
     SearchTimeline: {
         url: '0TyyrdQrH9390DdGyoPYfg/SearchTimeline',

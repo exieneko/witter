@@ -1,5 +1,6 @@
 export * from './community.js';
 export * from './list.js';
+export * from './notifications.js';
 export * from './search.js';
 export * from './tweet.js';
 export * from './user.js';
@@ -40,6 +41,16 @@ export interface ListCreateArgs {
     name: string,
     description?: string,
     private?: boolean
+}
+
+export interface NotificationGetArgs extends CursorOnly {
+    type: NotificationTimelineType
+}
+
+export enum NotificationTimelineType {
+    All = 'All',
+    Verified = 'Verified',
+    Mentions = 'Mentions'
 }
 
 export interface SearchArgs extends CursorOnly {
