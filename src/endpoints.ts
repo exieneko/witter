@@ -7,6 +7,65 @@ const GET = 'get';
 const POST = 'post';
 
 export const ENDPOINTS = {
+    // ACCOUNT
+    BlockedAccountsAll: {
+        url: 'zBszOnEZ9wS04Xl6griBAg/BlockedAccountsAll',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"count":20,"includePromotedContent":false},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.viewer.timeline.timeline.instructions)
+    },
+    BlockedAccountsImported: {
+        url: 'PlcXB9lQyYZUCpllzduApA/BlockedAccountsImported',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"count":20,"includePromotedContent":false},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.viewer.timeline.timeline.instructions)
+    },
+    MutedAccounts: {
+        url: 'qDMmRTJTAHkNvex2SoniGg/MutedAccounts',
+        method: GET,
+        params: {} as { cursor?: string },
+        variables: {"count":20,"includePromotedContent":false},
+        features: flags.timeline,
+        parser: data => format.userEntries(data.data.viewer.muting_timeline.timeline.instructions)
+    },
+    account_settings: {
+        url: v11('account/settings.json'),
+        method: GET,
+        variables: {"include_ext_sharing_audiospaces_listening_data_with_followers":true,"include_mention_filter":true,"include_nsfw_user_flag":true,"include_nsfw_admin_flag":true,"include_ranked_timeline":true,"include_alt_text_compose":true,"include_ext_dm_av_call_settings":true,"ext":"ssoConnections","include_country_code":true,"include_ext_dm_nsfw_media_filter":true},
+        useOauthKey: true,
+        parser: format.settings
+    },
+    /** @todo */
+    account_update_profile: {
+        url: v11('account/update_profile.json'),
+        method: POST,
+        params: {} as {
+            birthdate_day: number,
+            birthdate_month: number,
+            birthdate_year: number,
+            birthdate_visibility: 'self',
+            birthdate_year_visibility: 'self' | 'followers',
+            name: string,
+            description: string,
+            location: string
+        },
+        variables: {"displayNameMaxLength":50},
+        useOauthKey: true,
+        parser: data => data.id_str
+    },
+    account_verify_credentials: {
+        url: v11('account/verify_credentials.json'),
+        method: GET,
+        useOauthKey: true,
+        parser: format.userLegacy
+    },
+
+
+
     // BOOKMARKS
     Bookmarks: {
         url: 'i0PhrJu6SkFzTRBDQZb6XA/Bookmarks',

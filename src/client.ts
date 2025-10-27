@@ -2,6 +2,13 @@ import { ENDPOINTS } from './endpoints.js';
 import type * as T from './types/index.js';
 import { request, type Tokens } from './utils.js';
 
+interface AccountMethods {
+    blockedAccounts(args?: T.BlockedAccountsGetArgs): Promise<Array<T.Entry<T.TimelineUser>>>,
+    mutedAccounts(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineUser>>>,
+    settings(): Promise<T.Settings>
+    verifyCredentials(): Promise<T.User>
+}
+
 interface BookmarkMethods {
     get(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     search(query: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
@@ -112,6 +119,7 @@ interface Toggle {
 
 
 export class TwitterClient {
+    public account: AccountMethods;
     public bookmarks: BookmarkMethods;
     public community: CommunityMethods;
     public lists: ListMethods;
@@ -139,6 +147,25 @@ export class TwitterClient {
     }
 
     constructor(private tokens: Tokens) {
+        this.account = {
+            async blockedAccounts(args) {
+                if (args?.imported) {
+                    return await request(ENDPOINTS.BlockedAccountsImported, tokens, { cursor: args?.cursor });
+                }
+
+                return await request(ENDPOINTS.BlockedAccountsAll, tokens, { cursor: args?.cursor });
+            },
+            async mutedAccounts(args) {
+                return await request(ENDPOINTS.MutedAccounts, tokens, args);
+            },
+            async settings() {
+                return await request(ENDPOINTS.account_settings, tokens);
+            },
+            async verifyCredentials() {
+                return await request(ENDPOINTS.account_verify_credentials, tokens);
+            },
+        };
+
         this.bookmarks = {
             async get(args) {
                 return await request(ENDPOINTS.Bookmarks, tokens, args);

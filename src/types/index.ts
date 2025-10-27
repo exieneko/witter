@@ -1,3 +1,4 @@
+export * from './account.js';
 export * from './community.js';
 export * from './list.js';
 export * from './notifications.js';
@@ -34,6 +35,10 @@ export enum CursorDirection {
 
 export interface ByUsername {
     byUsername?: boolean
+}
+
+export interface BlockedAccountsGetArgs extends CursorOnly {
+    imported?: boolean
 }
 
 export interface CommunityTimelineGetArgs {
