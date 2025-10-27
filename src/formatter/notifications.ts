@@ -1,6 +1,6 @@
 import type { Entry, Notification, TimelineNotification, TimelineTweet, UnreadCount, User } from '../types/index.js';
 import { CursorDirection, NotificationKind } from '../types/index.js';
-import { cursor, getEntries, tweetLegacy, user } from './index.js';
+import { cursor, getEntries, tweet as formatTweet, tweetLegacy, user } from './index.js';
 
 export function unreadCount(value: any): UnreadCount {
     return {
@@ -49,6 +49,8 @@ export function notification(value: any, notificationKind: string): Notification
                 return NotificationKind.LoggedIn;
             case 'generic_report_received':
                 return NotificationKind.ReportReceived;
+            case 'generic_report_update':
+                return NotificationKind.ReportUpdate;
             case 'generic_subscription_promotion_premium':
                 return NotificationKind.Advertisement;
             default:
@@ -56,13 +58,37 @@ export function notification(value: any, notificationKind: string): Notification
         }
     })();
 
+    const _t = type === NotificationKind.Mentioned ? formatTweet(value.tweet_results.result) : undefined
+    const tweet = _t?.__type === 'Tweet' ? _t : undefined;
+
     return {
         __type: 'Notification',
-        id: value.id,
+        id: value.id || tweet?.id,
         created_at: new Date(value.timestamp_ms).toISOString(),
+        objectId: type === NotificationKind.Mentioned
+            ? tweet?.id
+        : [NotificationKind.TweetLiked, NotificationKind.TweetRetweeted, NotificationKind.RetweetLiked, NotificationKind.RetweetRetweeted].includes(type)
+            ? value.template?.target_objects?.at(0)?.result?.rest_id
+        : [NotificationKind.AddedToList, NotificationKind.ListSubscribedTo].includes(type)
+            ? value.notification_url?.url?.match(/lists\/(\d+?)$/)?.at(1)
+        : type.startsWith('Birdwatch')
+            ? value.notification_url?.url?.match(/birdwatch\/n\/(\d+?)(\?src|$)/)?.at(1)
+        : type === NotificationKind.ReportUpdate
+            ? value?.rich_message?.text
+            : undefined,
+        text: [NotificationKind.AddedToList, NotificationKind.ListSubscribedTo].includes(type)
+            ? value.rich_message?.text?.match(/List\s(.*?)$/)?.at(1)
+        : type.startsWith('Birdwatch')
+            ? value.template?.additional_context?.text
+        : type === NotificationKind.ReportUpdate
+            ? value?.rich_message?.text
+            : undefined,
         type,
-        tweets: [],
-        users: (value.template?.from_users || []).map((x: any) => user(x.user_results.result) as User)
+        tweets: tweet ?? (value.template?.target_objects || [])
+            .filter((x: any) => x.__typename === 'TimelineNotificationTweetRef')
+            .map((x: any) => formatTweet(x.result)),
+        users: (value.template?.from_users || [])
+            .map((x: any) => user(x.user_results.result) as User)
     };
 }
 

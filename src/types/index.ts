@@ -5,11 +5,18 @@ export * from './search.js';
 export * from './tweet.js';
 export * from './user.js';
 
+/**
+ * Represents any timeline entry
+ */
 export interface Entry<T> {
     id: string,
     content: T
 }
 
+/**
+ * Represents a timeline cursor\
+ * The direction shows where the timeline continues from
+ */
 export interface Cursor {
     __type: 'Cursor',
     direction: CursorDirection,

@@ -1,3 +1,6 @@
+/**
+ * Represents live search results
+ */
 export interface Typeahead {
     results_count: number,
     topics: Array<string>,
