@@ -1,6 +1,5 @@
 import { ENDPOINTS } from './endpoints.js';
 import type * as T from './types/index.js';
-import { SearchType, TweetSort, TweetReplyPermission } from './types/index.js';
 import { request, type Tokens } from './utils.js';
 
 interface BookmarkMethods {
@@ -11,7 +10,7 @@ interface BookmarkMethods {
 
 interface CommunityMethods {
     get(id: string): Promise<T.Community | T.UnavailableCommunity>,
-    tweets(id: string, args?: T.TweetGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
+    tweets(id: string, args?: T.CommunityTimelineGetArgs): Promise<Array<T.Entry<T.TimelineTweet>>>,
     media(id: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     join(id: string): Promise<boolean>,
     leave(id: string): Promise<boolean>
@@ -71,7 +70,7 @@ interface TweetMethods {
     unhide(id: string): Promise<boolean>,
     pin(id: string): Promise<boolean>,
     unpin(id: string): Promise<boolean>,
-    changeReplyPermission(id: string, permission?: TweetReplyPermission): Promise<boolean>,
+    changeReplyPermission(id: string, permission?: T.TweetReplyPermission): Promise<boolean>,
     unmention(id: string): Promise<boolean>,
     mute(id: string): Promise<boolean>,
     unmute(id: string): Promise<boolean>
@@ -122,13 +121,13 @@ export class TwitterClient {
     public user: UserMethods;
 
     public async search(query: string, args?: T.SearchArgs) {
-        const product = args?.type === SearchType.Chronological
+        const product = args?.type === 'chronological'
             ? 'Latest'
-        : args?.type === SearchType.Users
+        : args?.type === 'users'
             ? 'People'
-        : args?.type === SearchType.Media
+        : args?.type === 'media'
             ? 'Media'
-        : args?.type === SearchType.Lists
+        : args?.type === 'lists'
             ? 'Lists'
             : 'Top'
 
@@ -157,7 +156,7 @@ export class TwitterClient {
                 return await request(ENDPOINTS.CommunityByRestId, tokens, { communityId: id });
             },
             async tweets(id, args) {
-                const rankingMode = args?.sort === TweetSort.Recent
+                const rankingMode = args?.sort === 'recent'
                     ? 'Recency'
                     : 'Relevance';
 
@@ -248,7 +247,13 @@ export class TwitterClient {
 
         this.notifications = {
             async get(args) {
-                return await request(ENDPOINTS.NotificationsTimeline, tokens, { timeline_type: args.type, ...args });
+                const type = args.type === 'mentions'
+                    ? 'Mentions'
+                : args.type === 'verified'
+                    ? 'Verified'
+                    : 'All';
+
+                return await request(ENDPOINTS.NotificationsTimeline, tokens, { timeline_type: type, ...args });
             },
             async notifiedTweets(args) {
                 return await request(ENDPOINTS.device_follow, tokens, args);
@@ -276,11 +281,11 @@ export class TwitterClient {
 
         this.tweet = {
             async create(args) {
-                const mode = args.replyPermission === TweetReplyPermission.Following
+                const mode = args.replyPermission === 'following'
                     ? 'Community'
-                : args.replyPermission === TweetReplyPermission.Verified
+                : args.replyPermission === 'verified'
                     ? 'Verified'
-                : args.replyPermission === TweetReplyPermission.Mentioned
+                : args.replyPermission === 'mentioned'
                     ? 'ByInvitation'
                     : undefined
 
@@ -301,9 +306,9 @@ export class TwitterClient {
                 return await request(ENDPOINTS.DeleteTweet, tokens, { tweet_id: id })
             },
             async get(id, args) {
-                const rankingMode = args?.sort === TweetSort.Recent
+                const rankingMode = args?.sort === 'recent'
                     ? 'Recency'
-                : args?.sort === TweetSort.Likes
+                : args?.sort === 'likes'
                     ? 'Likes'
                     : 'Relevance';
 
@@ -358,13 +363,13 @@ export class TwitterClient {
                 return await request(ENDPOINTS.UnmoderateTweet, tokens, { tweetId: id });
             },
             async changeReplyPermission(id, permission) {
-                if (!permission || permission === TweetReplyPermission.None) {
+                if (!permission || permission === 'none') {
                     return await request(ENDPOINTS.ConversationControlDelete, tokens, { tweet_id: id });
                 }
 
-                const mode = permission === TweetReplyPermission.Following
+                const mode = permission === 'following'
                     ? 'Community'
-                : permission === TweetReplyPermission.Verified
+                : permission === 'verified'
                     ? 'Verified'
                     : 'ByInvitation'
 

@@ -29,6 +29,10 @@ export interface ByUsername {
     byUsername?: boolean
 }
 
+export interface CommunityTimelineGetArgs {
+    sort?: 'relevant' | 'recent'
+}
+
 export interface CursorOnly {
     cursor?: string
 }
@@ -44,25 +48,11 @@ export interface ListCreateArgs {
 }
 
 export interface NotificationGetArgs extends CursorOnly {
-    type: NotificationTimelineType
-}
-
-export enum NotificationTimelineType {
-    All = 'All',
-    Verified = 'Verified',
-    Mentions = 'Mentions'
+    type: 'all' | 'verified' | 'mentions'
 }
 
 export interface SearchArgs extends CursorOnly {
-    type?: SearchType
-}
-
-export enum SearchType {
-    Algorithmical = 'Algorithmical',
-    Chronological = 'Chronological',
-    Media = 'Media',
-    Users = 'Users',
-    Lists = 'Lists'
+    type?: 'algorithmical' | 'chronological' | 'media' | 'users' | 'lists'
 }
 
 export interface TimelineGetArgs extends CursorOnly {
@@ -76,19 +66,8 @@ export interface TweetCreateArgs {
     replyPermission?: TweetReplyPermission
 }
 
+export type TweetReplyPermission = 'following' | 'verified' | 'mentioned' | 'none';
+
 export interface TweetGetArgs extends CursorOnly {
-    sort?: TweetSort
-}
-
-export enum TweetSort {
-    Relevant = 'Relevant',
-    Recent = 'Recent',
-    Likes = 'Likes'
-}
-
-export enum TweetReplyPermission {
-    Following = 'Following',
-    Verified = 'Verified',
-    Mentioned = 'Mentioned',
-    None = 'None'
+    sort?: 'relevant' | 'recent' | 'likes'
 }
