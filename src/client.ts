@@ -196,7 +196,7 @@ export class TwitterClient {
             },
             async unrateNote(noteId) {
                 return await request(ENDPOINTS.BirdwatchDeleteRating, tokens, { note_id: noteId });
-            },
+            }
         };
 
         this.bookmarks = {
@@ -417,10 +417,10 @@ export class TwitterClient {
                 return await request(ENDPOINTS.UnmoderateTweet, tokens, { tweetId: id });
             },
             async pin(id) {
-                return await request(ENDPOINTS.ModerateTweet, tokens, { tweetId: id });
+                return await request(ENDPOINTS.PinTweet, tokens, { tweet_id: id });
             },
             async unpin(id) {
-                return await request(ENDPOINTS.UnmoderateTweet, tokens, { tweetId: id });
+                return await request(ENDPOINTS.UnpinTweet, tokens, { tweet_id: id });
             },
             async changeReplyPermission(id, permission) {
                 if (!permission || permission === 'none') {
