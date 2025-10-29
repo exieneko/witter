@@ -1,180 +1,131 @@
-import { formatCursor } from './index.js';
+import { Entry, SuspendedUser, TimelineUser, UnavailableUser, User, VerificationKind } from '../types/index.js';
+import { cursor, getEntries } from './index.js';
 
-import type { Entry, MutedWord, Settings, TimelineUser, User } from '../types/index.js';
-import type { _Cursor, _Entry } from '../types/raw/index.js';
-import type { _AccountSettings, _MutedWord } from '../types/raw/account.js';
-import type { _UserItem } from '../types/raw/items.js';
-import type { _SuspendedUser, _User, _UserV3 } from '../types/raw/user.js';
-
-export const formatUser = (input: _User | _SuspendedUser | _UserV3 | undefined): TimelineUser => {
-    if (!input) {
-        return {
-            __type: 'UnavailableUser',
-            reason: 'not_found'
-        };
+export function user(value: any): User | SuspendedUser | UnavailableUser {
+    if (!value) {
+        return { __type: 'UnavailableUser' };
     }
 
-    // @ts-ignore
-    const user = input && input.core ? normalizeUserV3(input as _UserV3) : input;
+    if (value.__typename === 'User') {
+        const verified = !!value.verification?.verified || !!value.is_blue_verified;
+        const verified_type = value.verification?.verified_type;
 
-    if (user.__typename === 'User') {
         return {
             __type: 'User',
-            id: user.rest_id,
-            affiliatesCount: user.business_account?.affiliates_count,
-            affiliateLabel: user.affiliates_highlighted_label.label && user.affiliates_highlighted_label.label.url?.url ? {
-                title: user.affiliates_highlighted_label.label.description,
-                owner: user.affiliates_highlighted_label.label.url.url.split('.com/')[1],
-                imageUrl: user.affiliates_highlighted_label.label.badge.url
+            id: value.rest_id,
+            affiliates_count: value.business_account?.affiliates_count || 0,
+            affiliate_label: !!value.affiliates_highlighted_label?.label?.badge?.url ? {
+                title: value.affiliates_highlighted_label.label.description,
+                owner: value.affiliates_highlighted_label.label.url.url.split('.com/', 1)[1],
+                image_url: value.affiliates_highlighted_label.label.badge.url
             } : undefined,
-            avatarUrl: user.legacy.profile_image_url_https.replace('normal', '400x400'),
-            bannerUrl: user.legacy.profile_banner_url,
-            birthdate: user.legacy_extended_profile?.birthdate ? {
-                day: user.legacy_extended_profile.birthdate.day,
-                month: user.legacy_extended_profile.birthdate.month,
-                year: user.legacy_extended_profile.birthdate.year
+            avatar_url: value.avatar.image_url.replace('normal', '400x400'),
+            banner_url: value.legacy.profile_banner_url,
+            birthday: value.legacy_extended_profile?.birthdate ? {
+                day: value.legacy_extended_profile.birthdate.day,
+                month: value.legacy_extended_profile.birthdate.month,
+                year: value.legacy_extended_profile.birthdate.year
             } : undefined,
-            blocked: !!user.legacy.blocking,
-            blockedBy: !!user.legacy.blocked_by,
-            canDm: !!user.legacy.can_dm,
-            canMediaTag: !!user.legacy.can_media_tag,
-            createdAt: new Date(user.legacy.created_at).toISOString(),
-            description: user.legacy.description.replace(/\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/, sub => user.legacy.entities.description?.urls?.find(x => x.url === sub)?.expanded_url || sub).replace(/\/$/, '') || undefined,
-            followersCount: user.legacy.followers_count,
-            followingCount: user.legacy.friends_count,
-            followed: !!user.legacy.following,
-            followRequested: user.legacy.protected ? !!user.legacy.follow_request_sent : undefined,
-            followedBy: !!user.legacy.followed_by,
-            job: user.professional?.category.at(0)?.name,
-            location: user.legacy.location || undefined,
-            muted: !!user.legacy.muting,
-            name: user.legacy.name,
-            pinnedTweetId: user.legacy.pinned_tweet_ids_str?.at(0),
-            private: !!user.legacy.protected,
-            translatable: !!user.is_profile_translatable,
-            tweetsCount: user.legacy.statuses_count,
-            mediaCount: user.legacy.media_count,
-            likesCount: user.legacy.favourites_count,
-            listedCount: user.legacy.listed_count,
-            username: user.legacy.screen_name,
-            url: user.legacy.entities?.url?.urls?.at(0)?.expanded_url.replace(/\/$/, ''),
-            verified: user.legacy.verified || user.is_blue_verified || !!user.legacy.verified_type,
-            verificationType: user.legacy.verified_type === 'Government' ? 'government' : user.legacy.verified_type === 'Business' ? 'organization' : user.legacy.verified || user.is_blue_verified ? 'individual' : undefined,
-            wantRetweets: !!user.legacy.want_retweets,
-            wantNotifications: !!user.legacy.notifications
+            blocked: !!value.legacy.blocking,
+            blocked_by: !!value.legacy.blocked_by,
+            can_dm: !!value.dm_permissions.can_dm,
+            can_media_tag: !!value.media_permissions.can_media_tag,
+            can_super_follow: !!value.super_follow_eligible,
+            created_at: new Date(value.core.created_at).toISOString(),
+            description: (value.legacy.description as string).replace(
+                /\bhttps:\/\/t\.co\/[a-zA-Z0-9]+/,
+                sub => value.legacy.entities.description?.urls?.find((x: any) => x.url === sub)?.expanded_url.replace(/\/$/, '') || sub
+            ),
+            followers_count: value.legacy.followers_count,
+            following_count: value.legacy.friends_count,
+            followed: !!value.relationship_perspectives.following,
+            follow_requested: !!value.legacy.follow_request_sent,
+            followed_by: !!value.relationship_perspectives.followed_by,
+            job: value.professional?.category?.at(0)?.name,
+            location: !!value.location.location ? value.location.location : undefined,
+            muted: !!value.relationship_perspectives.muting,
+            name: value.core.name,
+            pinned_tweet_id: value.legacy.pinned_tweet_ids_str.at(0),
+            protected: !!value.privacy.protected,
+            super_following_count: value.creator_subscriptions_count || 0,
+            super_following_hidden: !!value.has_hidden_subscriptions_on_profile,
+            translatable: !!value.is_profile_translatable,
+            tweets_count: value.legacy.statuses_count,
+            media_count: value.legacy.media_count,
+            likes_count: value.legacy.favourites_count,
+            listed_count: value.legacy.listed_count,
+            username: value.core.screen_name,
+            url: value.legacy.entities.url?.urls?.at(0)?.expanded_url?.replace(/\/$/, ''),
+            verified,
+            verification_kind: verified_type === 'Government'
+                ? VerificationKind.Government
+            : verified_type === 'Business'
+                ? VerificationKind.Business
+            : !verified_type && !verified
+                ? VerificationKind.Unverified
+            : verified
+                ? VerificationKind.Blue
+                : VerificationKind.Unverified,
+            want_retweets: !!value.legacy.want_retweets,
+            want_notifications: !!value.legacy.notifications
         };
     }
 
-    return {
-        __type: 'UnavailableUser',
-        reason: user.__typename === 'UserUnavailable' ? 'suspended' : 'not_found'
-    };
-};
+    if (value.__typename === 'UnavailableUser') {
+        return { __type: 'SuspendedUser' };
+    }
 
-export const formatUserLegacy = (input: _User['legacy']): User => {
+    return { __type: 'UnavailableUser' };
+}
+
+export function userLegacy(value: any): User {
     return {
         __type: 'User',
-        id: input.id_str,
-        avatarUrl: input.profile_image_url_https.replace('normal', '400x400'),
-        bannerUrl: input.profile_banner_url,
-        blocked: !!input.blocking,
-        blockedBy: !!input.blocked_by,
-        canDm: !!input.can_dm,
-        canMediaTag: !!input.can_media_tag,
-        createdAt: new Date(input.created_at || 0).toISOString(),
-        description: input.description || undefined,
-        followersCount: input.followers_count,
-        followingCount: input.friends_count,
-        followed: !!input.following,
-        followRequested: input.protected ? !!input.follow_request_sent : undefined,
-        followedBy: !!input.followed_by,
-        location: input.location || undefined,
-        muted: !!input.muting,
-        name: input.name,
-        pinnedTweetId: input.pinned_tweet_ids_str?.at(0),
-        private: input.protected,
+        id: value.id_str,
+        affiliates_count: 0,
+        avatar_url: value.profile_image_url_https.replace('normal', '400x400'),
+        banner_url: value.profile_banner_url || undefined,
+        blocked: !!value.blocking,
+        blocked_by: !!value.blocked_by,
+        can_dm: !!value.can_dm,
+        can_media_tag: !!value.can_media_tag,
+        can_super_follow: false,
+        created_at: new Date(value.created_at).toISOString(),
+        description: value.description || '',
+        followers_count: value.followers_count || 0,
+        following_count: value.friends_count || 0,
+        followed: !!value.following,
+        follow_requested: !!value.follow_request_sent,
+        followed_by: !!value.followed_by,
+        location: value.location || undefined,
+        muted: !!value.muting,
+        name: value.name,
+        protected: !!value.protected,
+        super_following_count: 0,
+        super_following_hidden: false,
         translatable: false,
-        tweetsCount: input.statuses_count,
-        mediaCount: input.media_count,
-        likesCount: input.favourites_count,
-        listedCount: input.listed_count,
-        username: input.screen_name,
-        url: input.entities.url?.urls?.at(0)?.expanded_url || input.url || undefined,
-        verified: input.verified,
-        verificationType: input.verified_type === 'Government' ? 'government' : input.verified_type === 'Business' ? 'organization' : input.verified ? 'individual' : undefined,
-        wantRetweets: !!input.want_retweets,
-        wantNotifications: !!input.notifications
-    };
-};
+        tweets_count: value.statuses_count || 0,
+        media_count: value.media_count || 0,
+        likes_count: value.favorite_count || 0,
+        listed_count: value.listed_count || 0,
+        username: value.screen_name,
+        url: undefined,
+        verified: value.ext_is_blue_verified,
+        verification_kind: VerificationKind.Blue,
+        want_retweets: !!value.want_retweets,
+        want_notifications: !!value.notification
+    }
+}
 
-export const formatUserEntries = (input: _Entry<_UserItem | _Cursor>[]): Entry<TimelineUser>[] => {
-    return input.map(entry => ({
+
+
+export function userEntries(instructions: any): Array<Entry<TimelineUser>> {
+    const value: Array<any> = getEntries(instructions);
+
+    return value.map(entry => ({
         id: entry.entryId,
         content: entry.content.__typename === 'TimelineTimelineCursor'
-            ? formatCursor(entry.content)
-            : formatUser(entry.content.itemContent.user_results.result)
+            ? cursor(entry.content)
+            : user(entry.content.itemContent.user_results?.result)
     }));
-};
-
-
-
-const normalizeUserV3 = (input: _UserV3): _User => {
-    let legacy = {
-        ...input.legacy,
-        can_dm: input.dm_permissions?.can_dm || false,
-        can_media_tag: input.media_permissions?.can_media_tag || false,
-        created_at: input.core.created_at || new Date().toISOString(),
-        followed_by: !!input.relationship_perspective?.followed_by,
-        following: !!input.relationship_perspective?.following,
-        name: input.core.name,
-        screen_name: input.core.screen_name,
-        location: input.location?.location,
-        profile_image_url_https: input.avatar.image_url,
-        protected: input.privacy.protected,
-        verified: input.verification.verified,
-        verified_type: input.verification.verified_type
-    } satisfies _User['legacy'];
-
-    return { ...input, legacy: legacy };
-};
-
-
-
-export const formatSettings = (input: _AccountSettings): Settings => {
-    return {
-        country: {
-            code: input.country_code,
-            euMember: (input.settings_metadata?.is_eu || false).toString() === 'true'
-        },
-        inbox: {
-            allowIncomingMessages: input.allow_dms_from !== 'following',
-            allowIncomingMessagesFromVerifiedOnly: input.allow_dms_from === 'verified',
-            readReceipts: input.dm_receipt_setting === 'all_enabled',
-            qualityFilter: input.dm_quality_filter === 'enabled'
-        },
-        mentionFilter: input.mention_filter !== 'unfiltered',
-        lang: input.language,
-        username: input.screen_name,
-        warnings: {
-            personalizedAdsEnabled: input.allow_ads_personalization || false,
-            dataSellingEnabled: input.allow_sharing_data_for_third_party_personalization || false,
-            discoverableByEmail: input.discoverable_by_email || false,
-            discoverableByPhoneNumber: input.discoverable_by_mobile_phone || false
-        }
-    };
-};
-
-export const formatMutedWord = (input: _MutedWord): MutedWord => {
-    return {
-        id: input.id,
-        createdAt: new Date(input.created_at).toISOString(),
-        expires: input.valid_until ? new Date(input.valid_until).toISOString() : undefined,
-        includes: {
-            following: !input.mute_options.includes('exclude_following_accounts'),
-            timeline: input.mute_surfaces.includes('home_timeline'),
-            replies: input.mute_surfaces.includes('tweet_replies'),
-            notifications: input.mute_surfaces.includes('notifications')
-        },
-        value: input.keyword
-    };
-};
+}

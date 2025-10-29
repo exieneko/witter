@@ -1,50 +1,43 @@
-import { formatUser } from './user.js';
+import { CommunityRole, type Community, type User, type UnavailableCommunity } from '../types/index.js';
+import { user } from './user.js';
 
-import type { Community, Entry, TimelineUser, User } from '../types/index.js';
-import type { _Community } from '../types/raw/community.js';
-import { _Entry } from '../types/raw/index.js';
-import { _UserV3 } from '../types/raw/user.js';
+export function community(value: any): Community | UnavailableCommunity {
+    if (!value || value.__typename === 'CommunityUnavailable') {
+        return { __type: 'UnavailableCommunity' };
+    }
 
-export const formatCommunity = (input: _Community): Community => {
     return {
         __type: 'Community',
-        id: input.rest_id || input.id_str || '1',
-        createdAt: new Date(input.created_at).toISOString(),
-        creatorUsername: input.creator_results?.result?.legacy?.screen_name,
-        description: input.description || undefined,
-        highlightedAvatarUsers: input.members_facepile_results.map(user => formatUser(user.result) as User),
-        joinable: input.join_policy === 'Open',
-        member: input.role !== 'NonMember',
-        membersCount: input.member_count,
-        moderator: input.role === 'Moderator',
-        moderatorsCount: input.moderator_count,
-        name: input.name,
-        nsfw: !!input.is_nsfw,
-        pinned: !!input.is_pinned,
-        rules: input.rules.map(rule => ({
+        id: value.id_str,
+        banner_url: value.custom_banner_media?.media_info?.original_img_url,
+        can_join: value.join_policy === 'Open',
+        can_invite: value.invites_policy === 'MemberInvitesAllowed' && !value.invites_result?.__typename.includes('Unavailable'),
+        created_at: new Date(value.created_at).toISOString(),
+        creator: user(value.creator_results?.result) as User,
+        description: value.description || '',
+        member: !!value.is_member,
+        members_count: value.member_count || 0,
+        moderators_count: value.moderator_count || 0,
+        name: value.name,
+        nsfw: !!value.is_nsfw,
+        pinned: !!value.is_pinned,
+        role: (() => {
+            switch (value.role) {
+                case 'NonMember':
+                    return CommunityRole.Guest;
+                case 'Member':
+                    return CommunityRole.Member;
+                case 'Moderator':
+                    return CommunityRole.Moderator;
+                default:
+                    return CommunityRole.Owner;
+            }
+        })(),
+        rules: value.rules?.map((rule: any) => ({
             id: rule.rest_id,
             description: rule.description,
             name: rule.name
-        }))
+        })),
+        topic: value.primary_community_topic?.topic_name
     };
-};
-
-export const formatCommunityMembers = (input: _UserV3[], nextCursor?: string): Entry<TimelineUser>[] => {
-    const result: Entry<TimelineUser>[] = input.map(user => ({
-        id: `user-${user.rest_id}`,
-        content: formatUser(user)
-    }));
-
-    if (nextCursor) {
-        result.push({
-            id: `cursor-bottom-${input.at(-1)?.rest_id || Math.random()}`,
-            content: {
-                __type: 'Cursor',
-                direction: 'bottom',
-                value: nextCursor
-            }
-        });
-    }
-
-    return result;
-};
+}

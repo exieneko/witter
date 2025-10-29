@@ -1,122 +1,74 @@
-import { formatTweet } from './index.js';
+import type { BirdwatchNote, BirdwatchNotesOnTweet, BirdwatchUser } from '../types/birdwatch.js';
+import { BirdwatchTweetMisleadingTag as MisleadingTag, BirdwatchTweetNotMisleadingTag as NotMisleadingTag, BirdwatchNoteStatus, BirdwatchHelpfulTag as HelpfulTag, BirdwatchUnhelpfulTag as UnhelpfulTag } from '../types/birdwatch.js';
 
-import type { BirdwatchAuthenticatedUser, BirdwatchContributor, BirdwatchNote, BirdwatchTweet, Entry, Segment, TimelineTweet, Tweet } from '../types/index.js';
-import type { _Entry, SegmentedTimelines } from '../types/raw/index.js';
-import type { _BirdwatchAuthenticatedUser, _BirdwatchContributor, _BirdwatchNote, _BirdwatchTweet } from '../types/raw/birdwatch.js';
-import type { _TweetConversationItem } from '../types/raw/items.js';
-import type { _Tweet } from '../types/raw/tweet.js';
-
-export const formatBirdwatchContributor = (input: _BirdwatchContributor): BirdwatchContributor => {
+export function birdwatchUser(value: any, is_ai?: boolean): BirdwatchUser {
     return {
-        __type: 'BirdwatchContributor',
-        alias: input.alias,
-        deletedNotesCount: input.deleted_notes_count,
-        hasNotes: input.has_notes,
+        alias: value.alias,
+        is_ai: !!is_ai || !!value.is_api_contributor,
         ratings: {
-            totalCount: input.ratings_count.awaiting_more_ratings + input.ratings_count.successful.total + input.ratings_count.unsuccessful.total,
-            lastUpdatedAt: new Date(input.ratings_count.last_updated_at).toISOString(),
-            awaitingMoreRatingsCount: input.ratings_count.awaiting_more_ratings,
             successful: {
-                helpfulCount: input.ratings_count.successful.helpful_count,
-                notHelpfulCount: input.ratings_count.successful.not_helpful_count,
-                totalCount: input.ratings_count.successful.total
+                helpful_count: value.ratings_count?.successful?.helpful_count || 0,
+                unhelpful_count: value.ratings_count?.successful?.not_helpful_count || 0
             },
             unsuccessful: {
-                helpfulCount: input.ratings_count.unsuccessful.helpful_count,
-                notHelpfulCount: input.ratings_count.unsuccessful.not_helpful_count,
-                totalCount: input.ratings_count.unsuccessful.total
-            }
+                helpful_count: value.ratings_count?.unsuccessful?.helpful_count || 0,
+                unhelpful_count: value.ratings_count?.unsuccessful?.not_helpful_count || 0
+            },
+            pending_count: value.ratings_count?.awaiting_more_ratings || 0,
+            updated_at: new Date(value.ratings_count?.last_updated_at).toISOString()
         },
         notes: {
-            lastUpdatedAt: new Date(input.notes_count.last_updated_at).toISOString(),
-            awaitingCount: input.notes_count.awaiting_more_ratings,
-            helpfulCount: input.notes_count.currently_rated_helpful,
-            notHelpfulCount: input.notes_count.currently_rated_not_helpful
+            helpful_count: value.notes_count?.currently_rated_helpful || 0,
+            unhelpful_count: value.notes_count?.currently_rated_not_helpful || 0,
+            pending_count: value.notes_count?.awaiting_more_ratings,
+            updated_at: new Date(value.notes_count?.last_updated_at).toISOString()
         }
     };
-};
+}
 
-export const formatBirdwatchAuthenticatedUser = (input: _BirdwatchAuthenticatedUser): BirdwatchAuthenticatedUser => {
-    return {
-        __type: 'BirdwatchUser',
-        alias: input.alias,
-        canWriteNotes: input.can_write_notes,
-        enrollment: {
-            hasEarnedIn: input.user_enrollment.enrollment_state === 'EarnedIn',
-            lastUpdatedAt: new Date(input.user_enrollment.timestamp_of_last_state_change).toISOString(),
-            requiredRating: input.user_enrollment.successful_rating_needed_to_earn_in || 0
-        },
-        notificationFrequency: input.notification_settings.needs_your_help_frequency === 'All' ? 'daily' : input.notification_settings.needs_your_help_frequency === 'Week' ? 'weekly' : input.notification_settings.needs_your_help_frequency === 'Month' ? 'monthly' : 'never'
-    }
-};
 
-export const formatBirdwatchNote = (input: _BirdwatchNote): BirdwatchNote => {
+
+export function birdwatchNote(value: any): BirdwatchNote {
     return {
         __type: 'BirdwatchNote',
-        id: input.rest_id,
-        author: formatBirdwatchContributor(input.birdwatch_profile),
-        createdAt: new Date(input.created_at).toISOString(),
-        hasTrustworthySources: !!input.data_v1.trustworthy_sources,
-        lang: input.language ?? 'zxx',
-        rating: input.rating ? {
-            __type: input.rating.data_v2.helpfulness_level,
-            helpful_tags: input.rating.data_v2.helpful_tags || [],
-            not_helpful_tags: input.rating.data_v2.not_helpful_tags || []
-        } : undefined,
-        similarTweetsCount: input.media_note_matches_v2?.match_count || 0,
-        showOnSimilarTweets: !!input.media_note_matches_v2?.shoud_show_matches,
-        status: input.rating_status,
+        id: value.rest_id,
+        ai_generated: !!value.is_api_author,
+        author: birdwatchUser(value.birdwatch_profile, !!value.is_api_author),
+        by_media: !!value.is_media_note,
+        by_url: !!value.is_url_note,
+        created_at: new Date(value.created_at).toISOString(),
+        has_trustworthy_sources: !!value.data_v1.trustworthy_sources,
+        lang: value.language || 'en',
+        media_matches_count: value.media_note_matches_v2?.match_count || Number(value.media_note_matches) || 0,
+        status: value.rating_status === 'CurrentlyRatedHelpful'
+            ? BirdwatchNoteStatus.Helpful
+        : value.rating_status === 'CurrentlyRatedNotHelpful'
+            ? BirdwatchNoteStatus.Unhelpful
+            : BirdwatchNoteStatus.Unrated,
         tags: {
-            helpful: input.helpful_tags,
-            notHelpful: input.not_helpful_tags,
+            ...(value.classification !== 'NotMisleading' ? {
+                __type: 'MisleadingTweet',
+                tweet_misleading_tags: (value.data_v1.misleading_tags || [])
+                    .map((s: string) => s in MisleadingTag ? MisleadingTag[s as keyof typeof MisleadingTag] : MisleadingTag.Other)
+            } : {
+                __type: 'NoNoteNeeded',
+                tweet_not_misleading_tags: (value.data_v1.not_misleading_tags || [])
+                    .map((s: string) => s in NotMisleadingTag ? NotMisleadingTag[s as keyof typeof NotMisleadingTag] : NotMisleadingTag.Other)
+            }),
+            note_helpful_tags: (value.helpful_tags || [])
+                .map((s: string) => s in HelpfulTag ? HelpfulTag[s as keyof typeof HelpfulTag] : HelpfulTag.Other),
+            note_unhelpful_tags: (value.not_helpful_tags || [])
+                .map((s: string) => s in UnhelpfulTag ? UnhelpfulTag[s as keyof typeof UnhelpfulTag] : UnhelpfulTag.Other)
         },
-        text: input.data_v1.summary.text,
-        tweet: !!input.tweet_results.result?.__typename ? formatTweet(input.tweet_results.result) as Tweet : undefined,
-        tweetId: input.tweet_results.result?.rest_id,
-        viewsCount: input.impression_count
+        text: value.data_v1.summary?.text,
+        tweet_id: value.tweet_results?.result?.rest_id!
     };
-};
+}
 
-export const formatBirdwatchTweet = (input: _BirdwatchTweet): BirdwatchTweet => {
+export function birdwatchTweet(value: any): BirdwatchNotesOnTweet {
     return {
-        // @ts-ignore
-        noteNeeded: input.misleading_birdwatch_notes.notes.map(note => ({
-            ...formatBirdwatchNote(note),
-            ...{
-                tweetTags: {
-                    classification: note.data_v1.classification,
-                    misleading: note.data_v1.misleading_tags || []
-                }
-            }
-        })),
-        // @ts-ignore
-        noteNotNeeded: input.not_misleading_birdwatch_notes.notes.map(note => ({
-            ...formatBirdwatchNote(note),
-            ...{
-                tweetTags: {
-                    classification: note.data_v1.classification,
-                    misleading: note.data_v1.not_misleading_tags || []
-                }
-            }
-        })),
-        canWriteNotes: !!input.can_user_write_notes_on_post_author
-    };
-};
-
-export const formatBirdwatchTimeline = (input: _Entry<_TweetConversationItem>[], segments: SegmentedTimelines['timelines']): Entry<TimelineTweet | Segment>[] => {
-    return [
-        ...segments.map((segment, index) => ({
-            id: `segment-${index}`,
-            content: {
-                __type: 'Segment',
-                id: segment.timeline.id,
-                name: segment.id
-            } satisfies Segment
-        })),
-        ...input.map(entry => entry.content.__typename === 'TimelineTimelineModule' && (entry.content.items || []).at(0)?.item.itemContent.__typename === 'TimelineTweet' ? {
-            id: entry.entryId,
-            // @ts-ignore
-            content: formatTweet(entry.content.items.at(0)?.item.itemContent.tweet_results.result as _Tweet)
-        } : null).filter(x => !!x)
-    ];
-};
+        can_write_note: !!value.can_user_write_notes_on_post_author,
+        pending_notes: (value.misleading_birdwatch_notes?.notes || []).map(birdwatchNote),
+        not_needed_notes: (value.not_misleading_birdwatch_notes?.notes || []).map(birdwatchNote)
+    }
+}

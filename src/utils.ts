@@ -1,30 +1,19 @@
 import { HEADERS, OAUTH_KEY, PUBLIC_TOKEN } from './consts.js';
+import { Flags } from './flags.js';
 
 export interface Tokens {
     authToken: string,
-    authMulti?: string,
     csrf: string
 }
 
-export type Endpoint = GqlEndpoint | V11Endpoint;
-
-export interface GqlEndpoint<Params extends object = {}, Variables extends object = {}, Features extends object = {}, RawData extends object = any, Data extends object = any> {
-    url: [string, string],
-    method: 'get' | 'post',
-    params?: Params,
-    variables?: Variables,
-    features?: Features,
-    useOauthKey?: boolean,
-    parser: (data: RawData) => Data
-}
-
-export interface V11Endpoint<Params extends object = {}, Body extends string = any, RawData extends object = any, Data extends object = any> {
+export interface Endpoint<P extends object = {}, V extends object = {}, R extends object = any, T extends object = any> {
     url: string,
     method: 'get' | 'post',
-    params?: Params,
-    body?: Body,
+    params?: P,
+    variables?: V,
+    features?: Flags,
     useOauthKey?: boolean,
-    parser: (data: RawData) => Data
+    parser: (data: R) => T
 }
 
 type OptionalUndefined<T extends object | undefined> = {
@@ -37,16 +26,20 @@ export type Params<T extends { params?: object }> = OptionalUndefined<T['params'
 
 
 
-export const v11 = (route: string) => {
+export function v11(route: string) {
     return `https://api.twitter.com/1.1/${route}`;
 };
 
-const getHeadersFromTokens = (tokens: Tokens) => ({
+export function gql(route: string) {
+    return `https://twitter.com/i/api/graphql/${route}`;
+}
+
+const tokenHeaders = (tokens: Tokens) => ({
     'x-csrf-token': tokens.csrf,
-    cookie: tokens.authMulti ? `auth_token=${tokens.authToken}; auth_multi="${tokens.authMulti}"; ct0=${tokens.csrf}` : `auth_token=${tokens.authToken}; ct0=${tokens.csrf}`
+    cookie: `auth_token=${tokens.authToken}; ct0=${tokens.csrf}`
 });
 
-const requestGql = async <T extends GqlEndpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
+async function requestGql<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
     const toSearchParams = (obj: object) => {
         if (!obj || Object.entries(obj).every(([, value]) => value === undefined)) {
             return '';
@@ -58,9 +51,9 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, tokens: Tokens, pa
             .join('&');
     };
 
-    const url = `https://twitter.com/i/api/graphql/${endpoint.url.join('/')}`;
+    const url = gql(endpoint.url);
 
-    const headers = { ...HEADERS, authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, ...getHeadersFromTokens(tokens) };
+    const headers = { ...HEADERS, authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, ...tokenHeaders(tokens) };
 
     const response = await (endpoint.method === 'get'
         ? fetch(url + toSearchParams({ variables: { ...endpoint.variables, ...params }, features: endpoint.features }), {
@@ -73,7 +66,7 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, tokens: Tokens, pa
             body: JSON.stringify({
                 variables: { ...endpoint.variables, ...params },
                 features: endpoint.features,
-                queryId: endpoint.url[0]
+                queryId: endpoint.url.split('/', 1)[0]
             })
         })
     );
@@ -83,25 +76,22 @@ const requestGql = async <T extends GqlEndpoint>(endpoint: T, tokens: Tokens, pa
     return endpoint.parser(data);
 };
 
-const requestV11 = async <T extends V11Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
-    const encode = (data: string | undefined, params?: Params<T>) => {
-        return Object
-            .entries(params || {})
-            .reduce((acc, [key, value]) => acc.replace(new RegExp(`${key}=\\{\\}`), `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`), data || '')
-            .replace(/([a-z0-9_]+?)=\{\}/gi, '')
-            .replace(/&{2,12}/g, '&')
-            .replace(/^&+/, '')
-            .replace(/&+$/, '');
+async function requestV11<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
+    const body = Object.entries({ ...(endpoint.variables || {}), ...(params || {}) })
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+        .join('&');
+
+    const headers = {
+        ...HEADERS,
+        authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN,
+        'content-type': 'application/x-www-form-urlencoded',
+        ...tokenHeaders(tokens)
     };
 
-    const urlencoded = encode(endpoint.body, params);
-
-    const headers = { ...HEADERS, authorization: endpoint.useOauthKey ? OAUTH_KEY : PUBLIC_TOKEN, 'content-type': 'application/x-www-form-urlencoded', ...getHeadersFromTokens(tokens) };
-
-    const response = await fetch(endpoint.method === 'get' ? `${endpoint.url}?${urlencoded}` : endpoint.url, {
+    const response = await fetch(endpoint.method === 'get' && body ? `${endpoint.url}?${body}` : endpoint.url, {
         method: endpoint.method,
         headers: headers,
-        body: endpoint.method === 'post' && endpoint.body ? urlencoded : undefined
+        body: endpoint.method === 'post' && body ? body : undefined
     });
 
     const data = <Parameters<Endpoint['parser']>[0]>await response.json();
@@ -109,10 +99,10 @@ const requestV11 = async <T extends V11Endpoint>(endpoint: T, tokens: Tokens, pa
     return endpoint.parser(data);
 };
 
-export const request = <T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> => {
-    if (typeof endpoint.url === 'string') {
-        return requestV11(endpoint as V11Endpoint, tokens, params);
+export async function request<T extends Endpoint>(endpoint: T, tokens: Tokens, params?: Params<T>): Promise<ReturnType<T['parser']>> {
+    if (endpoint.url.startsWith('https://api.twitter.com')) {
+        return requestV11(endpoint, tokens, params);
     }
-
-    return requestGql(endpoint as GqlEndpoint, tokens, params);
+    
+    return requestGql(endpoint, tokens, params);
 };

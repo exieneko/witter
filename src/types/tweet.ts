@@ -1,171 +1,187 @@
-import type { Cursor } from './index.js';
-import type { Community } from './community.js';
-import type { User } from './user.js';
-import { _LimitedActionType } from './raw/tweet.js';
+import type { Cursor, User } from './index.js';
 
-interface PollOption {
-    label: string,
-    count: number
-}
-
-export interface TweetCard {
-    id: string,
-    audiospace?: {
-        id: string,
-        cardUrl: string,
-        narrowCastSpaceType: string
-    },
-    poll?: {
-        cardUrl: string,
-        /** duration in ms */
-        duration: number,
-        endsAt: string,
-        ended: boolean,
-        options: [PollOption, PollOption, PollOption?, PollOption?]
-        selectedIndex?: number
-    },
-    embed?: {
-        title: string,
-        description?: string,
-        domain: string,
-        imageUrl?: string,
-        users: User[]
-    }
-}
-
-export interface TweetImage {
-    __type: 'MediaPhoto',
-    id: string,
-    alt_text?: string,
-    available: boolean,
-    url: string
-}
-
-export interface TweetGif {
-    __type: 'MediaGif',
-    id: string,
-    alt_text?: string,
-    available: boolean,
-    url: string,
-    video: {
-        aspectRatio: [number, number],
-        variants: {
-            bitrate: number,
-            contentType: string,
-            url: string
-        }[]
-    }
-}
-
-export interface TweetVideo {
-    __type: 'MediaVideo'
-    id: string,
-    available: boolean,
-    url: string,
-    video: {
-        aspectRatio: [number, number],
-        variants: {
-            bitrate: number,
-            contentType: string,
-            url: string
-        }[]
-    }
-}
-
-export type TweetMedia = TweetImage | TweetGif | TweetVideo;
-
+/**
+ * Represents a single tweet
+ */
 export interface Tweet {
     __type: 'Tweet',
     id: string,
     author: User,
-    birdwatchNote?: {
+    /** Birdwatch note on this tweet, if it exists */
+    birdwatch_note?: {
         id: string,
+        /**
+         * The full text of the note\
+         * Any `t.co` urls can't be converted to the actual url they redirect to unless the note is fetched by its id
+         */
         text: string,
         lang: string,
         translatable: boolean,
+        /** Whether or not this note is publicly displayed on the tweet. It can only be `false` if you are a Birdwatch contributor */
         public: boolean
     },
-    bookmarksCount: number,
+    /** Whether or not you bookmarked the tweet */
     bookmarked: boolean,
-    card?: TweetCard,
-    community?: Community,
-    createdAt: string,
-    editing?: {
+    /** Amount of users that bookmarked the tweet */
+    bookmarks_count: number,
+    // card: {},
+    // community: {},
+    /** The tweet's creation datetime as an ISO string */
+    created_at: string,
+    editing: {
         allowed: boolean,
-        allowedUntil: string,
-        remainingCount: number,
-        tweetIds: string[]
+        allowed_until: string,
+        remaining_count: number,
+        tweet_ids: Array<string>
     },
+    /** Whether or not if the tweet is so long that the full text is not displayed normally. `this.text` will still contain all text */
     expandable: boolean,
-    hasBirdwatchNote: boolean,
-    hasGrokChatEmbed: boolean,
-    hasHiddenReplies: boolean,
-    hasQuotedTweet: boolean,
+    /** Whether or not any media in the tweet is labelled as ai generated */
+    has_ai_generated_image: boolean,
+    /** Whether or not the tweet has an active or pending Birdwatch note */
+    has_birdwatch_note: boolean,
+    /** Whether or not the tweet has a preview of a chat with Grok */
+    has_grok_chat_embed: boolean,
+    /** Whether or not the hidden replies badge should be displayed on a tweet. A tweet may have hidden replies even if this is `false` because Twitter is dumb */
+    has_hidden_replies: boolean,
+    /** Whether or not the tweet is quoting another tweet */
+    has_quoted_tweet: boolean,
     lang: string,
-    likesCount: number,
+    /** Whether or not you liked the tweet */
     liked: boolean,
-    limited?: {
-        allowedActions: {
-            reply: boolean,
-            retweet: boolean,
-            quoteTweet: boolean,
-            like: boolean,
-            bookmark: boolean,
-            vote: boolean
-        },
-        mediaLimitedReason?: 'nsfw_unverified' /* europe only */ | 'nsfw' | 'violence',
-        type: 'hate_limited' | 'severe_hate_limited' | 'age_restriction_limited' /* europe only */ | 'blocked_by_author'
-    },
-    media: TweetMedia[],
-    muted: boolean,
-    pinned: boolean,
-    platform?: string,
-    quoteTweetsCount: number,
-    quotedTweet?: Tweet | TweetTombstone,
-    quotedTweetId?: string,
-    repliesCount: number,
-    replyingTo?: {
-        tweetId: string,
-        username: string
-    },
-    retweetsCount: number,
+    /** Amount of users that liked the tweet */
+    likes_count: number,
+    media: Array<TweetMedia>,
+    /** The platform the tweet has posted from */
+    platform: TweetPlatform,
+    /** Amount of users that are quote tweeting the tweet */
+    quote_tweets_count: number,
+    /**
+     * The quoted tweet, if it exists
+     * 
+     * May be undefined even if `this.has_quoted_tweet && this.quoted_tweet_id !== undefined`, to avoid infinite recursion\
+     * Also, on rare occasions where the author of the quoted tweet has blocked the author of this tweet,
+     * this property may be `undefined` even though `this.quoted_tweet_id` will still show the id of the quoted tweet, but it must be fetched again
+     */
+    quoted_tweet?: Tweet,
+    /** Id of the quoted tweet, if it exists */
+    quoted_tweet_id?: string,
+    /** Amount of users that replied to the tweet */
+    replies_count: number,
+    /** The \@username of the user the tweet is in reply to */
+    replying_to_username?: string,
+    /** Whether or not you retweeted the tweet */
     retweeted: boolean,
+    /** Amount of users that retweeted the tweet */
+    retweets_count: number,
     text: string,
-    /** `[start_index, end_index]` */
-    textHighlights: [number, number][],
-    translatable: boolean
-    userMentions: {
-        id: string,
-        name: string,
-        username: string
-    }[]
-    viewsCount?: number
+    translatable: boolean,
+    /** Amount of views the tweet has. May be `undefined` if the tweet predates view tracking */
+    views_count?: number
 }
 
+export enum TweetPlatform {
+    Web = 'Web',
+    Android = 'Android',
+    IPhone = 'IPhone',
+    IPad = 'IPad',
+    Other = 'Other'
+}
+
+
+
+export interface TweetImage {
+    __type: 'Image',
+    id: string,
+    /** Whether or not the media has an AI-generated note on it */
+    ai_generated: boolean,
+    /** Alt text set on the media by the author of the tweet */
+    alt_text?: string,
+    /** Whether or not the media is available to view. May be `false` if the media has been deleted or copyright claimed */
+    available: boolean,
+    /** Original width and height of the media */
+    size: {
+        width: number,
+        height: number
+    },
+    /** Url of the image, or shorthand for the highest quality video variant */
+    url: string
+}
+
+export interface TweetVideo extends Omit<TweetImage, '__type'> {
+    __type: 'Video',
+    aspect_ratio: [number, number],
+    /** Duration in milliseconds, may be `0` on gifs */
+    duration: number,
+    /** Url for the video's thumbnail */
+    thumbnail_url: string,
+    /** Variants for all video's qualities, from lowest to highest */
+    variants: Array<{
+        bitrate?: number,
+        content_type: string,
+        url: string
+    }>
+}
+
+export interface TweetGif extends Omit<TweetVideo, '__type'> {
+    __type: 'Gif'
+}
+
+/** Union type of tweet media kinds */
+export type TweetMedia = TweetImage | TweetGif | TweetVideo;
+
+
+
+/**
+ * Represents a retweet in a timeline that points to another tweet
+ */
 export interface Retweet {
     __type: 'Retweet',
     id: string,
-    retweeter: User,
-    retweetedTweet: Tweet
+    tweet: Tweet,
+    user: User
 }
 
-export interface TweetConversation {
+
+
+/**
+ * Represents a conversation that can contain multiple tweets
+ */
+export interface Conversation {
     __type: 'Conversation',
-    items: (Tweet | TweetTombstone | Cursor)[]
+    items: Array<Tweet | TweetTombstone | Cursor>
 }
 
-export type TweetTombstoneReason = 'deleted' | 'rules_violated' | 'private_account' | 'suspended_account' | 'deleted_account' | 'withheld' | 'unavailable';
 
+
+/**
+ * Represents a deleted or unavailable tweet
+ */
 export interface TweetTombstone {
     __type: 'TweetTombstone',
-    reason: TweetTombstoneReason
+    /** Reason for the tweet's unavailability */
+    reason: TweetUnavailableReason
 }
 
-
-
-export type TimelineTweet = Tweet | Retweet | TweetConversation | TweetTombstone | Cursor;
-
-export interface TweetList {
-    __type: 'TweetList',
-    items: Tweet[]
+export enum TweetUnavailableReason {
+    /** Age verification is required to view this tweet, as it may be sensitive. Unlike blurred media marked sensitive, this is server-side and depends on your IP address */
+    AgeVerificationRequired = 'AgeVerificationRequired',
+    /** The author has protected their tweets and you don't follow them */
+    AuthorProtected = 'AuthorProtected',
+    /** The author has been suspended */
+    AuthorSuspended = 'AuthorSuspended',
+    /** The author is unavailable, likely because they deactivated */
+    AuthorUnavailable = 'AuthorUnavailable',
+    /** Tweet deleted by the author */
+    Deleted = 'Deleted',
+    /** Tweet violated the Twitter rules and was removed */
+    ViolatedRules = 'ViolatedRules',
+    /** Tweet withheld in your country (dependent on IP address) or all countries */
+    Withheld = 'Withheld',
+    Unavailable = 'Unavailable'
 }
+
+/**
+ * Union type representing all tweet types that can be present in a timeline
+ */
+export type TimelineTweet = Tweet | Retweet | Conversation | TweetTombstone | Cursor;

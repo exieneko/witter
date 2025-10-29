@@ -1,43 +1,31 @@
-import type { Cursor } from '../types/index.js';
-import type { _Cursor } from '../types/raw/index.js';
+import { Cursor, CursorDirection } from '../types/index.js';
 
+export * from './account.js';
 export * from './birdwatch.js';
 export * from './community.js';
-export * from './explore.js';
-export * from './generic.js';
-export * from './search.js';
 export * from './list.js';
 export * from './notifications.js';
+export * from './search.js';
 export * from './tweet.js';
 export * from './user.js';
 
-export const formatCursor = (input: _Cursor): Cursor => {
+export function cursor(value: any): Cursor {
     return {
         __type: 'Cursor',
-        direction: input.cursorType === 'Top'
-            ? 'top'
-        : input.cursorType === 'ShowMore'
-            ? 'show_more'
-        : input.cursorType === 'ShowMoreThreads'
-            ? 'show_spam'
-            : 'bottom',
-        value: input.value
+        direction: value.cursorType in CursorDirection
+            ? CursorDirection[value.cursorType as keyof typeof CursorDirection]
+            : CursorDirection.ShowSpam,
+        value: value.value
     };
-};
+}
 
-export const entries = <T>(instructions: { type?: string, entries?: T[] }[]): T[] => {
+export function getEntries<T>(instructions: Array<{ type?: string, entries?: Array<T> }>): Array<T> {
     const pin = instructions.find(instruction => instruction.type === 'TimelinePinEntry') as { type: 'TimelinePinEntry', entry: T } | undefined;
     const entries = instructions.find(instruction => instruction.type === 'TimelineAddEntries')?.entries || [];
 
     if (pin) {
-        // @ts-ignore
-        if (pin.entry.entryId && typeof pin.entry.entryId === 'string') {
-            // @ts-ignore
-            pin.entry.entryId += '-pin';
-        }
-
         return [pin.entry, ...entries];
     }
 
     return entries;
-};
+}

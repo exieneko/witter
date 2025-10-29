@@ -1,6 +1,9 @@
+/**
+ * Represents live search results
+ */
 export interface Typeahead {
-    resultsCount: number,
-    topics: string[],
-    users: string[],
+    results_count: number,
+    topics: Array<string>,
+    user_ids: Array<string>,
     query: string
 }

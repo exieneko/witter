@@ -16,7 +16,7 @@ a basic twitter api client for javascript & typescript because i love reinventin
         csrf: 'ct0 cookie value'
     });
 
-    const me = await twitter.getUser('exieneko', { byUsername: true });
+    const me = await twitter.user.get('exieneko', { byUsername: true });
     ```
 
 ## example
@@ -56,9 +56,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 ```ts
 // src/routes/something/+server.ts
 import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals, params }) => {
-    const data = await locals.twitter.getUser('exieneko', { byUsername: true });
+export const GET: RequestHandler = async ({ locals }) => {
+    const data = await locals.twitter.user.get('exieneko', { byUsername: true });
     return json(data);
+};
+```
+
+## types
+
+twitter's response json data is hard to parse and deeply nested, making it hard to navigate
+
+for easier use, a formatter will parse the data and return a custom object that is easier to work with.
+you can import both the types and the formatter functions
+
+```ts
+import type { User } from 'witter/types';
+
+const customUser: User = {
+    __type: 'User',
+    // ...
+    username: 'random_twitter_user'
 };
 ```

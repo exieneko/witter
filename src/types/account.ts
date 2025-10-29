@@ -1,34 +1,22 @@
 export interface Settings {
-    country: {
-        code: string,
-        euMember: boolean
-    },
-    inbox: {
-        allowIncomingMessages: boolean,
-        allowIncomingMessagesFromVerifiedOnly?: boolean,
-        readReceipts: boolean,
-        qualityFilter: boolean
-    },
-    mentionFilter: boolean,
+    allow_personalized_ads: boolean,
+    allow_cookies: boolean,
+    allow_selling_your_information: boolean,
+    allow_location_history: boolean,
+    autoplay: boolean,
+    country: string,
+    display_sensitive_media: boolean,
+    dm_allowed_from: 'all' | 'verified' | 'following',
+    dm_groups_allowed_from: 'all' | 'following',
+    dm_receipts: boolean,
+    dm_quality_filter: boolean,
+    eu: boolean,
+    is_email_public: boolean,
+    is_phone_number_public: boolean,
     lang: string,
-    username: string,
-    warnings: {
-        personalizedAdsEnabled: boolean,
-        dataSellingEnabled: boolean,
-        discoverableByEmail: boolean,
-        discoverableByPhoneNumber: boolean
-    }
-}
-
-export interface MutedWord {
-    id: string,
-    createdAt: string,
-    expires?: string,
-    includes: {
-        following: boolean,
-        timeline: boolean,
-        replies: boolean,
-        notifications: boolean
-    },
-    value: string
+    nsfw: boolean,
+    personalized_trends: boolean,
+    protected: boolean,
+    show_current_audiospace_publicly: boolean,
+    username: string
 }
