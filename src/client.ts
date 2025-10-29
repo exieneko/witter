@@ -9,6 +9,13 @@ interface AccountMethods {
     verifyCredentials(): Promise<T.User>
 }
 
+interface BirdwatchMethods {
+    notesOnTweet(tweetId: string): Promise<T.BirdwatchNotesOnTweet>,
+    user(alias: string): Promise<T.BirdwatchUser>,
+    rateNote(noteId: string, args: T.BirdwatchRateNoteArgs): Promise<boolean>,
+    unrateNote(noteId: string): Promise<boolean>,
+}
+
 interface BookmarkMethods {
     get(args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
     search(query: string, args?: T.CursorOnly): Promise<Array<T.Entry<T.TimelineTweet>>>,
@@ -120,6 +127,7 @@ interface Toggle {
 
 export class TwitterClient {
     public account: AccountMethods;
+    public birdwatch: BirdwatchMethods;
     public bookmarks: BookmarkMethods;
     public community: CommunityMethods;
     public lists: ListMethods;
@@ -163,6 +171,31 @@ export class TwitterClient {
             },
             async verifyCredentials() {
                 return await request(ENDPOINTS.account_verify_credentials, tokens);
+            },
+        };
+
+        this.birdwatch = {
+            async notesOnTweet(id) {
+                return await request(ENDPOINTS.BirdwatchFetchNotes, tokens, { tweet_id: id });
+            },
+            async user(alias) {
+                return await request(ENDPOINTS.BirdwatchFetchBirdwatchProfile, tokens, { alias });
+            },
+            async rateNote(noteId, args) {
+                return await request(ENDPOINTS.BirdwatchCreateRating, tokens, {
+                    data_v2: {
+                        helpfulness_level: args.helpful_tags?.length && args.unhelpful_tags?.length ? 'SomewhatHelpful' : args.unhelpful_tags?.length ? 'NotHelpful' : 'Helpful',
+                        helpful_tags: args.helpful_tags,
+                        not_helpful_tags: args.unhelpful_tags
+                    },
+                    note_id: noteId,
+                    rating_source: 'BirdwatchHomeNeedsYourHelp',
+                    source_platform: 'BirdwatchWeb',
+                    tweet_id: args.tweetId
+                });
+            },
+            async unrateNote(noteId) {
+                return await request(ENDPOINTS.BirdwatchDeleteRating, tokens, { note_id: noteId });
             },
         };
 

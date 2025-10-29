@@ -1,6 +1,6 @@
 import * as flags from './flags.js';
 import * as format from './formatter/index.js';
-import type { List, SuspendedUser, Tweet, TweetTombstone, UnavailableUser, User } from './types/index.js';
+import type { BirdwatchHelpfulTag, BirdwatchUnhelpfulTag, List, SuspendedUser, Tweet, TweetTombstone, UnavailableUser, User } from './types/index.js';
 import { v11, type Endpoint } from './utils.js';
 
 const GET = 'get';
@@ -62,6 +62,54 @@ export const ENDPOINTS = {
         method: GET,
         useOauthKey: true,
         parser: format.userLegacy
+    },
+
+
+
+    // BIRDWATCH
+    /** @todo segmented timelines need to be implemented for this to work */
+    BirdwatchFetchGlobalTimeline: {
+        url: '4aIFybP0Ti3KXv0ijtBD3w/BirdwatchFetchGlobalTimeline',
+        method: GET,
+        params: {} as { cursor?: string },
+        features: flags.timeline,
+        parser: _ => _
+    },
+    BirdwatchFetchNotes: {
+        url: 'zYvkg-oseHbXsnk2N7g2eA/BirdwatchFetchNotes',
+        method: GET,
+        params: {} as { tweet_id: string },
+        features: flags.birdwatch,
+        parser: data => format.birdwatchTweet(data.tweet_result_by_rest_id.result)
+    },
+    BirdwatchFetchBirdwatchProfile: {
+        url: 'id9iGfEQF47W1kvRBHUmRQ/BirdwatchFetchBirdwatchProfile',
+        method: GET,
+        params: {} as { alias: string },
+        features: { responsive_web_birdwatch_top_contributor_enabled: true },
+        parser: data => format.birdwatchUser(data.birdwatch_profile_by_alias)
+    },
+    BirdwatchCreateRating: {
+        url: 'e3UGQnUm1M3BSDUgUt4oHA/BirdwatchCreateRating',
+        method: POST,
+        params: {} as {
+            data_v2: {
+                helpful_tags?: Array<BirdwatchHelpfulTag>,
+                not_helpful_tags?: Array<BirdwatchUnhelpfulTag>,
+                helpfulness_level: 'Helpful' | 'SomewhatHelpful' | 'NotHelpful'
+            },
+            note_id: string,
+            rating_source: 'BirdwatchHomeNeedsYourHelp',
+            source_platform: 'BirdwatchWeb',
+            tweet_id: string
+        },
+        parser: data => data.data.birdwatchnote_rate_v3?.__typename === 'BirdwatchNoteRating'
+    },
+    BirdwatchDeleteRating: {
+        url: 'OpvCOyOoQClUND66zDzrnA/BirdwatchDeleteRating',
+        method: POST,
+        params: {} as { note_id: string },
+        parser: data => data.data.birdwatchnote_rating_delete === 'Done'
     },
 
 

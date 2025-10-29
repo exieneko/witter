@@ -1,6 +1,7 @@
 import { Cursor, CursorDirection } from '../types/index.js';
 
 export * from './account.js';
+export * from './birdwatch.js';
 export * from './community.js';
 export * from './list.js';
 export * from './notifications.js';
@@ -11,18 +12,9 @@ export * from './user.js';
 export function cursor(value: any): Cursor {
     return {
         __type: 'Cursor',
-        direction: (() => {
-            switch (value.cursorType) {
-                case 'Top':
-                    return CursorDirection.Top;
-                case 'ShowMore':
-                    return CursorDirection.ShowMore;
-                case 'ShowMoreThreads':
-                    return CursorDirection.ShowMoreThreads;
-                default:
-                    return CursorDirection.Bottom;
-            }
-        })(),
+        direction: value.cursorType in CursorDirection
+            ? CursorDirection[value.cursorType as keyof typeof CursorDirection]
+            : CursorDirection.ShowSpam,
         value: value.value
     };
 }

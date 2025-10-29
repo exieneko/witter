@@ -1,4 +1,7 @@
+import type { BirdwatchHelpfulTag, BirdwatchUnhelpfulTag } from './birdwatch.js';
+
 export * from './account.js';
+export * from './birdwatch.js';
 export * from './community.js';
 export * from './list.js';
 export * from './notifications.js';
@@ -28,7 +31,7 @@ export enum CursorDirection {
     Top = 'Top',
     Bottom = 'Bottom',
     ShowMore = 'ShowMore',
-    ShowMoreThreads = 'ShowMoreThreads'
+    ShowSpam = 'ShowMoreThreads'
 }
 
 
@@ -39,6 +42,12 @@ export interface ByUsername {
 
 export interface BlockedAccountsGetArgs extends CursorOnly {
     imported?: boolean
+}
+
+export interface BirdwatchRateNoteArgs {
+    tweetId: string,
+    helpful_tags?: Array<BirdwatchHelpfulTag>,
+    unhelpful_tags?: Array<BirdwatchUnhelpfulTag>
 }
 
 export interface CommunityTimelineGetArgs {

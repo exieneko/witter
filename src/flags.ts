@@ -59,6 +59,22 @@ export type Flags = Partial<{
     responsive_web_twitter_article_notes_tab_enabled: boolean
 }>;
 
+export const birdwatch = {
+    responsive_web_birdwatch_enforce_author_user_quotas: true,
+    responsive_web_birdwatch_media_notes_enabled: true,
+    responsive_web_birdwatch_url_notes_enabled: true,
+    responsive_web_grok_community_note_translation_is_enabled: true,
+    responsive_web_birdwatch_fast_notes_badge_enabled: true,
+    responsive_web_grok_community_note_auto_translation_is_enabled: false,
+    responsive_web_graphql_timeline_navigation_enabled: true,
+    payments_enabled: false,
+    profile_label_improvements_pcf_label_in_post_enabled: true,
+    responsive_web_profile_redirect_enabled: false,
+    rweb_tipjar_consumption_enabled: true,
+    verified_phone_label_enabled: false,
+    responsive_web_graphql_skip_user_profile_image_extensions_enabled: false
+};
+
 export const short = {
     payments_enabled: false,
     profile_label_improvements_pcf_label_in_post_enabled: true,
