@@ -442,7 +442,7 @@ export const ENDPOINTS = {
         params: {} as { seenTweetIds: Array<string>, requestContext?: 'launch', cursor?: string },
         variables: {"count":20,"includePromotedContent":false,"latestControlAvailable":true,"withCommunity":true},
         features: flags.timeline,
-        parser: data => format.entries(data.data.home_timeline_urt.instructions)
+        parser: data => format.entries(data.data.home.home_timeline_urt.instructions)
     },
     HomeTimeline: {
         url: 'wGPJhptsyASnUUJb9MPz0w/HomeTimeline',
@@ -450,7 +450,7 @@ export const ENDPOINTS = {
         params: {} as { seenTweetIds: Array<string>, requestContext?: 'launch', cursor?: string },
         variables: {"count":20,"includePromotedContent":false,"latestControlAvailable":true,"withCommunity":true},
         features: flags.timeline,
-        parser: data => format.entries(data.data.home_timeline_urt.instructions)
+        parser: data => format.entries(data.data.home.home_timeline_urt.instructions)
     },
 
 
