@@ -45,7 +45,7 @@ export class TwitterClient {
     #proxyAgent?: ProxyAgent;
     #transaction: ClientTransaction;
     #cookies: Record<string, string>;
-    options: TwitterOptions;
+    readonly options: Readonly<TwitterOptions>;
     /**
      * The current user
      * 
@@ -60,14 +60,19 @@ export class TwitterClient {
 
         this.#proxyAgent = additionalOptions.proxyAgent;
         this.#transaction = additionalOptions.transaction;
+
         this.#cookies = {
             auth_token: tokens.authToken,
             ct0: tokens.csrf,
             d_prefs: btoa('2:1,consent_version:2,text_version:1000'),
             lang
         };
-        this.options = structuredClone(options);
-        this.options.language = lang;
+
+        this.options = {
+            ...structuredClone(options),
+            language: lang
+        };
+
         this.log = additionalOptions?.log;
     }
 
