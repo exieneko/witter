@@ -39,7 +39,6 @@ export async function slice<T extends Type>(timeline: Timeline<T>): Promise<Twit
  * Asyncronous client used to make requests to the Twitter browser API while logged in as a Twitter user
  * 
  * @class
- * @since 0.1.0
  */
 export class TwitterClient {
     #proxyAgent?: ProxyAgent;
@@ -55,19 +54,16 @@ export class TwitterClient {
 
     protected log?: Logger;
 
-    constructor(tokens: TwitterTokens, options: TwitterOptions, additionalOptions: { log?: Logger, proxyAgent?: ProxyAgent, transaction: ClientTransaction }) {
+    constructor(tokens: Record<string, string>, options: TwitterOptions, additionalOptions: { log?: Logger, proxyAgent?: ProxyAgent, transaction: ClientTransaction }) {
         const lang = options.language.toLowerCase().startsWith('en-') ? 'en' : options.language;
 
         this.#proxyAgent = additionalOptions.proxyAgent;
         this.#transaction = additionalOptions.transaction;
-
         this.#cookies = {
-            auth_token: tokens.authToken,
-            ct0: tokens.csrf,
             d_prefs: btoa('2:1,consent_version:2,text_version:1000'),
+            ...tokens,
             lang
         };
-
         this.options = {
             ...structuredClone(options),
             language: lang
@@ -80,13 +76,14 @@ export class TwitterClient {
      * Async constructor for `TwitterClient`
      * 
      * @constructor
-     * @param tokens Your Twitter account's login tokens
+     * @param tokens Object containing any cookies you wish to use
      * @param [options] Additional options
      * @returns Promise resolving to `TwitterClient`
      * @throws {ClientError} if `ProxyAgent` or `ClientTransaction` can't be created
+     * @throws {ValidationError} if `tokens` is not a valid object, or it doesn't contain at least `auth_token` and `ct0`
      * @since 1.0.0-rc.0
      */
-    static async new(tokens: TwitterTokens, options?: Partial<TwitterOptions>): Promise<TwitterClient> {
+    static async new(tokens: Record<string, string>, options?: Partial<TwitterOptions>): Promise<TwitterClient> {
         const opts: TwitterOptions = {
             debug: 3,
             domain: 'twitter.com',
@@ -106,6 +103,29 @@ export class TwitterClient {
         const log = opts.debug > 0 ? new Logger(opts.debug) : undefined;
 
         log?.debug('Initializing TwitterClient with options:', options);
+
+        if (!tokens || typeof tokens !== 'object') {
+            throw new ValidationError<unknown>('Invalid tokens object', {
+                field: '*',
+                value: tokens,
+                expected: 'object',
+                log
+            });
+        } else if (!tokens.auth_token || typeof tokens.auth_token !== 'string') {
+            throw new ValidationError<unknown>('auth_token cookie is not a valid string', {
+                field: 'auth_token',
+                value: tokens.auth_token,
+                expected: 'string',
+                log
+            });
+        } else if (!tokens.ct0 || typeof tokens.ct0 !== 'string') {
+            throw new ValidationError<unknown>('ct0 cookie is not a valid string', {
+                field: 'ct0',
+                value: tokens.auth_token,
+                expected: 'string',
+                log
+            });
+        }
 
         let proxyAgent: ProxyAgent | undefined = undefined;
         if (options?.proxyUrl) {
@@ -138,59 +158,13 @@ export class TwitterClient {
     }
 
     /**
-     * Initialize `TwitterClient` from a cookies object
-     * 
-     * @param json Object containing cookies that should be loaded
-     * @param [options] Additional options
-     * @returns Promise resolving to `TwitterClient` or `undefined` if `json` doesn't contain the required cookies\
-     * @throws {ValidationError} if `json` is not an object, or either `auth_token` or `ct0` is missing
-     * @throws {ClientError} if `TwitterClient.new` throws
-     * @since 1.0.0-rc.0
-     */
-    static async fromCookies(json: Record<string, string>, options?: Partial<TwitterOptions>): Promise<TwitterClient> {
-        if (!json || typeof json !== 'object') {
-            throw new ValidationError('Cookies json is not a valid object', {
-                field: '*',
-                value: json,
-                expected: 'object'
-            });
-        }
-
-        if (typeof json.auth_token !== 'string') {
-            throw new ValidationError('Auth token is not a valid string', {
-                field: 'auth_token',
-                value: json.auth_token,
-                expected: 'string'
-            });
-        } else if (typeof json.ct0 !== 'string') {
-            throw new ValidationError('CSRF token is not a valid string', {
-                field: 'ct0',
-                value: json.ct0,
-                expected: 'string'
-            });
-        }
-
-        const client = await this.new({
-            authToken: json.auth_token,
-            csrf: json.ct0
-        }, options);
-
-        if (client instanceof TwitterError) {
-            throw client;
-        }
-
-        client.addTokens(Object.entries(json).map(v => v.join('=')));
-        return client;
-    }
-
-    /**
      * Initialize `TwitterClient` from a JSON file
      * 
      * @param filePath Path to the file containing your cookies
      * @param [options] Additional options
      * @returns Promise resolving to `TwitterClient`
+     * @throws {ValidationError} if `TwitterClient.new` throws
      * @throws {ClientError} if `TwitterClient.new` throws or if `filePath` can't be opened and parsed as JSON
-     * @throws {ValidationError} if `TwitterClient.fromCookies` throws
      * @since 1.0.0-rc.0
      */
     static async fromCookiesFile(filePath: string, options?: Partial<TwitterOptions>): Promise<TwitterClient> {
@@ -198,7 +172,7 @@ export class TwitterClient {
             const content = readFileSync(filePath, 'utf8');
             const json = JSON.parse(content);
 
-            return await this.fromCookies(json, options);
+            return await this.new(json, options);
         } catch (error) {
             if (error instanceof TwitterError) {
                 throw error;
