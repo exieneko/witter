@@ -101,9 +101,13 @@ export interface Tweet extends Type<'Tweet'> {
         language: string
     },
     /** Amount of views the tweet has. May be `undefined` if the tweet predates view tracking */
-    viewsCount?: number
+    viewsCount?: number,
+    visibilityRestriction?: {
+        type?: TweetRestrictionType,
+        reason?: TweetRestrictionReason
+    }
 }
-export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts>> = {
+export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts & { mediaVisibilityResults?: Record<string, any>, softInterventionPivot?: Record<string, any>, tweetInterstitial?: Record<string, any> }>> = {
     async new(fmt, value, opts) {
         function getText(t: any, fullText: string, legacy: boolean): string {
             let text = fullText;
@@ -128,6 +132,18 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts>> = {
             return text
                 .replace(new RegExp(`^\\@${replyingTo}`, 'i'), '')
                 .trimStart();
+        }
+
+        function getRestrictionReason(text: string): TweetRestrictionReason {
+            if (/public.s interest/i.test(text)) {
+                return TweetRestrictionReason.ViolatedRulesPublicInterest;
+            } else if (/violent speech/i.test(text)) {
+                return TweetRestrictionReason.ViolentSpeech;
+            } else if (/hateful conduct/i.test(text)) {
+                return TweetRestrictionReason.HatefulConduct;
+            }
+
+            return TweetRestrictionReason.Other;
         }
 
         const editControl = value.edit_control?.edit_control_initial ?? value.edit_control;
@@ -237,7 +253,7 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts>> = {
             hasQuotedTweet: !!value.legacy.is_quote_status,
             isExpandable: !!value.note_tweet?.is_expandable,
             isTranslatable: !!value.is_translatable,
-            isVisibilityRestricted: value.tweetInterstitial?.__typename === 'ContextualTweetInterstitial',
+            isVisibilityRestricted: opts.tweetInterstitial?.__typename === 'ContextualTweetInterstitial',
             language: value.legacy.lang || 'zxx',
             isLiked: !!value.legacy.favorited,
             likesCount: value.legacy.favorite_count || 0,
@@ -266,7 +282,11 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts>> = {
                 text: value.grok_translated_post_with_availability.data.translation,
                 language: value.grok_translated_post_with_availability.data.destination_language || 'zxx'
             } : undefined,
-            viewsCount: Number(value.views.count) || undefined
+            viewsCount: Number(value.views.count) || undefined,
+            visibilityRestriction: opts.softInterventionPivot || opts.tweetInterstitial ? {
+                type: opts.tweetInterstitial ? TweetRestrictionType.Full : TweetRestrictionType.Partial,
+                reason: getRestrictionReason((opts.tweetInterstitial ?? opts.softInterventionPivot)?.text?.text || '')
+            } : undefined
         };
     },
     assert(value) {
@@ -454,7 +474,7 @@ export const TweetKind: Model<TweetKind, MaybeType, LegacyOpts> & Default<TweetK
             return await fmt.next(Retweet, tweet.legacy.retweeted_status_result.result);
         }
 
-        return await fmt.next(Tweet, tweet);
+        return await fmt.next(Tweet, tweet, { mediaVisibilityResults: value.mediaVisibilityResults, softInterventionPivot: value.softInterventionPivot, tweetInterstitial: value.tweetInterstitial });
     },
     default() {
         return TweetTombstone.default();
@@ -530,6 +550,34 @@ export const TweetUnavailableReason = {
     Unavailable: 'Unavailable'
 } as const;
 export type TweetUnavailableReason = Enum<typeof TweetUnavailableReason>;
+
+/**
+ * Tweet restriction types
+ * 
+ * @enum
+ */
+export const TweetRestrictionType = {
+    /** Tweet visibility is restricted and interactions are disabled */
+    Full: 'Full',
+    /** Tweet visibility is restricted, but users can still interact with the tweet */
+    Partial: 'Partial'
+} as const;
+export type TweetRestrictionType = Enum<typeof TweetRestrictionType>;
+
+/**
+ * Tweet restricted visibility reasons
+ * 
+ * @enum
+ */
+export const TweetRestrictionReason = {
+    HatefulConduct: 'HatefulConduct',
+    ViolentSpeech: 'ViolentSpeech',
+    /** Tweet violated Twitter's rules, but was not removed because of "public interest" */
+    ViolatedRulesPublicInterest: 'ViolatedRulesPublicInterest',
+    /** Fallback */
+    Other: 'Other'
+} as const;
+export type TweetRestrictionReason = Enum<typeof TweetRestrictionReason>;
 
 /**
  * Tweet conversation control options
