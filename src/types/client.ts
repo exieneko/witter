@@ -21,14 +21,6 @@ export interface TwitterResponse<T extends object> {
 
 
 /**
- * Account tokens required to log into a Twitter account
- */
-export interface TwitterTokens {
-    authToken: string,
-    csrf: string
-}
-
-/**
  * Additional options for `TwitterClient`
  */
 export interface TwitterOptions {

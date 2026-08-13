@@ -1,5 +1,5 @@
 import { slice, TwitterClient } from './client.js';
-import type { ByUsername, CommunityTweetsGetArgs, CursorOnly, BySlug, MediaUploadArgs, TwitterTokens, TweetGetArgs, UserTweetsGetArgs, TwitterResponse, TwitterOptions, SearchTweetArgs } from './types/index.js';
+import type { ByUsername, CommunityTweetsGetArgs, CursorOnly, BySlug, MediaUploadArgs, TweetGetArgs, UserTweetsGetArgs, TwitterResponse, TwitterOptions, SearchTweetArgs } from './types/index.js';
 import type { Account } from './types/internal/index.js';
 import { Query } from './utils/query.js';
 import { QueryBuilder } from './utils/querybuilder.js';
@@ -25,16 +25,16 @@ export class TwitterPool {
      * @param tokens Account tokens
      * @returns Promise resolving to `TwitterPool`
      */
-    static async new(tokens: TwitterTokens[], options?: Partial<TwitterOptions>): Promise<TwitterPool> {
+    static async new(tokens: Record<string, string>[], options?: Partial<TwitterOptions>): Promise<TwitterPool> {
         const accounts = await this._accounts(tokens, options);
         return new this(accounts);
     }
 
-    private static async _accounts(tokens: TwitterTokens[], options?: Partial<TwitterOptions>): Promise<Account[]> {
+    private static async _accounts(tokens: Record<string, string>[], options?: Partial<TwitterOptions>): Promise<Account[]> {
         return (await Promise.all(
             tokens.map(async (tokens, index) => ({
                 id: index,
-                client: await TwitterClient.new(tokens, options) as TwitterClient,
+                client: await TwitterClient.new(tokens, { ...options, includeResponse: true }) as TwitterClient,
                 rateLimitMax: this.INITIAL_RATE_LIMIT,
                 rateLimitRemaining: this.INITIAL_RATE_LIMIT,
                 rateLimitResetAt: new Date()
@@ -68,6 +68,7 @@ export class TwitterPool {
         if (rateLimitRemaining) this.#accounts[0].rateLimitRemaining = Number(rateLimitRemaining);
         if (rateLimitReset) this.#accounts[0].rateLimitResetAt = new Date(Number(rateLimitReset) * 1000);
 
+        delete result.response;
         return result;
     }
 
