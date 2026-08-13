@@ -1,23 +1,38 @@
 /**
- * Represents a valid range for numbers if a `ValidationError<number>` is thrown.
+ * Represents a range of numbers
  * 
- * @throws {RangeError} if `start` or `end` is NaN, or if an inclusive range has no end (1..=)
+ * @since 1.0.0-rc.0
  */
 export class Range {
     start: number;
     end: number;
     inclusive: boolean;
 
-    constructor(start: number | null, end: number | null, inclusive?: boolean);
-    constructor(s: RangeString);
+    /**
+     * Creates a range from numbers
+     * 
+     * @param start Start number, allows `-Infinity`
+     * @param end End number, allows `Infinity`
+     * @param [inclusive] Should the range include `end`?
+     * @throws {RangeError} if `start` or `end` is NaN, or if an inclusive range has no end (1..=)
+     */
+    constructor(start: number, end: number, inclusive?: boolean);
+    /**
+     * Creates a Range from a string or possible JSON data
+     * 
+     * @param range Another `Range` or a `RangeString` representing one
+     * @throws {RangeError} if `start` or `end` is NaN, or if an inclusive range has no end (1..=)
+     * @see {@linkcode RangeString}
+     */
+    constructor(range: RangeLike);
 
-    constructor(arg0: RangeString | number | null, arg1?: number | null, arg2?: boolean) {
+    constructor(...args: [number | null, number | null, boolean?] | [RangeLike]) {
         let start: number;
         let end: number;
         let inclusive = false;
 
-        if (typeof arg0 === 'string') {
-            let [first, second] = arg0.split('..', 2);
+        if (typeof args[0] === 'string') {
+            let [first, second] = args[0].split('..', 2);
 
             if (second.startsWith('=')) {
                 inclusive = true;
@@ -30,17 +45,19 @@ export class Range {
             if (Number.isNaN(end)) {
                 inclusive = false;
             }
+        } else if (args[0] instanceof Range) {
+            ({ start, end, inclusive } = args[0]);
         } else {
-            start = arg0 ?? -Infinity;
-            end = arg1 ?? Infinity;
-            inclusive = !!arg2;
+            start = args[0] ?? -Infinity;
+            end = args[1] ?? Infinity;
+            inclusive = !!args[2];
         }
 
-        if (isNaN(start) || isNaN(end)) {
+        if (Number.isNaN(start) || Number.isNaN(end)) {
             throw new RangeError('Range start or end can\'t be NaN');
         }
 
-        if (!isFinite(start) && inclusive) {
+        if (!Number.isFinite(start) && inclusive) {
             throw new RangeError('Inclusive ranges must have an end');
         }
 
@@ -49,11 +66,7 @@ export class Range {
         this.inclusive = inclusive;
     }
 
-    at(index: number) {
-        return this.toArray().at(index);
-    }
-
-    contains(num: number) {
+    includes(num: number) {
         return num >= this.start && (num < this.end || (num <= this.end && this.inclusive));
     }
 
@@ -61,28 +74,101 @@ export class Range {
         return this.start > this.end || (this.start >= this.end && this.inclusive);
     }
 
-    length() {
-        return this.end - this.start + Number(this.inclusive);
+    /**
+     * Turns range into an array
+     * 
+     * @param [fractionDigits] Number of decimal places used for a step
+     * @param [limit] Replace `Infinity` with this number
+     * @returns Array of numbers
+     * @throws {RangeError} if `fractionDigits` is out of range `0..=20` or if `limit` is not a positive finite number
+     */
+    toArray(fractionDigits = 0, limit = 1 << 10): number[] {
+        if (Number.isNaN(fractionDigits) || !Number.isInteger(fractionDigits) || !new Range('0..=20').includes(fractionDigits)) {
+            throw new RangeError('fractionDigits must be a non-negative integer in range of 0..=20');
+        }
+
+        if (Number.isNaN(limit) || !Number.isFinite(limit) || limit < 0) {
+            throw new RangeError('limit must be a positive finite number');
+        }
+
+        if (this.start > this.end) {
+            return [];
+        }
+
+        let start = this.start;
+        let end = this.end;
+
+        if (start === -Infinity) {
+            start = -limit;
+        } else if (start === Infinity) {
+            start = limit;
+        }
+
+        if (end === -Infinity) {
+            end = -limit;
+        } else if (end === Infinity) {
+            end = limit;
+        }
+
+        const multiplier = 10 ** fractionDigits;
+        const from = Math.round(start * multiplier);
+        const to = Math.round(end * multiplier);
+
+        let result: number[] = [];
+
+        if (from === to) {
+            if (this.inclusive) {
+                result.push(from / multiplier);
+            }
+            return result;
+        }
+
+        for (let value = from; value < to; value += 1) {
+            result.push(value / multiplier);
+        }
+
+        if (this.inclusive) {
+            result.push(to / multiplier);
+        }
+
+        return result;
     }
 
-    toArray() {
-        return [...Array(this.end + Number(this.inclusive)).keys()].slice(this.start);
+    toString(radix?: number) {
+        const start = this.start.toString(radix).repeat(Number(Number.isFinite(this.start)));
+        const end = this.end.toString(radix).repeat(Number(Number.isFinite(this.end)));
+
+        return `${start}..${'='.repeat(Number(this.inclusive))}${end}` as RangeString;
     }
 
-    toString(radix?: number | undefined) {
-        const start = this.start.toString(radix).repeat(Number(isFinite(this.start)));
-        const end = this.end.toString(radix).repeat(Number(isFinite(this.end)));
-
-        return `${start}..${'='.repeat(Number(this.inclusive))}${end}`;
-    }
-
-    toJSON() {
+    protected toJSON() {
         return this.toString() as RangeString;
-    }
-
-    *[Symbol.iterator]() {
-        yield* this.toArray();
     }
 }
 
+/**
+ * Matches any string that can represent a `Range`
+ * 
+ * @example <caption>Non-inclusive range</caption>
+ * '1..3'
+ * 
+ * @example <caption>Inclusive range</caption>
+ * '1..=3'
+ * 
+ * @example <caption>Inclusive range</caption>
+ * '1..=3'
+ * 
+ * @example <caption>Range with no start</caption>
+ * '..5'
+ * 
+ * @example <caption>Range with no end</caption>
+ * '5..'
+ * 
+ * @example <caption>Range from `-Infinity` to `Infinity`</caption>
+ * '..'
+ * 
+ * @example <caption>Inclusive range with floats</caption>
+ * '1.4..=4.6'
+ */
 export type RangeString = `${number | ''}..${number | ''}` | `${number | ''}..=${number}`;
+export type RangeLike = Range | RangeString;

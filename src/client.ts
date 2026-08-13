@@ -1134,7 +1134,7 @@ export class TwitterClient {
     async createTweet(args: TweetCreateArgs, thread?: ThreadTweetArgs[]): Promise<TwitterResponse<Tweet>> {
         const text = args.text ?? '';
 
-        if (!TWEET_TEXT_RANGE.contains(text.length) && this.options.longTweetBehavior === 'Fail') {
+        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === 'Fail') {
             return {
                 errors: [new ValidationError('Tweet text is too long', {
                     field: 'text',
@@ -1151,7 +1151,7 @@ export class TwitterClient {
             [ReplyPermission.Following, 'ByInvitation']
         ] as const);
 
-        if (!TWEET_TEXT_RANGE.contains(text.length) && this.options.longTweetBehavior === 'Fail') {
+        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === 'Fail') {
             return {
                 errors: [new ValidationError('Tweet text is too long', {
                     field: 'text',
@@ -1162,9 +1162,9 @@ export class TwitterClient {
             }
         }
 
-        const shouldCreateNoteTweet = !TWEET_TEXT_RANGE.contains(text.length) && (this.options.longTweetBehavior === 'NoteTweet' || this.options.longTweetBehavior === 'NoteTweetUnchecked');
+        const shouldCreateNoteTweet = !TWEET_TEXT_RANGE.includes(text.length) && (this.options.longTweetBehavior === 'NoteTweet' || this.options.longTweetBehavior === 'NoteTweetUnchecked');
 
-        if (args.mediaIds && !TWEET_MEDIA_RANGE.contains(args.mediaIds.length)) {
+        if (args.mediaIds && !TWEET_MEDIA_RANGE.includes(args.mediaIds.length)) {
             return {
                 errors: [new ValidationError('Too many media attachements', {
                     field: 'mediaIds',
@@ -1178,7 +1178,7 @@ export class TwitterClient {
         let cardUri: string | undefined = undefined;
 
         if (args.card?.kind === 'Poll') {
-            if (!TWEET_POLL_RANGE.contains(args.card.choices.length)) {
+            if (!TWEET_POLL_RANGE.includes(args.card.choices.length)) {
                 return {
                     errors: [new ValidationError(args.card.choices.length < TWEET_POLL_RANGE.start ? 'Too few poll choices' : 'Too many poll choices', {
                         field: 'card',
@@ -1602,7 +1602,7 @@ export class TwitterClient {
      * @since 0.1.0
      */
     async vote(args: TweetVoteArgs) {
-        if (!TWEET_POLL_RANGE.contains(args.choice)) {
+        if (!TWEET_POLL_RANGE.includes(args.choice)) {
             return {
                 errors: [new ValidationError('Invalid', {
                     field: 'choice',

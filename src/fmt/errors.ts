@@ -1,4 +1,4 @@
-import type { Range, Endpoint, EndpointParams, RequiredBy } from '../types/internal/index.js';
+import type { Range, Endpoint, EndpointParams, RequiredBy, RangeLike } from '../types/internal/index.js';
 import type { Logger } from '../utils/log.js';
 
 export interface TwitterErrorOptions extends ErrorOptions {
@@ -109,7 +109,7 @@ export class ApiError extends TwitterError implements Omit<ApiErrorOptions, 'log
 export interface ValidationErrorOptions<T, U = T> extends TwitterErrorOptions {
     field: string,
     value: T,
-    expected: (T extends number ? T | U | Range : T | U)[] | 'string' | 'number' | 'bigint' | 'boolean' | 'undefined' | 'object' | 'function'
+    expected: (T extends number ? T | U | RangeLike : T | U)[] | 'string' | 'number' | 'bigint' | 'boolean' | 'undefined' | 'object' | 'function'
 }
 
 /**
