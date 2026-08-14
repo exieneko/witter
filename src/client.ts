@@ -4,7 +4,7 @@ import { ClientTransaction } from 'x-client-transaction-id';
 
 import { EMPTY_SLICE, ENDPOINTS, MAX_TIMELINE_ITERATIONS, TWEET_MEDIA_RANGE, TWEET_POLL_RANGE, TWEET_TEXT_RANGE, UPLOAD_SEGMENT_SIZE } from './consts.js';
 import { TwitterFormatter } from './fmt/index.js';
-import { BirdwatchNoteSource, BirthDateVisibility, CommunityTweetsOrder, ReplyPermission, Slice, TweetKind, TweetOrder, type BirdwatchRateNoteArgs, type BlockedUsersGetArgs, type BySlug, type ByUsername, type CommunityTweetsGetArgs, type CursorOnly, type ListCreateArgs, type ListKind, type MediaData, type MediaUploadArgs, type Notification, type NotificationGetArgs, type TwitterOptions, type ScheduledTweetCreateArgs, type SearchTweetArgs, type ThreadTweetArgs, type Timeline, type TimelineGetArgs, type Tweet, type TweetCreateArgs, type TweetGetArgs, type TweetVoteArgs, type TwitterResponse, type UnsentTweetsGetArgs, type UpdateProfileArgs, type User, type UserKind, type UserTweetsGetArgs, SearchOrder, SearchArgs, ValidationError, ApiError, RequestError, TwitterError, ClientError, DivineInterventionError, BirdwatchCreateBatSignalArgs, TranslateArgs, LongTweetBehavior, TimelineOrder } from './types/index.js';
+import { BirdwatchNoteSource, BirthDateVisibility, CommunityTweetsOrder, ReplyPermission, Slice, TweetKind, TweetOrder, type BirdwatchRateNoteArgs, type BlockedUsersGetArgs, type BySlug, type ByUsername, type CommunityTweetsGetArgs, type CursorOnly, type ListCreateArgs, type ListKind, type MediaData, type MediaUploadArgs, type Notification, type NotificationGetArgs, type TwitterOptions, type ScheduledTweetCreateArgs, type SearchTweetArgs, type ThreadTweetArgs, type Timeline, type TimelineGetArgs, type Tweet, type TweetCreateArgs, type TweetGetArgs, type TweetVoteArgs, type TwitterResponse, type UnsentTweetsGetArgs, type UpdateProfileArgs, type User, type UserKind, type UserTweetsGetArgs, SearchOrder, SearchArgs, ValidationError, ApiError, RequestError, TwitterError, ClientError, DivineInterventionError, BirdwatchCreateBatSignalArgs, TranslateArgs, LongTweetBehavior, TimelineOrder, UserTweetsFilter, UserMediaGetArgs, UserMediaFilter } from './types/index.js';
 import type { Endpoint, EndpointParams, Type } from './types/internal/index.js';
 import { match } from './utils/index.js';
 import { Logger } from './utils/log.js';
@@ -1732,28 +1732,37 @@ export class TwitterClient {
     }
 
     protected async getUserTweetsSlice(id: string, args?: UserTweetsGetArgs) {
-        if (args?.replies) {
-            return await this.fetch(ENDPOINTS.UserTweetsAndReplies, { userId: id, cursor: args.cursor });
-        }
+        const endpoint = match(args?.filter, [
+            [UserTweetsFilter.Retweets, ENDPOINTS.UserRepostsTimeline],
+            [UserTweetsFilter.Replies, ENDPOINTS.UserRepliesTimeline],
+            [UserTweetsFilter.Tweets, ENDPOINTS.UserOriginalsTimeline],
+            [UserTweetsFilter.All, ENDPOINTS.UserTweetsAndReplies],
+            [UserTweetsFilter.Highlights, ENDPOINTS.UserHighlightsTweets]
+        ], ENDPOINTS.UserTweets);
 
-        return await this.fetch(ENDPOINTS.UserTweets, { userId: id, cursor: args?.cursor });
+        return await this.fetch(endpoint, { userId: id, cursor: args?.cursor });
     }
 
     /**
      * Get media tweets from a user chronologically
      * 
      * @param id User id
-     * @param [args] Cursor only
+     * @param [args] {@link UserMediaGetArgs}
      * @yields Slice of tweets
      * @since 0.1.0
      */
-    async* getUserMedia(id: string, args?: CursorOnly): Timeline<TweetKind> {
+    async* getUserMedia(id: string, args?: UserMediaGetArgs): Timeline<TweetKind> {
         yield* this.getSlice(args, args => this.getUserMediaSlice(id, args));
         return EMPTY_SLICE;
     }
 
-    protected async getUserMediaSlice(id: string, args?: CursorOnly) {
-        return await this.fetch(ENDPOINTS.UserMedia, { userId: id, ...args });
+    protected async getUserMediaSlice(id: string, args?: UserMediaGetArgs) {
+        const endpoint = match(args?.filter, [
+            [UserMediaFilter.Images, ENDPOINTS.UserPhotoTimeline],
+            [UserMediaFilter.Videos, ENDPOINTS.UserVideoTimeline]
+        ], ENDPOINTS.UserMedia);
+
+        return await this.fetch(endpoint, { userId: id, cursor: args?.cursor });
     }
 
     /**
@@ -1780,6 +1789,7 @@ export class TwitterClient {
      * @param [args] {@link CursorOnly}
      * @yields Slice of tweets
      * @since 0.1.0
+     * @deprecated Use `getUserTweets`
      */
     async* getUserHighlightedTweets(id: string, args?: CursorOnly): Timeline<TweetKind> {
         yield* this.getSlice(args, args => this.getUserHighlightedTweetsSlice(id, args));

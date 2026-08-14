@@ -802,25 +802,55 @@ export const ENDPOINTS = ({
     UserTweets: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
         url: gql('eoJ5zbv51Z_KVl81v9PmLQ/UserTweets'),
         method: 'GET',
-        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withVoice":true},
+        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
         features: flags.timeline
     }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
     UserTweetsAndReplies: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
         url: gql('wc5DRl4VaW5lSqJ8YbftZQ/UserTweetsAndReplies'),
         method: 'GET',
-        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withVoice":true},
+        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
         features: flags.timeline
     }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
     UserMedia: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
         url: gql('2DC9TKrcUzwGC_QskSVl5w/UserMedia'),
         method: 'GET',
-        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withVoice":true},
+        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
         features: flags.timeline
     }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Media' })),
     Likes: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
         url: gql('BEthBswU1Bt209H5xptp4Q/Likes'),
         method: 'GET',
-        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withVoice":true},
+        variables: {"count":40,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
+        features: flags.timeline
+    }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
+    UserOriginalsTimeline: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
+        url: gql('ltLX7MJIZj6YcM5Y4FFqmg/UserOriginalsTimeline'),
+        method: 'GET',
+        variables: {"count":40,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
+        features: flags.timeline
+    }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
+    UserRepliesTimeline: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
+        url: gql('dqZjShRwXmIn0CJak6zI1Q/UserRepliesTimeline'),
+        method: 'GET',
+        variables: {"count":40,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true},
+        features: flags.timeline
+    }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
+    UserRepostsTimeline: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
+        url: gql('FOyP7r0CaHmBb-9vc7_sEQ/UserRepostsTimeline'),
+        method: 'GET',
+        variables: {"count":40,"includePromotedContent":true,"withVoice":true},
+        features: flags.timeline
+    }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
+    UserPhotoTimeline: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
+        url: gql('hFoX2urwQ9cVn319GsL2QQ/UserPhotoTimeline'),
+        method: 'GET',
+        variables: {"count":40,"includePromotedContent":false,"withClientEventToken":true,"withBirdwatchNotes":true,"withVoice":true},
+        features: flags.timeline
+    }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
+    UserVideoTimeline: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({
+        url: gql('V0UHJCuXkqBVjbsvCi6rxQ/UserVideoTimeline'),
+        method: 'GET',
+        variables: {"count":40,"includePromotedContent":false,"withClientEventToken":true,"withBirdwatchNotes":true,"withVoice":true},
         features: flags.timeline
     }, (fmt, value) => Slice.tweets(fmt, value.data.user.result.timeline.timeline.instructions, { type: 'Default' })),
     UserHighlightsTweets: new Endpoint<Slice<TweetKind>, { userId: string, cursor?: string }>({

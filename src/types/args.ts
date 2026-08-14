@@ -322,7 +322,43 @@ export interface MediaUploadArgs {
 /**
  * Arguments for getting a user's tweets
  */
-export interface UserTweetsGetArgs extends CursorOnly {
-    /** Include user replies? */
-    replies?: boolean
+export type UserTweetsGetArgs = CursorOnly & Filter<UserTweetsFilter>;
+
+/**
+ * Filter user tweets timeline
+ * 
+ * @default UserTweetsFilter.Primary
+ */
+export enum UserTweetsFilter {
+    /** Include tweets and retweets (`UserTweets`) */
+    Primary = 'Primary',
+    /** Include tweets, replies, and retweets (`UserTweetsAndReplies`) */
+    All = 'All',
+    /** Include original tweets (`UserOriginalsTimeline`) */
+    Tweets = 'Tweets',
+    /** Include only replies (`UserRepliesTimeline`) */
+    Replies = 'Replies',
+    /** Include only retweets (`UserRepostsTimeline`) */
+    Retweets = 'Retweets',
+    /** Include only highlighted tweets (`UserHighlightsTweets`) */
+    Highlights = 'Highlights'
+}
+
+/**
+ * Arguments for getting a user's media tweets
+ */
+export type UserMediaGetArgs = CursorOnly & Filter<UserMediaFilter>;
+
+/**
+ * Filter user media tweets timeline
+ * 
+ * @default UserMediaFilter.All
+ */
+export enum UserMediaFilter {
+    /** Include all media (`UserMedia`) */
+    All = 'All',
+    /** Include only images (`UserPhotoTimeline`) */
+    Images = 'Images',
+    /** Include only videos (`UserVideoTimeline`) */
+    Videos = 'Videos'
 }
