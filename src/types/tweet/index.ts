@@ -134,13 +134,19 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts & { mediaVi
                 .trimStart();
         }
 
-        function getRestrictionReason(text: string): TweetRestrictionReason {
+        function getRestrictionReason(text: string): TweetRestrictionReason | undefined {
+            if (text === '' || /account you muted/i.test(text)) {
+                return;
+            }
+
             if (/public.s interest/i.test(text)) {
                 return TweetRestrictionReason.ViolatedRulesPublicInterest;
             } else if (/violent speech/i.test(text)) {
                 return TweetRestrictionReason.ViolentSpeech;
             } else if (/hateful conduct/i.test(text)) {
                 return TweetRestrictionReason.HatefulConduct;
+            } else if (/abuse/i.test(text)) {
+                return TweetRestrictionReason.Abuse;
             }
 
             return TweetRestrictionReason.Other;
@@ -150,6 +156,7 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts & { mediaVi
         const fullText = value.note_tweet?.note_tweet_results?.result?.text || value.legacy?.full_text || value.full_text || '';
         const source = value.source.match(/>(.*?)</)?.at(1) || value.source || 'Twitter Web App';
         const text = getText(value, fullText, !!opts.legacy);
+        const visibilityRestrictionReason = getRestrictionReason((opts.tweetInterstitial ?? opts.softInterventionPivot)?.text?.text || '');
 
         if (opts.legacy) {
             const media = await Promise.all(
@@ -217,7 +224,6 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts & { mediaVi
             author: await fmt.next(User, value.core.user_results.result),
             birdwatchNote: value.birdwatch_pivot?.note?.rest_id ? {
                 id: value.birdwatch_pivot.note.rest_id,
-                // TODO: follow t.co redirects to get actual urls
                 text: (value.birdwatch_pivot.subtitle.entities as { fromIndex: number, toIndex: number, ref: { url: string } }[])
                     .toSorted((a, b) => b.fromIndex - a.fromIndex)
                     .reduce((acc, e) => acc.slice(0, e.fromIndex) + e.ref.url + acc.slice(e.toIndex), value.birdwatch_pivot.subtitle.text),
@@ -283,9 +289,9 @@ export const Tweet: Wrapped<TweetKind, Model<Tweet, null, LegacyOpts & { mediaVi
                 language: value.grok_translated_post_with_availability.data.destination_language || 'zxx'
             } : undefined,
             viewsCount: Number(value.views.count) || undefined,
-            visibilityRestriction: opts.softInterventionPivot || opts.tweetInterstitial ? {
+            visibilityRestriction: !!visibilityRestrictionReason ? {
                 type: opts.tweetInterstitial ? TweetRestrictionType.Full : TweetRestrictionType.Partial,
-                reason: getRestrictionReason((opts.tweetInterstitial ?? opts.softInterventionPivot)?.text?.text || '')
+                reason: visibilityRestrictionReason
             } : undefined
         };
     },
@@ -565,11 +571,12 @@ export const TweetRestrictionType = {
 export type TweetRestrictionType = Enum<typeof TweetRestrictionType>;
 
 /**
- * Tweet restricted visibility reasons
+ * Reason for why a restriction was applied to a tweet
  * 
  * @enum
  */
 export const TweetRestrictionReason = {
+    Abuse: 'Abuse',
     HatefulConduct: 'HatefulConduct',
     ViolentSpeech: 'ViolentSpeech',
     /** Tweet violated Twitter's rules, but was not removed because of "public interest" */
