@@ -4,7 +4,7 @@ import { ClientTransaction } from 'x-client-transaction-id';
 
 import { EMPTY_SLICE, ENDPOINTS, MAX_TIMELINE_ITERATIONS, TWEET_MEDIA_RANGE, TWEET_POLL_RANGE, TWEET_TEXT_RANGE, UPLOAD_SEGMENT_SIZE } from './consts.js';
 import { TwitterFormatter } from './fmt/index.js';
-import { BirdwatchNoteSource, BirthDateVisibility, CommunityTweetsOrder, ReplyPermission, Slice, TweetKind, TweetOrder, type BirdwatchRateNoteArgs, type BlockedUsersGetArgs, type BySlug, type ByUsername, type CommunityTweetsGetArgs, type CursorOnly, type ListCreateArgs, type ListKind, type MediaData, type MediaUploadArgs, type Notification, type NotificationGetArgs, type TwitterOptions, type ScheduledTweetCreateArgs, type SearchTweetArgs, type ThreadTweetArgs, type Timeline, type TimelineGetArgs, type Tweet, type TweetCreateArgs, type TweetGetArgs, type TweetVoteArgs, type TwitterResponse, type UnsentTweetsGetArgs, type UpdateProfileArgs, type User, type UserKind, type UserTweetsGetArgs, SearchOrder, SearchArgs, ValidationError, ApiError, RequestError, TwitterError, ClientError, DivineInterventionError, BirdwatchCreateBatSignalArgs, TranslateArgs } from './types/index.js';
+import { BirdwatchNoteSource, BirthDateVisibility, CommunityTweetsOrder, ReplyPermission, Slice, TweetKind, TweetOrder, type BirdwatchRateNoteArgs, type BlockedUsersGetArgs, type BySlug, type ByUsername, type CommunityTweetsGetArgs, type CursorOnly, type ListCreateArgs, type ListKind, type MediaData, type MediaUploadArgs, type Notification, type NotificationGetArgs, type TwitterOptions, type ScheduledTweetCreateArgs, type SearchTweetArgs, type ThreadTweetArgs, type Timeline, type TimelineGetArgs, type Tweet, type TweetCreateArgs, type TweetGetArgs, type TweetVoteArgs, type TwitterResponse, type UnsentTweetsGetArgs, type UpdateProfileArgs, type User, type UserKind, type UserTweetsGetArgs, SearchOrder, SearchArgs, ValidationError, ApiError, RequestError, TwitterError, ClientError, DivineInterventionError, BirdwatchCreateBatSignalArgs, TranslateArgs, LongTweetBehavior, TimelineOrder } from './types/index.js';
 import type { Endpoint, EndpointParams, Type } from './types/internal/index.js';
 import { match } from './utils/index.js';
 import { Logger } from './utils/log.js';
@@ -90,7 +90,7 @@ export class TwitterClient {
             files: {},
             includeResponse: false,
             language: 'en',
-            longTweetBehavior: 'Force',
+            longTweetBehavior: LongTweetBehavior.Force,
             overrides: {},
             ...options
         };
@@ -1041,7 +1041,7 @@ export class TwitterClient {
         const seenTweetIds = idOrArgs.seenTweetIds?.map(String) ?? [];
         const requestContext = idOrArgs.cursor ? undefined : 'launch';
 
-        if (idOrArgs.orderBy === 'Latest') {
+        if (idOrArgs.orderBy === TimelineOrder.Chronological) {
             return await this.fetch(ENDPOINTS.HomeLatestTimeline, { seenTweetIds, requestContext, cursor: idOrArgs.cursor });
         }
 
@@ -1134,7 +1134,7 @@ export class TwitterClient {
     async createTweet(args: TweetCreateArgs, thread?: ThreadTweetArgs[]): Promise<TwitterResponse<Tweet>> {
         const text = args.text ?? '';
 
-        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === 'Fail') {
+        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === LongTweetBehavior.Fail) {
             return {
                 errors: [new ValidationError('Tweet text is too long', {
                     field: 'text',
@@ -1151,7 +1151,7 @@ export class TwitterClient {
             [ReplyPermission.Following, 'ByInvitation']
         ] as const);
 
-        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === 'Fail') {
+        if (!TWEET_TEXT_RANGE.includes(text.length) && this.options.longTweetBehavior === LongTweetBehavior.Fail) {
             return {
                 errors: [new ValidationError('Tweet text is too long', {
                     field: 'text',
@@ -1162,7 +1162,7 @@ export class TwitterClient {
             }
         }
 
-        const shouldCreateNoteTweet = !TWEET_TEXT_RANGE.includes(text.length) && (this.options.longTweetBehavior === 'NoteTweet' || this.options.longTweetBehavior === 'NoteTweetUnchecked');
+        const shouldCreateNoteTweet = !TWEET_TEXT_RANGE.includes(text.length) && (this.options.longTweetBehavior === LongTweetBehavior.NoteTweet || this.options.longTweetBehavior === LongTweetBehavior.NoteTweetUnchecked);
 
         if (args.mediaIds && !TWEET_MEDIA_RANGE.includes(args.mediaIds.length)) {
             return {

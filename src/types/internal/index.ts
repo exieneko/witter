@@ -10,25 +10,19 @@ export type AsyncConstructor<This extends Type, T = Record<string, any>, Opts ex
     ? (fmt: TwitterFormatter, value: T) => Promise<This>
     : (fmt: TwitterFormatter, value: T, opts: Opts) => Promise<This>;
 
-export type Enum<T, U = null> = U extends null
-    ? Extract<T[keyof T], string> extends never
-        ? T[keyof T]
-        : Extract<T[keyof T], string>
-    : Extract<T[keyof T], U>;
-
 export interface Type<K extends string = string> {
     readonly __typename: K
 }
 
-type OptionalUndefined<T extends object | undefined> = {
+export type RequiredBy<T extends object, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+export type PartialBy<T extends object, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type PartialUndefined<T extends object | undefined> = {
     [K in keyof T as undefined extends T[K] ? K : never]?: T[K];
 } & {
     [K in keyof T as undefined extends T[K] ? never : K]: T[K];
 };
 
-export type EndpointParams<E extends Endpoint> = OptionalUndefined<E['_params']>;
-export type RequiredBy<T extends object, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
-export type PartialBy<T extends object, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type EndpointParams<E extends Endpoint> = PartialUndefined<E['_params']>;
 export type MaybeType<T extends string = string> = (Type<T> & Record<string, any>) | undefined;
 
 export interface Account {

@@ -1,6 +1,5 @@
-import { Response } from 'undici';
+import type { Response } from 'undici';
 import type { TwitterError } from '../fmt/errors.js';
-import type { Enum } from './internal/index.js';
 import type { Flags } from '../flags.js';
 
 /**
@@ -106,16 +105,15 @@ export interface TwitterOptions {
 /**
  * How to handle when a tweet's text length exceeds 280 characters
  * 
- * @enum
+ * @default LongTweetBehavior.Force
  */
-export const LongTweetBehavior = {
+export enum LongTweetBehavior {
     /** Send the request anyway */
-    Force: 'Force',
+    Force,
     /** Return an error without sending the request */
-    Fail: 'Fail',
+    Fail,
     /** Send the tweet as a note tweet. This requires a verified account. If `TwitterClient.self` is undefined, it will be set before checking for verification */
-    NoteTweet: 'NoteTweet',
+    NoteTweet,
     /** Send the tweet as a note tweet, without checking if your account is verified */
-    NoteTweetUnchecked: 'NoteTweetUnchecked'
-} as const;
-export type LongTweetBehavior = Enum<typeof LongTweetBehavior>;
+    NoteTweetUnchecked
+}

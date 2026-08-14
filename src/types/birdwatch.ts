@@ -1,4 +1,4 @@
-import type { Default, Enum, Model, Type } from './internal/index.js';
+import type { Default, Model, Type } from './internal/index.js';
 import { match } from '../utils/index.js';
 
 /**
@@ -181,101 +181,86 @@ export const BirdwatchBatSignal: Model<BirdwatchBatSignal> = {
 
 /**
  * Status of a Birdwatch note
- * 
- * @enum
  */
-export const BirdwatchNoteStatus = {
+export enum BirdwatchNoteStatus {
     /** Note is rated helpful, and is currently shown on at least one tweet */
-    RatedHelpful: 'RatedHelpful',
+    RatedHelpful = 'RatedHelpful',
     /** Note is rated unhelpful */
-    RatedUnhelpful: 'RatedUnhelpful',
+    RatedUnhelpful = 'RatedUnhelpful',
     /** Note hasn't received enough, or has received conflicting user ratings to definitively say if it's helpful or not */
-    Unrated: 'Unrated'
-} as const;
-export type BirdwatchNoteStatus = Enum<typeof BirdwatchNoteStatus>;
+    Unrated = 'Unrated'
+}
 
 /**
  * Tags showing why a Birdwatch note is helpful
- * 
- * @enum
  */
-export const BirdwatchHelpfulTag = {
+export enum BirdwatchHelpfulTag {
     /** Note cites high quality sources */
-    GoodSources: 'GoodSources',
+    GoodSources = 'GoodSources',
     /** Note is easy to understand */
-    Clear: 'Clear',
+    Clear = 'Clear',
     /** Note directly addresses the tweet's claim */
-    AddressesClaim: 'AddressesClaim',
+    AddressesClaim = 'AddressesClaim',
     /** Note provides important context */
-    ImportantContext: 'ImportantContext',
+    ImportantContext = 'ImportantContext',
     /** Note has unbiased language */
-    UnbiasedLanguage: 'UnbiasedLanguage',
-    Other: 'Other'
-} as const;
-export type BirdwatchHelpfulTag = Enum<typeof BirdwatchHelpfulTag>;
+    UnbiasedLanguage = 'UnbiasedLanguage',
+    Other = 'Other'
+}
 
 /**
  * Tags showing why a Birdwatch note isn't helpful
- * 
- * @enum
  */
-export const BirdwatchUnhelpfulTag = {
+export enum BirdwatchUnhelpfulTag {
     /** Note cites no sources, or they're unrealiable */
-    NoSources: 'NoSources',
+    NoSources = 'NoSources',
     /** Note cites sources, but they don't support the note */
-    IrrelevantSources: 'IrrelevantSources',
+    IrrelevantSources = 'IrrelevantSources',
     /** Note contains factually incorrect information */
-    Incorrect: 'Incorrect',
+    Incorrect = 'Incorrect',
     /** Note expresses an opinion */
-    OpinionSpeculation: 'OpinionSpeculation',
+    OpinionSpeculation = 'OpinionSpeculation',
     /** Note contains unclear language or typos */
-    Unclear: 'Unclear',
+    Unclear = 'Unclear',
     /** Note misses key points of, or is irrelevant to the tweet */
-    MissingKeyPoints: 'MissingKeyPoints',
+    MissingKeyPoints = 'MissingKeyPoints',
     /** Note has biased language */
-    Rude: 'Rude',
+    Rude = 'Rude',
     /** Note not needed on this tweet */
-    NoteNotNeeded: 'NoteNotNeeded',
+    NoteNotNeeded = 'NoteNotNeeded',
     /** Note is abusive */
-    TwitterViolationAny: 'TwitterViolationAny',
-    Other: 'Other'
-} as const;
-export type BirdwatchUnhelpfulTag = Enum<typeof BirdwatchUnhelpfulTag>;
+    TwitterViolationAny = 'TwitterViolationAny',
+    Other = 'Other'
+}
 
 /**
  * Applied to a tweet by a Birdwatch note that wants to be displayed under the tweet
- * 
- * @enum
  */
-export const BirdwatchTweetMisleadingTag = {
+export enum BirdwatchTweetMisleadingTag {
     /** Tweet contains factually incorrect information */
-    FactualError: 'FactualError',
+    FactualError = 'FactualError',
     /** Tweet misinterprets satire and spreads it as if it were fact */
-    MisinterpretedSatire: 'MisinterpretedSatire',
+    MisinterpretedSatire = 'MisinterpretedSatire',
     /** Tweet is missing context important to its claim */
-    MissingImportantContext: 'MissingImportantContext',
+    MissingImportantContext = 'MissingImportantContext',
     /** Tweet contains manipulated or AI-generated media */
-    ManipulatedMedia: 'ManipulatedMedia',
+    ManipulatedMedia = 'ManipulatedMedia',
     /** Tweet contains outdated information */
-    OutdatedInformation: 'OutdatedInformation',
+    OutdatedInformation = 'OutdatedInformation',
     /** Tweet spreads a disputed claim as a fact */
-    DisputedClaimAsFact: 'DisputedClaimAsFact',
-    Other: 'Other'
-} as const;
-export type BirdwatchTweetMisleadingTag = Enum<typeof BirdwatchTweetMisleadingTag>;
+    DisputedClaimAsFact = 'DisputedClaimAsFact',
+    Other = 'Other'
+}
 
 /**
  * Applied to a tweet by a Birdwatch note that wants no other notes displayed under the tweet, since it doesn't need one
- * 
- * @enum
  */
-export const BirdwatchTweetNotMisleadingTag = {
+export enum BirdwatchTweetNotMisleadingTag {
     /** Tweet is correct */
-    FactuallyCorrect: 'FactuallyCorrect',
+    FactuallyCorrect = 'FactuallyCorrect',
     /** Tweet's content is clearly satire */
-    ClearlySatire: 'ClearlySatire',
+    ClearlySatire = 'ClearlySatire',
     /** Tweet expresses an opinion */
-    Opinion: 'Opinion',
-    Other: 'Other'
-} as const;
-export type BirdwatchTweetNotMisleadingTag = Enum<typeof BirdwatchTweetNotMisleadingTag>;
+    Opinion = 'Opinion',
+    Other = 'Other'
+}

@@ -7,7 +7,7 @@ import { match, toSearchParams } from './index.js';
 import type { Logger } from './log.js';
 import { GLOBAL_HEADERS, USER_AGENT } from '../consts.js';
 import { ApiError, ClientError, RequestError, TwitterError, type TwitterOptions } from '../types/index.js';
-import type { Endpoint, EndpointParams } from '../types/internal/index.js';
+import { EndpointType, type Endpoint, type EndpointParams } from '../types/internal/index.js';
 import type { Flags } from '../flags.js';
 
 /**
@@ -28,7 +28,7 @@ export async function request<E extends Endpoint, T = never>(opts: {
 }): Promise<[T, Response]> {
     const { endpoint, params, cookies, mediaFormData, options, proxyAgent, transactionId, log } = opts;
 
-    if (endpoint.kind() !== 'GraphQL') {
+    if (endpoint.kind() !== EndpointType.GraphQL) {
         for (const key in params) {
             // @ts-ignore
             if (typeof params[key] === 'undefined') {
@@ -56,9 +56,9 @@ export async function request<E extends Endpoint, T = never>(opts: {
         headers['x-client-transaction-id'] = transactionId;
     }
     
-    if (endpoint.kind() === 'GraphQL' || endpoint.kind() === 'v2Alt') {
+    if (endpoint.kind() === EndpointType.GraphQL || endpoint.kind() === EndpointType.v2Alt) {
         headers['content-type'] = 'application/json; charset=utf-8';
-    } else if (endpoint.kind() !== 'Media' && !(endpoint.kind() === 'v1.1' && endpoint.method === 'GET' && !endpoint.features)) {
+    } else if (endpoint.kind() !== EndpointType.Media && !(endpoint.kind() === EndpointType.v11 && endpoint.method === 'GET' && !endpoint.features)) {
         headers['content-type'] = 'application/x-www-form-urlencoded; charset=utf-8';
     }
 
@@ -81,7 +81,7 @@ export async function request<E extends Endpoint, T = never>(opts: {
 
     let features = endpoint.features;
 
-    if (endpoint.kind() === 'GraphQL' && features && options.overrides.flags) {
+    if (endpoint.kind() === EndpointType.GraphQL && features && options.overrides.flags) {
         for (const k in options.overrides.flags) {
             const key = k as keyof Flags;
             const value = options.overrides.flags[key];
@@ -104,9 +104,9 @@ export async function request<E extends Endpoint, T = never>(opts: {
         let body: BodyInit | undefined = undefined;
         if (mediaFormData) {
             body = mediaFormData;
-        } else if (endpoint.method === 'POST' && endpoint.kind() === 'GraphQL') {
+        } else if (endpoint.method === 'POST' && endpoint.kind() === EndpointType.GraphQL) {
             body = endpoint.post({ variables, features, queryId: endpoint.url.split('/', 1)[0] });
-        } else if (endpoint.method === 'POST' && endpoint.kind() === 'v2Alt') {
+        } else if (endpoint.method === 'POST' && endpoint.kind() === EndpointType.v2Alt) {
             body = endpoint.post(variables);
         } else if (endpoint.method === 'POST') {
             body = endpoint.post(v11Body);

@@ -1,5 +1,5 @@
 import { User } from './index.js';
-import type { Default, Enum, MaybeType, Model, Type, Wrapped } from './internal/index.js';
+import type { Default, MaybeType, Model, Type, Wrapped } from './internal/index.js';
 import { assert, match } from '../utils/index.js';
 
 /**
@@ -113,17 +113,11 @@ export const CommunityKind: Model<CommunityKind, MaybeType> & Default<CommunityK
 /**
  * Community roles
  * 
- * @enum
+ * @default CommunityRole.Guest
  */
-export const CommunityRole = {
-    /**
-     * Not a member
-     * 
-     * @default
-     */
-    Guest: 'Guest',
-    Member: 'Member',
-    Moderator: 'Moderator',
-    Owner: 'Owner'
-} as const;
-export type CommunityRole = Enum<typeof CommunityRole>;
+export enum CommunityRole {
+    Guest = 'Guest',
+    Member = 'Member',
+    Moderator = 'Moderator',
+    Owner = 'Owner'
+}

@@ -1,4 +1,4 @@
-import type { Default, Enum, MaybeType, Model, Type, Wrapped } from './internal/index.js';
+import type { Default, MaybeType, Model, Type, Wrapped } from './internal/index.js';
 import { assert, match } from '../utils/index.js';
 
 /**
@@ -85,7 +85,7 @@ export interface User extends Type<'User'> {
     url?: string,
     verification: {
         /** Shows the kind of verification the user has */
-        kind: VerificationKind,
+        kind: VerificationType,
         /** `true` if the user has a verification chechmark */
         isVerified: boolean,
         /** When the user was initially verified */
@@ -136,7 +136,7 @@ export const User: Wrapped<UserKind, Model<User, null, { legacy?: boolean }>> = 
                 highlightedTweetsCount: 0,
                 username: value.screen_name,
                 verification: {
-                    kind: !!value.ext_is_blue_verified ? VerificationKind.Blue : VerificationKind.Unverified,
+                    kind: !!value.ext_is_blue_verified ? VerificationType.Blue : VerificationType.Unverified,
                     isVerified: !!value.ext_is_blue_verified,
                     verifiedWithId: false
                 },
@@ -155,13 +155,13 @@ export const User: Wrapped<UserKind, Model<User, null, { legacy?: boolean }>> = 
         const verified = !!value.verification?.verified || !!value.is_blue_verified;
         const verifiedType = value.verification?.verified_type;
 
-        const verificationKind: VerificationKind = match(value.verification?.verified_type, [
-            ['Government', VerificationKind.Government],
-            ['Business', VerificationKind.Business],
-            [[], VerificationKind.BlueAffiliate, !verifiedType && !verified && !!affiliateLabel?.owner && new RegExp(`\\/${affiliateLabel.owner}$`, 'i').test(value.verification_info.reason?.description?.entities?.at(0)?.ref.url)],
-            [[], VerificationKind.Unverified, !verifiedType && !verified],
-            [[], VerificationKind.Blue, verified]
-        ], VerificationKind.Unverified);
+        const verificationKind: VerificationType = match(value.verification?.verified_type, [
+            ['Government', VerificationType.Government],
+            ['Business', VerificationType.Business],
+            [[], VerificationType.BlueAffiliate, !verifiedType && !verified && !!affiliateLabel?.owner && new RegExp(`\\/${affiliateLabel.owner}$`, 'i').test(value.verification_info.reason?.description?.entities?.at(0)?.ref.url)],
+            [[], VerificationType.Unverified, !verifiedType && !verified],
+            [[], VerificationType.Blue, verified]
+        ], VerificationType.Unverified);
 
         return {
             __typename: 'User',
@@ -312,7 +312,7 @@ export const AboutUser: Model<AboutUser> = {
             name: value.core.name,
             protected: !!value.privacy?.protected,
             verification: {
-                kind: !!value.is_blue_verified ? VerificationKind.Blue : VerificationKind.Unverified,
+                kind: !!value.is_blue_verified ? VerificationType.Blue : VerificationType.Unverified,
                 isVerified: !!value.is_blue_verified,
                 verifiedSince: !!value.verification_info?.reason?.verified_since_msec
                     ? new Date(Number(value.verification_info.reason.verified_since_msec)).toISOString()
@@ -335,35 +335,27 @@ export const AboutUser: Model<AboutUser> = {
 
 /**
  * Fan account status
- * 
- * @enum
  */
-export const FanAccountKind = {
-    Fan: 'Fan',
-    Parody: 'Parody',
-    Commentary: 'Commentary'
-} as const;
-export type FanAccountKind = Enum<typeof FanAccountKind>;
+export enum FanAccountKind {
+    Fan = 'Fan',
+    Parody = 'Parody',
+    Commentary = 'Commentary'
+}
 
 /**
  * Verification status of a user
  * 
- * @enum
+ * @default VerificationKind.Unverified
  */
-export const VerificationKind = {
-    /**
-     * No verification
-     * 
-     * @default
-     */
-    Unverified: 'Unverified',
+export enum VerificationType {
+    /** No verification */
+    Unverified = 'Unverified',
     /** Blue checkmark for Twitter Blue subscribers or some legacy verified accounts */
-    Blue: 'Blue',
+    Blue = 'Blue',
     /** Blue checkmark received for being an affiliate to a gold checkmark account */
-    BlueAffiliate: 'BlueAffiliate',
+    BlueAffiliate = 'BlueAffiliate',
     /** Gold checkmark for business accounts */
-    Business: 'Business',
+    Business = 'Business',
     /** Gray checkmark for official government accounts */
-    Government: 'Government'
-} as const;
-export type VerificationKind = Enum<typeof VerificationKind>;
+    Government = 'Government'
+}

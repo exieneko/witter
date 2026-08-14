@@ -1,4 +1,4 @@
-import type { Enum, Model, PartialBy, Type, Wrapped } from '../internal/index.js';
+import type { Model, PartialBy, Type, Wrapped } from '../internal/index.js';
 import { assert, match } from '../../utils/index.js';
 
 export interface TweetImage extends Type<'Image'> {
@@ -175,20 +175,16 @@ export const MediaData: Model<MediaData> = {
 
 /**
  * Availability status of a media
- * 
- * @enum
  */
-export const TweetMediaAvailability = {
-    Available: 'Available',
-    Copyright: 'Copyright',
-    GeoBlocked: 'GeoBlocked',
-    Other: 'Other'
-} as const;
-export type TweetMediaAvailability = Enum<typeof TweetMediaAvailability>;
+export enum TweetMediaAvailability {
+    Available = 'Available',
+    Copyright = 'Copyright',
+    GeoBlocked = 'GeoBlocked',
+    Other = 'Other'
+}
 
-export const MediaState = {
-    Success: 'Succeeded',
-    Failure: 'Failed',
-    Pending: 'Pending'
-} as const;
-export type MediaState = Enum<typeof MediaState>;
+export enum MediaState {
+    Success = 'Succeeded',
+    Failure = 'Failed',
+    Pending = 'Pending'
+}

@@ -1,5 +1,5 @@
 import { CardKind, CommunityKind, Cursor, TweetMedia, User } from '../index.js';
-import type { Default, Enum, MaybeType, Model, Type, Wrapped } from '../internal/index.js';
+import type { Default, MaybeType, Model, Type, Wrapped } from '../internal/index.js';
 import { assert, match } from '../../utils/index.js';
 
 /**
@@ -410,20 +410,20 @@ export const TweetTombstone: Wrapped<TweetKind, Model<TweetTombstone, string | u
         return {
             __typename: 'TweetTombstone',
             reason: text?.includes('estimates your age')
-                ? 'AgeVerificationRequired'
+                ? TweetUnavailableReason.AgeVerificationRequired
             : text?.includes('limits who can view')
-                ? 'AuthorProtected'
+                ? TweetUnavailableReason.AuthorProtected
             : text?.includes('suspended')
-                ? 'AuthorSuspended'
+                ? TweetUnavailableReason.AuthorSuspended
             : text?.includes('no longer exists')
-                ? 'AuthorUnavailable'
+                ? TweetUnavailableReason.AuthorUnavailable
             : text?.includes('violated')
-                ? 'ViolatedRules'
+                ? TweetUnavailableReason.ViolatedRules
             : text?.includes('withheld')
-                ? 'Withheld'
+                ? TweetUnavailableReason.Withheld
             : text?.includes('deleted')
-                ? 'Deleted'
-                : 'Unavailable',
+                ? TweetUnavailableReason.Deleted
+                : TweetUnavailableReason.Unavailable,
             message: value
         };
     },
@@ -433,7 +433,7 @@ export const TweetTombstone: Wrapped<TweetKind, Model<TweetTombstone, string | u
     default() {
         return {
             __typename: 'TweetTombstone',
-            reason: 'Unavailable'
+            reason: TweetUnavailableReason.Unavailable
         };
     }
 };
@@ -535,77 +535,67 @@ export const ScheduledTweet: Model<ScheduledTweet> = {
 /**
  * Tweet unavailability reasons
  * 
- * @enum
+ * @default TweetUnavailableReason.Unavailable
  */
-export const TweetUnavailableReason = {
+export enum TweetUnavailableReason {
     /** ID verification is required to view this tweet. Restricted server-side */
-    AgeVerificationRequired: 'AgeVerificationRequired',
+    AgeVerificationRequired = 'AgeVerificationRequired',
     /** Author has protected their tweets */
-    AuthorProtected: 'AuthorProtected',
+    AuthorProtected = 'AuthorProtected',
     /** Author has been suspended */
-    AuthorSuspended: 'AuthorSuspended',
+    AuthorSuspended = 'AuthorSuspended',
     /** Author has deactivated or is otherwise unavailable */
-    AuthorUnavailable: 'AuthorUnavailable',
+    AuthorUnavailable = 'AuthorUnavailable',
     /** Tweet has been deleted */
-    Deleted: 'Deleted',
+    Deleted = 'Deleted',
     /** Tweet has been removed because it violated Twitter's rules */
-    ViolatedRules: 'ViolatedRules',
+    ViolatedRules = 'ViolatedRules',
     /** Tweet has been withheld in your country or all countries */
-    Withheld: 'Withheld',
-    /** @default */
-    Unavailable: 'Unavailable'
-} as const;
-export type TweetUnavailableReason = Enum<typeof TweetUnavailableReason>;
+    Withheld = 'Withheld',
+    /** Fallback */
+    Unavailable = 'Unavailable'
+}
 
 /**
  * Tweet restriction types
- * 
- * @enum
  */
-export const TweetRestrictionType = {
+export enum TweetRestrictionType {
     /** Tweet visibility is restricted and interactions are disabled */
-    Full: 'Full',
+    Full = 'Full',
     /** Tweet visibility is restricted, but users can still interact with the tweet */
-    Partial: 'Partial'
-} as const;
-export type TweetRestrictionType = Enum<typeof TweetRestrictionType>;
+    Partial = 'Partial'
+}
 
 /**
  * Reason for why a restriction was applied to a tweet
  * 
- * @enum
+ * @default TweetRestrictionReason.Other
  */
-export const TweetRestrictionReason = {
-    Abuse: 'Abuse',
-    HatefulConduct: 'HatefulConduct',
-    ViolentSpeech: 'ViolentSpeech',
+export enum TweetRestrictionReason {
+    Abuse = 'Abuse',
+    HatefulConduct = 'HatefulConduct',
+    ViolentSpeech = 'ViolentSpeech',
     /** Tweet violated Twitter's rules, but was not removed because of "public interest" */
-    ViolatedRulesPublicInterest: 'ViolatedRulesPublicInterest',
+    ViolatedRulesPublicInterest = 'ViolatedRulesPublicInterest',
     /** Fallback */
-    Other: 'Other'
-} as const;
-export type TweetRestrictionReason = Enum<typeof TweetRestrictionReason>;
+    Other = 'Other'
+}
 
 /**
  * Tweet conversation control options
  * 
- * @enum
+ * @default ReplyPermission.Everyone
  */
-export const ReplyPermission = {
-    /**
-     * Everyone can reply
-     * 
-     * @default
-     */
-    Everyone: 'Everyone',
+export enum ReplyPermission {
+    /** Everyone can reply */
+    Everyone = 'Everyone',
     /** Only people you follow can reply */
-    Following: 'Following',
+    Following = 'Following',
     /** Only people you mentioned can reply */
-    Mentioned: 'Mentioned',
+    Mentioned = 'Mentioned',
     /** Only verified users can reply (not recommended) */
-    Verified: 'Verified'
-} as const;
-export type ReplyPermission = Enum<typeof ReplyPermission>;
+    Verified = 'Verified'
+}
 
 type LegacyOpts = {
     legacy?: false

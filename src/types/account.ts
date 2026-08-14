@@ -1,4 +1,4 @@
-import type { Enum, Model, Type } from './internal/index.js';
+import type { Model, Type } from './internal/index.js';
 import { match } from '../utils/index.js';
 
 /**
@@ -100,23 +100,13 @@ export const DataSaverSettings: Model<DataSaverSettings> = {
 
 
 
-/**
- * Privacy option
- * 
- * @enum
- */
-export const InboxPrivacy = {
-    Everyone: 'Everyone',
-    Following: 'Following',
-    Verified: 'Verified'
-} as const;
-export type InboxPrivacy = Enum<typeof InboxPrivacy>;
+export enum InboxPrivacy {
+    Everyone = 'Everyone',
+    Following = 'Following',
+    Verified = 'Verified'
+}
 
-/**
- * @enum
- */
-export const VideoAutoplay = {
-    Always: 'Always',
-    Never: 'Never'
-} as const;
-export type VideoAutoplay = Enum<typeof VideoAutoplay>;
+export enum VideoAutoplay {
+    Always = 'Always',
+    Never = 'Never'
+}

@@ -1,5 +1,4 @@
 import type { BirdwatchHelpfulTag, BirdwatchUnhelpfulTag, ReplyPermission, Tweet } from './index.js';
-import type { Enum } from './internal/index.js';
 
 export interface CursorOnly {
     /** Cursor determining where the timeline should continue from */
@@ -44,22 +43,19 @@ export interface BlockedUsersGetArgs extends CursorOnly {
 
 /**
  * Visibility of your birth date to others
- * 
- * @enum
  */
-export const BirthDateVisibility = {
+export enum BirthDateVisibility {
     /** Only you can see your birth date */
-    Private: 'Private',
+    Private = 'Private',
     /** Only people that follow you can see your birth date */
-    Followers: 'Followers',
+    Followers = 'Followers',
     /** Only people you follow can see your birth date */
-    Following: 'Following',
+    Following = 'Following',
     /** Only your mutuals can see your birth date */
-    Mutuals: 'Mutuals',
+    Mutuals = 'Mutuals',
     /** Everyone can see your birth date */
-    Public: 'Public'
-} as const;
-export type BirthDateVisibility = Enum<typeof BirthDateVisibility>;
+    Public = 'Public'
+}
 
 /**
  * Arguments for updating your profile information
@@ -81,16 +77,13 @@ export interface UpdateProfileArgs {
 
 /**
  * Source of a Birdwatch note rating
- * 
- * @enum
  */
-export const BirdwatchNoteSource = {
-    /** @default */
-    Timeline: 'Timeline',
+export enum BirdwatchNoteSource {
+    /** Note coming from your timeline */
+    Timeline = 'Timeline',
     /** Note coming from the "needs your help" timeline */
-    NeedsYourHelp: 'NeedsYourHelp'
-} as const;
-export type BirdwatchNoteSource = Enum<typeof BirdwatchNoteSource>;
+    NeedsYourHelp = 'NeedsYourHelp'
+}
 
 /**
  * Arguments for rating a Birdwatch note
@@ -112,16 +105,13 @@ export interface BirdwatchCreateBatSignalArgs {
 
 /**
  * Order options for community tweets
- * 
- * @enum
  */
-export const CommunityTweetsOrder = {
+export enum CommunityTweetsOrder {
     /** Popular tweets first */
-    Relevance: 'Relevance',
+    Relevant = 'Relevant',
     /** New tweets first */
-    Latest: 'Latest'
-} as const;
-export type CommunityTweetsOrder = Enum<typeof CommunityTweetsOrder>;
+    Latest = 'Latest'
+}
 
 /**
  * Arguments for getting community tweets
@@ -140,21 +130,15 @@ export interface ListCreateArgs {
 
 /**
  * Filter options for notifications
- * 
- * @enum
  */
-export const NotificationTimelineFilter = {
+export enum NotificationTimelineFilter {
     /** Only notifications from verified users */
-    Verified: 'Verified',
+    Verified = 'Verified',
     /** Only notifications that mention you */
-    Mentions: 'Mentions',
-    /** All notifications
-     * 
-     * @default
-     */
-    None: 'None'
-} as const;
-export type NotificationTimelineFilter = Enum<typeof NotificationTimelineFilter>;
+    Mentions = 'Mentions',
+    /** All notifications */
+    None = 'None'
+}
 
 /**
  * Arguments for getting notifications
@@ -164,37 +148,14 @@ export interface NotificationGetArgs extends CursorOnly, Filter<NotificationTime
 /**
  * Search timeline kind
  * 
- * @enum
+ * @default SearchOrder.Relevant
  */
-export const SearchOrder = {
-    /**
-     * Most relevant tweet results
-     * 
-     * @default
-     */
-    Relevant: 'Relevant',
+export enum SearchOrder {
+    /** Most relevant tweet results */
+    Relevant = 'Relevant',
     /** Latest tweet results */
-    Latest: 'Latest',
-    /**
-     * Most relevant tweets containing media
-     * 
-     * @deprecated Add "filter:media" to your query or use `Query.hasMedia`
-     */
-    Media: 'Media',
-    /**
-     * Most relevant users
-     * 
-     * @deprecated Replaced by `searchUsers` method
-     */
-    Users: 'Users',
-    /**
-     * Most relevant lists
-     * 
-     * @deprecated Replaced by `searchLists` method
-     */
-    Lists: 'Lists'
-} as const;
-export type SearchOrder = Enum<typeof SearchOrder>;
+    Latest = 'Latest'
+}
 
 /**
  * Arguments for searching users or lists
@@ -215,24 +176,19 @@ export interface SearchTweetArgs extends SearchArgs, OrderBy<SearchOrder> {
 /**
  * Home timeline order
  * 
- * @enum
+ * @default TimelineType.Automatic
  */
-export const TimelineKind = {
-    /**
-     * Algorithmical timeline
-     * 
-     * @default
-     */
-    Automatic: 'Automatic',
+export enum TimelineOrder {
+    /** Algorithmical timeline */
+    Algorithmical = 'Algorithmical',
     /** Chronological timeline */
-    Latest: 'Latest'
-} as const;
-export type TimelineKind = Enum<typeof TimelineKind>;
+    Chronological = 'Chronolocial'
+}
 
 /**
  * Arguments for getting a timeline
  */
-export interface TimelineGetArgs extends CursorOnly, OrderBy<TimelineKind> {
+export interface TimelineGetArgs extends CursorOnly, OrderBy<TimelineOrder> {
     /** Tweet ids of already seen tweets */
     seenTweetIds?: string[]
 }
@@ -298,18 +254,15 @@ export interface ScheduledTweetCreateArgs extends ThreadTweetArgs {
 
 /**
  * Order replies under a tweet
- * 
- * @enum
  */
-export const TweetOrder = {
+export enum TweetOrder {
     /** Replies are ordered algorithmically, with followed users being at the top */
-    Relevance: 'Relevance',
+    Relevant = 'Relevant',
     /** Newest replies first */
-    New: 'New',
+    New = 'New',
     /** Most liked replies first */
-    Likes: 'Likes'
-} as const;
-export type TweetOrder = Enum<typeof TweetOrder>;
+    Likes = 'Likes'
+}
 
 /**
  * Arguments for getting a tweet
@@ -343,15 +296,12 @@ export interface TranslateArgs {
 
 /**
  * Items that can be translated
- * 
- * @enum
  */
-export const TranslationItemType = {
-    Tweet: 'Tweet',
-    Description: 'Description',
-    BirdwatchNote: 'BirdwatchNote'
-} as const;
-export type TranslationItemType = Enum<typeof TranslationItemType>;
+export enum TranslationItemType {
+    Tweet = 'Tweet',
+    Description = 'Description',
+    BirdwatchNote = 'BirdwatchNote'
+}
 
 /**
  * Arguments for uploading a new media
